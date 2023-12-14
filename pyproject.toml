@@ -9,6 +9,7 @@ readme = "README.md"
 python = "3.12"
 numpy = "^1.26.2"
 pandas = "^2.1.4"
+manim = "^0.18.0"
 
 
 [tool.poetry.group.dev.dependencies]
