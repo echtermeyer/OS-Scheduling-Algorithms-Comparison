@@ -1,6 +1,12 @@
+import numpy as np
+
+np.random.seed(0)
+
 from manim import *
+from typing import List
 
 from src.components import CPU, Process
+from src.components import MetricResponseTime
 
 
 class FCFS(Scene):
@@ -68,6 +74,21 @@ class FCFS(Scene):
 
         # Play all animations simultaneously
         self.play(*animations)
+
+
+class Comparison(Scene):
+    def construct(self):
+        process_counts = np.arange(1, 11)
+
+        # Example datasets
+        datasets = [
+            np.random.uniform(4, 10, len(process_counts)),
+            np.random.uniform(2, 7, len(process_counts)),
+            np.random.uniform(3, 8, len(process_counts)),
+        ]
+
+        titles = ["FCFS", "MLQ", "SJF"]
+        MetricResponseTime(self, datasets, titles)
 
 
 # To run this, use:
