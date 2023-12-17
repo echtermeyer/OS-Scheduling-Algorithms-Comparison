@@ -1,5 +1,7 @@
 from manim import *
 
+from src.clock_component import *
+
 
 class RR(Scene):  #
     def construct(self):
@@ -78,13 +80,23 @@ class CompactCircleScene(Scene):
             self.wait()
 
         # Add a clock SVG in the upper right corner
-        clock = SVGMobject(
-            "img/clock.svg",
-            color=WHITE,
-            fill_color=WHITE,
-            stroke_color=WHITE,
-            stroke_width=2
-        ).to_edge(UP + RIGHT)
+        # clock = SVGMobject(
+        #     "../img/clock.svg",
+        #     color=WHITE,
+        #     fill_color=WHITE,
+        #     stroke_color=WHITE,
+        #     stroke_width=2,
+        # )
 
+        # self.add(clock)
+        # self.wait(2)
+
+
+class ComponentTest(Scene):
+    def construct(self):
+        clock = Clock(radius=2)
+        clock.set_color(GREY)
+        clock.move_to(LEFT*3)
         self.add(clock)
-        self.wait(2)
+        clock.rotate(scene=self, duration=2, angle=2 * PI)
+        self.play(clock.animate.move_to(RIGHT))
