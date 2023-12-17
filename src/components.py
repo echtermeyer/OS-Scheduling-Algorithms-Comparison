@@ -131,8 +131,7 @@ class AnimatedTitle(Mobject):
 
     def __init__(self, title_text, **kwargs):
         super().__init__(**kwargs)
-        # Adjust font size here
-        self.title = Text(title_text, font_size=65)  # Reduced font size
+        self.title = Text(title_text, font_size=65)
         self.add(self.title)
 
     def create_animation(self):
@@ -143,3 +142,33 @@ class AnimatedTitle(Mobject):
             .to_edge(LEFT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
         )
         return Succession(fade_in, Wait(1), shrink_and_move, Wait(1))
+
+
+class AnimatedLabel(Mobject):
+    """
+    Reference component for positioning required. 
+    How to call:
+
+    class ExampleScene(Scene):
+        def construct(self):
+            square = Square()
+            self.play(Create(square))
+
+            label = AnimatedLabel("Your label", reference=square, offset=UP)
+            self.play(label.create_animation())
+    """
+        
+    def __init__(
+        self, label: str, reference: Mobject, offset=DOWN, font_size=24, **kwargs
+    ):
+        super().__init__(**kwargs)
+        self.label = Text(label, font_size=font_size)
+
+        if reference is not None:
+            self.label.next_to(
+                reference, offset, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER
+            )
+        self.add(self.label)
+
+    def create_animation(self):
+        return FadeIn(self.label)
