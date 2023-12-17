@@ -5,8 +5,7 @@ np.random.seed(0)
 from manim import *
 from typing import List
 
-from src.components import CPU, Process
-from src.components import MetricResponseTime
+from src.components import *
 
 
 class FCFS(Scene):
