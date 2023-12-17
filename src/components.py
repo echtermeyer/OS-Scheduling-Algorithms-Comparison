@@ -241,7 +241,7 @@ class AnimatedBulletpoints(Mobject):
         return Succession(*animations)
 
 
-class MetricResponseTimeMobject(Mobject):
+class MetricResponseTime(Mobject):
     """
     How to call:
 
