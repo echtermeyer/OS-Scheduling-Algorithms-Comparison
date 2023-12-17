@@ -190,7 +190,7 @@ class AnimatedReview(Mobject):
             animated_review = AnimatedReview(positive, neutral, negative)
             self.play(animated_review.create_animation())
     """
-    
+
     def __init__(
         self,
         positive: List[str],
@@ -207,7 +207,7 @@ class AnimatedReview(Mobject):
         self.lengths = [
             sum([len(item) for item in positive]) + len("Positive"),
             sum([len(item) for item in neutral]) + len("Neutral"),
-            sum([len(item) for item in negative]) + len("Negative")
+            sum([len(item) for item in negative]) + len("Negative"),
         ]
 
         # Function to split text if it is too long
@@ -256,10 +256,65 @@ class AnimatedReview(Mobject):
         def proportional_write(idx: int, mobject: Mobject):
             run_time = self.speed * self.lengths[idx]
             return Write(mobject, run_time=run_time)
-        
+
         animations = []
         for idx, section in enumerate(self.submobjects):
             animations.append(proportional_write(idx, section))
-            animations.append(Wait(1))  
+            animations.append(Wait(1))
+
+        return Succession(*animations)
+
+
+class AnimatedBulletpoints(Mobject):
+    """
+    How it works:
+
+    class ExampleScene(Scene):
+        def construct(self):
+            points = [
+                "This is the first point",
+                "Here is the second, longer point which might need wrapping",
+                "Third point",
+            ]
+            bulletpoints = AnimatedBulletpoints(points)
+            self.play(bulletpoints.create_animation())
+    """
+    def __init__(self, bullet_points: List[str], width=25, speed=0.05, **kwargs):
+        super().__init__(**kwargs)
+
+        self.speed = speed
+        self.length = sum(len(item) for item in bullet_points)
+
+        # Function to split text if it is too long
+        def wrap_text(text, width):
+            wrapped_text = ""
+            words = text.split()
+            current_line = ""
+            for word in words:
+                if len(current_line) + len(word) + 1 <= width:
+                    current_line += word + " "
+                else:
+                    wrapped_text += current_line + "\n"
+                    current_line = word + " "
+            wrapped_text += current_line
+            return wrapped_text.strip()
+
+        # Create bullet points
+        self.bullets = VGroup()
+        for item in bullet_points:
+            wrapped_item = wrap_text(f"• {item}", width)
+            bullet_text = Text(wrapped_item, color=WHITE).scale(0.5)
+            self.bullets.add(bullet_text)
+
+        self.bullets.arrange(DOWN, aligned_edge=LEFT)
+        self.add(self.bullets)
+        self.to_edge(RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
+
+    def create_animation(self):
+        animations = []
+        for bullet in self.bullets:
+            run_time = self.speed * len(bullet.text)
+            animations.append(Write(bullet, run_time=run_time))
+            animations.append(Wait(1))
 
         return Succession(*animations)
