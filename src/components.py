@@ -117,3 +117,29 @@ def MetricResponseTime(self, datasets: List[np.ndarray], titles: List[str]):
 
         self.play(*animations, run_time=1)
         self.wait(0.5)
+
+
+class AnimatedTitle(Mobject):
+    """
+    How to call:
+
+    class ExampleScene(Scene):
+        def construct(self):
+            title = AnimatedTitle("Your Title Here")
+            self.play(title.create_animation())
+    """
+
+    def __init__(self, title_text, **kwargs):
+        super().__init__(**kwargs)
+        # Adjust font size here
+        self.title = Text(title_text, font_size=65)  # Reduced font size
+        self.add(self.title)
+
+    def create_animation(self):
+        fade_in = FadeIn(self.title)
+        shrink_and_move = (
+            self.title.animate.scale(0.5)
+            .to_edge(UP, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
+            .to_edge(LEFT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
+        )
+        return Succession(fade_in, Wait(1), shrink_and_move, Wait(1))
