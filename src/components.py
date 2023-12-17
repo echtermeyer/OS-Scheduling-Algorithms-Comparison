@@ -146,7 +146,7 @@ class AnimatedTitle(Mobject):
 
 class AnimatedLabel(Mobject):
     """
-    Reference component for positioning required. 
+    Reference component for positioning required.
     How to call:
 
     class ExampleScene(Scene):
@@ -157,7 +157,7 @@ class AnimatedLabel(Mobject):
             label = AnimatedLabel("Your label", reference=square, offset=UP)
             self.play(label.create_animation())
     """
-        
+
     def __init__(
         self, label: str, reference: Mobject, offset=DOWN, font_size=24, **kwargs
     ):
@@ -172,3 +172,94 @@ class AnimatedLabel(Mobject):
 
     def create_animation(self):
         return FadeIn(self.label)
+
+
+class AnimatedReview(Mobject):
+    """
+    Always on the right side.
+    How to call:
+
+    class ExampleScene(Scene):
+        def construct(self):
+            positive = [
+                "Just awesome",
+                "Great service",
+            ]
+            neutral = ["Average speed"]
+            negative = ["Not good"]
+            animated_review = AnimatedReview(positive, neutral, negative)
+            self.play(animated_review.create_animation())
+    """
+    
+    def __init__(
+        self,
+        positive: List[str],
+        neutral: List[str],
+        negative: List[str],
+        width=25,
+        speed=0.05,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+
+        # Calculate lengths for animation runtimes
+        self.speed = speed
+        self.lengths = [
+            sum([len(item) for item in positive]) + len("Positive"),
+            sum([len(item) for item in neutral]) + len("Neutral"),
+            sum([len(item) for item in negative]) + len("Negative")
+        ]
+
+        # Function to split text if it is too long
+        def wrap_text(text, width):
+            wrapped_text = ""
+            words = text.split()
+            current_line = ""
+            for word in words:
+                if len(current_line) + len(word) + 1 <= width:
+                    current_line += word + " "
+                else:
+                    wrapped_text += current_line + "\n"
+                    current_line = word + " "
+            wrapped_text += current_line
+            return wrapped_text.strip()
+
+        # Function to create a section with bullet points
+        def create_section(label_text, items, color):
+            if not items:
+                return None
+            label = Text(label_text, color=color).scale(0.5)
+            bullets = VGroup()
+            for item in items:
+                wrapped_item = wrap_text(f"• {item}", width)
+                bullet_text = Text(wrapped_item, color=WHITE).scale(0.5)
+                bullets.add(bullet_text)
+            bullets.arrange(DOWN, aligned_edge=LEFT).next_to(
+                label, DOWN, aligned_edge=LEFT
+            )
+            return VGroup(label, bullets)
+
+        # Create sections with specified colors
+        self.positive_section = create_section("Positive", positive, GREEN)
+        self.neutral_section = create_section("Neutral", neutral, BLUE)
+        self.negative_section = create_section("Negative", negative, RED)
+
+        # Add sections to the Mobject and arrange
+        sections = filter(
+            None, [self.positive_section, self.neutral_section, self.negative_section]
+        )
+        self.add(*sections)
+        self.arrange(DOWN, aligned_edge=LEFT, buff=MED_LARGE_BUFF)
+        self.to_edge(RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
+
+    def create_animation(self):
+        def proportional_write(idx: int, mobject: Mobject):
+            run_time = self.speed * self.lengths[idx]
+            return Write(mobject, run_time=run_time)
+        
+        animations = []
+        for idx, section in enumerate(self.submobjects):
+            animations.append(proportional_write(idx, section))
+            animations.append(Wait(1))  
+
+        return Succession(*animations)
