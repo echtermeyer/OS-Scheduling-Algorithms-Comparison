@@ -1,42 +1,11 @@
+import numpy as np
+
+np.random.seed(0)
+
 from manim import *
+from typing import List
 
-
-class Process(VGroup):
-    def __init__(self, arrival_time: int, burst_time: int, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.arrival_time = arrival_time
-        self.burst_time = burst_time
-
-        self.create_process()
-
-    def create_process(self) -> None:
-        base_width = 0.5
-        height = 0.5
-
-        process_rect = Rectangle(
-            width=self.burst_time * base_width, height=height, color=WHITE
-        )
-        process_rect.set_fill(WHITE, opacity=1)
-
-        process_info = f"({self.arrival_time}, {self.burst_time})"
-        process_text = Text(process_info, font_size=24).next_to(process_rect, UP)
-
-        self.add(process_rect, process_text)
-
-
-class CPU(VGroup):
-    def __init__(self, title: str = "", **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.title = title
-        self.create_cpu()
-
-    def create_cpu(self) -> None:
-        cpu = Square(side_length=3, color=WHITE)
-        cpu.set_fill(WHITE, opacity=1)
-
-        title = Text(self.title, font_size=24).next_to(cpu, UP)
-
-        self.add(cpu, title)
+from src.components import *
 
 
 class FCFS(Scene):
@@ -63,10 +32,14 @@ class FCFS(Scene):
         process_3 = Process(arrival_time=3, burst_time=3)
         process_4 = Process(arrival_time=4, burst_time=1)
         process_5 = Process(arrival_time=5, burst_time=4)
+        process_6 = Process(arrival_time=6, burst_time=1)
+        process_7 = Process(arrival_time=7, burst_time=4)
 
         # Group the processes and position them
-        processes = VGroup(process_1, process_2, process_3, process_4, process_5).arrange(RIGHT, buff=0.25)
-        processes.to_edge(LEFT)
+        processes = VGroup(
+            process_7, process_6, process_5, process_4, process_3, process_2, process_1
+        ).arrange(RIGHT, buff=0.25)
+        processes.to_edge(3 * LEFT)
         self.add(processes)
 
         # Position of the left edge of the CPU
@@ -89,14 +62,32 @@ class FCFS(Scene):
                         new_width = cpu_left_edge - mob.get_left()[0]
                         if new_width <= 0:
                             self.remove(mob)
+
                 return update_process
 
             update_animation = UpdateFromFunc(process, make_update_process(process))
             move_animation = MoveToTarget(process, rate_func=linear, run_time=run_time)
-            animations.append(AnimationGroup(move_animation, update_animation, lag_ratio=0))
+            animations.append(
+                AnimationGroup(move_animation, update_animation, lag_ratio=0)
+            )
 
         # Play all animations simultaneously
         self.play(*animations)
+
+
+class Comparison(Scene):
+    def construct(self):
+        process_counts = np.arange(1, 11)
+
+        # Example datasets
+        datasets = [
+            np.random.uniform(4, 10, len(process_counts)),
+            np.random.uniform(2, 7, len(process_counts)),
+            np.random.uniform(3, 8, len(process_counts)),
+        ]
+
+        titles = ["FCFS", "MLQ", "SJF"]
+        MetricResponseTime(self, datasets, titles)
 
 
 # To run this, use:
