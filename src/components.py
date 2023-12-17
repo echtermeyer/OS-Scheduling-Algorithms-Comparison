@@ -39,86 +39,6 @@ class CPU(VGroup):
         self.add(cpu, title)
 
 
-def MetricResponseTime(self, datasets: List[np.ndarray], titles: List[str]):
-    if len(datasets) > 5:
-        raise ValueError("LineChart only supports up to 5 datasets")
-    if len(datasets) != len(titles):
-        raise ValueError("Number of datasets must equal number of titles")
-
-    colors = [BLUE, RED, GREEN, ORANGE, PURPLE]
-    max_y_value = max(dataset.max() for dataset in datasets)
-
-    # Initialize axes
-    ax = Axes(
-        x_range=[0, len(datasets[0]) + 1],
-        y_range=[0, max_y_value + 1],
-        x_axis_config={
-            "numbers_to_include": np.arange(0, len(datasets[0]) + 1, 2),
-            "numbers_with_elongated_ticks": np.arange(0, len(datasets[0]) + 1, 2),
-        },
-        y_axis_config={
-            "numbers_to_include": np.arange(0, max_y_value + 1, 2),
-            "numbers_with_elongated_ticks": np.arange(0, max_y_value + 1, 2),
-        },
-        tips=True,
-    )
-    x_label = Tex("Number of Processes").next_to(ax.x_axis, DOWN * 0.4).scale(0.7)
-    y_label = (
-        Tex("Average Response Time")
-        .next_to(ax.y_axis.get_left(), LEFT * 0)
-        .rotate(90 * DEGREES)
-        .scale(0.7)
-    )
-    self.play(Create(ax.x_axis), Create(ax.y_axis), Write(x_label), Write(y_label))
-    self.wait(1)
-
-    # Initialize legend
-    legend_start = UP * 3
-    legend_group = VGroup()
-    for i, title in enumerate(titles):
-        color = colors[i]
-        label_line = Line(LEFT, RIGHT, color=color, stroke_width=4).scale(
-            0.3
-        )  # Shorter line
-        label_line.next_to(legend_start + DOWN * 0.25 * i, LEFT)  # Vertical stacking
-
-        text = Tex(title, font_size=24).next_to(
-            label_line, RIGHT, buff=0.1
-        )  # Smaller font size
-        legend_group.add(label_line, text)
-    self.play(FadeIn(legend_group))
-    self.wait(1)
-
-    # Initialize line graphs for all datasets
-    line_graphs = []
-    for i, dataset in enumerate(datasets):
-        color = colors[i]
-        line_graph = VMobject(color=color)
-        first_point = ax.c2p(1, dataset[0])
-        line_graph.start_new_path(first_point)
-        line_graphs.append(line_graph)
-        first_dot = Dot(first_point, color=color).scale(0.7)
-        self.add(first_dot)
-
-    # Create the animation for all datasets simultaneously
-    for x in range(2, len(datasets[0]) + 1):
-        animations = []
-        for i, dataset in enumerate(datasets):
-            new_point = ax.c2p(x, dataset[x - 1])
-            dot = Dot(new_point, color=colors[i]).scale(0.7)
-            new_line = Line(
-                line_graphs[i].get_last_point(),
-                new_point,
-                color=colors[i],
-                stroke_width=4,
-            )
-            line_graphs[i].add_line_to(new_point)
-            animations.extend([Create(new_line), FadeIn(dot, scale=0.7)])
-
-        self.play(*animations, run_time=1)
-        self.wait(0.5)
-
-
 class AnimatedTitle(Mobject):
     """
     How to call:
@@ -279,6 +199,7 @@ class AnimatedBulletpoints(Mobject):
             bulletpoints = AnimatedBulletpoints(points)
             self.play(bulletpoints.create_animation())
     """
+
     def __init__(self, bullet_points: List[str], width=25, speed=0.05, **kwargs):
         super().__init__(**kwargs)
 
@@ -318,3 +239,122 @@ class AnimatedBulletpoints(Mobject):
             animations.append(Wait(1))
 
         return Succession(*animations)
+
+
+class MetricResponseTimeMobject(Mobject):
+    """
+    How to call:
+
+    class ExampleScene(Scene):
+        def construct(self):
+            datasets = [
+                np.array([1, 2, 3, 4]),
+                np.array([4, 3, 2, 1])
+            ]
+            titles = ["Dataset 1", "Dataset 2"]
+            metric_response_time = MetricResponseTimeMobject(datasets, titles)
+            self.play(metric_response_time.create_animation())
+    """
+
+    def __init__(self, datasets: List[np.ndarray], titles: List[str], **kwargs):
+        super().__init__(**kwargs)
+
+        if len(datasets) > 5:
+            raise ValueError("MetricResponseTimeMobject only supports up to 5 datasets")
+        if len(datasets) != len(titles):
+            raise ValueError("Number of datasets must equal number of titles")
+
+        colors = [BLUE, RED, GREEN, ORANGE, PURPLE]
+        max_y_value = max(dataset.max() for dataset in datasets)
+
+        # Initialize axes
+        ax = Axes(
+            x_range=[0, len(datasets[0]) + 1],
+            y_range=[0, max_y_value + 1],
+            x_axis_config={
+                "numbers_to_include": np.arange(0, len(datasets[0]) + 1, 2),
+                "numbers_with_elongated_ticks": np.arange(0, len(datasets[0]) + 1, 2),
+            },
+            y_axis_config={
+                "numbers_to_include": np.arange(0, max_y_value + 1, 2),
+                "numbers_with_elongated_ticks": np.arange(0, max_y_value + 1, 2),
+            },
+            tips=True,
+        )
+
+        # Initialize labels
+        x_label = Tex("Number of Processes").next_to(ax.x_axis, DOWN * 0.4).scale(0.7)
+        y_label = (
+            Tex("Average Response Time")
+            .next_to(ax.y_axis.get_left(), LEFT * 0)
+            .rotate(90 * DEGREES)
+            .scale(0.7)
+        )
+
+        # Initialize legend
+        legend_start = UP * 3
+        legend_group = VGroup()
+        for i, title in enumerate(titles):
+            color = colors[i]
+            label_line = Line(LEFT, RIGHT, color=color, stroke_width=4).scale(0.3)
+            label_line.next_to(legend_start + DOWN * 0.25 * i, LEFT)
+
+            text = Tex(title, font_size=24).next_to(label_line, RIGHT, buff=0.1)
+            legend_group.add(label_line, text)
+
+        # Initialize line graphs for all datasets
+        line_graphs = []
+        for i, dataset in enumerate(datasets):
+            color = colors[i]
+            line_graph = VMobject(color=color)
+            first_point = ax.c2p(1, dataset[0])
+            line_graph.start_new_path(first_point)
+            line_graphs.append(line_graph)
+            first_dot = Dot(first_point, color=color).scale(0.7)
+            self.add(first_dot)
+
+        # Store axes, labels, legend, and line graphs as attributes
+        self.ax = ax
+        self.x_label = x_label
+        self.y_label = y_label
+        self.legend_group = legend_group
+        self.line_graphs = line_graphs
+        self.datasets = datasets
+        self.colors = colors
+
+        # Add axes, labels, and legend to the Mobject
+        self.add(ax, x_label, y_label, legend_group)
+
+    def create_animation(self):
+        setup_animations = [
+            Create(self.ax.x_axis, run_time=2),
+            Wait(1),
+            Create(self.ax.y_axis, run_time=2),
+            Wait(1),
+            Write(self.x_label, run_time=2),
+            Wait(1),
+            Write(self.y_label, run_time=2),
+            Wait(1),
+            FadeIn(self.legend_group, run_time=2),
+        ]
+        line_graph_animations = self._create_line_graph_animations()
+        return Succession(*setup_animations, *line_graph_animations)
+
+    def _create_line_graph_animations(self):
+        line_graph_animations = []
+        for x in range(2, len(self.datasets[0]) + 1):
+            frame_animations = []
+            for i, dataset in enumerate(self.datasets):
+                new_point = self.ax.c2p(x, dataset[x - 1])
+                dot = Dot(new_point, color=self.colors[i]).scale(0.7)
+                new_line = Line(
+                    self.line_graphs[i].get_last_point(),
+                    new_point,
+                    color=self.colors[i],
+                    stroke_width=4,
+                )
+                self.line_graphs[i].add_line_to(new_point)
+                frame_animations.extend([Create(new_line), FadeIn(dot, scale=0.7)])
+            line_graph_animations.append(AnimationGroup(*frame_animations, run_time=1))
+            line_graph_animations.append(Wait(0.25))
+        return line_graph_animations
