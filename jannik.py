@@ -1,6 +1,7 @@
 from manim import *
 
-from src.clock_component import *
+
+from src.components import *
 
 
 class RR(Scene):  #
@@ -96,7 +97,16 @@ class ComponentTest(Scene):
     def construct(self):
         clock = Clock(radius=2)
         clock.set_color(GREY)
-        clock.move_to(LEFT*3)
+        clock.move_to(LEFT * 3)
         self.add(clock)
-        clock.rotate(scene=self, duration=2, angle=2 * PI)
+        self.play(clock.rotate(duration=2, angle=2 * PI))
+        self.play(clock.rotate(angle=2 * PI), run_time=5)
         self.play(clock.animate.move_to(RIGHT))
+
+
+class ExampleScene(Scene):
+    def construct(self):
+        datasets = [np.array([1, 2, 3, 4]), np.array([4, 3, 2, 1])]
+        titles = ["Dataset 1", "Dataset 2"]
+        metric_response_time = MetricResponseTime(datasets, titles)
+        self.play(metric_response_time.create_animation())
