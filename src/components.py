@@ -97,7 +97,7 @@ class Clock(Mobject):
 
         return Rotate(
             self.line,
-            angle=angle,
+            angle=-angle,
             about_point=self.clock.get_center(),
             axis=Z_AXIS,
             rate_func=linear,
