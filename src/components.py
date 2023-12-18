@@ -47,12 +47,12 @@ class Clock(Mobject):
 
 
     Args:
-        Mobject (_type_): _description_
+        Mobject (_type_): Inherits from manim Mobject and can therefore be treated like any other object in manim. e.g. set_color()
     """
 
     def __init__(self, radius: float = 1.0, **kwargs) -> None:
         """The init method creates a clock object. It creates a circle, a line with a tip and a dot.
-         It groups them and adds them to the object in order to use the clock as like a normal manim object.
+        It groups them and adds them to the object in order to use the clock as like a normal manim object.
 
         Args:
             radius (float, optional): Radius sets the radius of the clock. Defaults to 1.0.
@@ -84,14 +84,17 @@ class Clock(Mobject):
 
         self.add(self.clock)
 
-    def rotate(self, duration: float = 1, angle: int = PI * 2):
+    def rotate(self, duration: float = 1, angle: int = PI * 2) -> manim.Rotate:
         """Use this method to rotate the clock handle around the middle of the clock.
 
         Args:
-            scene (manim.Scene): This must be the scene in which you want the rotation animation to be played.
             duration (float, optional): The duration of the animation in seconds. Defaults to 1.
             angle (int, optional): The angle how much the handle is moved. PI*2 is one full rotation. Defaults to PI*2.
+
+        Returns:
+            manim.Rotate: Returns an animation object, that can be used with self.play().
         """
+
         return Rotate(
             self.line,
             angle=angle,
