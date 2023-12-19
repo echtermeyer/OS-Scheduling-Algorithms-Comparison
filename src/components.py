@@ -1,43 +1,93 @@
 import manim
 from manim import *
 
-
 class Process(VGroup):
-    def __init__(self, arrival_time: int, burst_time: int, **kwargs) -> None:
+    """Represents a process in a visual format.
+
+    This class creates a graphical representation of a process, typically depicted as a rectangle whose length indicates the process's size. Optionally, a square representation can be used. The process can also display a title and its size.
+    
+    Parameters:
+        color (str, optional): Color of the process shape. Default is WHITE.
+        size (float, optional): Size of the process, affects shape dimensions. Default is 1.
+        title (str, optional): Text label for the process. Default is an empty string.
+        use_square (bool, optional): Use a square instead of a rectangle if True. Default is False.
+        show_size (bool, optional): Display the size with the title if True. Default is True.
+        **kwargs: Additional arguments for VGroup superclass.
+    
+    Example usage:
+        process_square = Process(color=WHITE, size=5, title="Process 1", use_square=False, show_size=True)
+        self.add(process)
+    """
+    def __init__(self, color=WHITE, size=1, title="", use_square=False, show_size=True, **kwargs):
         super().__init__(**kwargs)
-        self.arrival_time = arrival_time
-        self.burst_time = burst_time
+        self.color = color
+        self.size = size
+        self.title = title
+        self.use_square = use_square
+        
+        if show_size:
+            title_text = f"{self.title}, {size}"
+        else:
+            title_text = self.title
 
-        self.create_process()
-
-    def create_process(self) -> None:
-        base_width = 0.5
-        height = 0.5
-
-        process_rect = Rectangle(
-            width=self.burst_time * base_width, height=height, color=WHITE
-        )
-        process_rect.set_fill(WHITE, opacity=1)
-
-        process_info = f"({self.arrival_time}, {self.burst_time})"
-        process_text = Text(process_info, font_size=24).next_to(process_rect, UP)
-
-        self.add(process_rect, process_text)
-
+        if self.use_square:
+            square_size = 0.5 + 0.25 * max(0, size - 1)
+            self.shape = Square(side_length=square_size).set_fill(self.color, opacity=1).set_stroke(self.color)
+        else:
+            self.shape = Rectangle(width=size/2, height=0.5).set_fill(self.color, opacity=1).set_stroke(self.color)
+        
+        self.title_text = Text(title_text, font_size=24).next_to(self.shape, UP)
+        self.add(self.shape, self.title_text)
 
 class CPU(VGroup):
-    def __init__(self, title: str = "", **kwargs) -> None:
+    """
+    A class representing a CPU (Central Processing Unit) with an optional gear icon.
+
+    Parameters:
+        title (str): The title or label for the CPU.
+        color: The color of the CPU and gear (default is WHITE).
+        size (float): The size scaling factor for the CPU and gear (default is 1).
+        show_gear (bool): Whether to display a gear icon next to the CPU (default is True).
+        gear_pos: The position of the gear icon relative to the CPU (default is UR).
+        **kwargs: Additional keyword arguments for the VGroup constructor.
+
+    Methods:
+        rotate_gear(speed=1, duration=None, angle=None): Rotate the gear icon.
+
+    Example usage:
+        cpu = CPU(size=1, title="CPU", color=WHITE, show_gear=True) 
+
+        self.add(cpu) 
+        
+        self.play(cpu.rotate_gear(speed=1, duration=4)) 
+    """
+    def __init__(self, title: str = "", color=WHITE, size: float = 1, show_gear: bool = True, gear_pos=UR, **kwargs) -> None:
         super().__init__(**kwargs)
         self.title = title
+        self.color = color
+        self.size = size
+        self.show_gear = show_gear
+        self.gear_pos = gear_pos
         self.create_cpu()
+        if self.show_gear:
+            self.add_gear()
 
     def create_cpu(self) -> None:
-        cpu = Square(side_length=3, color=WHITE)
-        cpu.set_fill(WHITE, opacity=1)
+        self.cpu = SVGMobject("img/cpu.svg", fill_color=self.color).scale(self.size)
+        title = Text(self.title, font_size=24).next_to(self.cpu, UP)
+        self.add(self.cpu, title)
 
-        title = Text(self.title, font_size=24).next_to(cpu, UP)
+    def add_gear(self) -> None:
+        self.gear = SVGMobject("img/gear.svg", fill_color=self.color).scale(0.25*self.size)
+        self.gear.next_to(self.cpu, self.gear_pos, buff=-0.4)  
+        self.add(self.gear)
 
-        self.add(cpu, title)
+    def rotate_gear(self, speed=1, duration=None, angle=None):
+        if duration is not None:
+            angle = TAU * speed/4 * duration
+        elif angle is not None:
+            pass
+        return Rotate(self.gear, angle=angle, about_point=self.gear.get_center(), rate_func=linear, run_time=duration)
 
 
 class Clock(Mobject):
