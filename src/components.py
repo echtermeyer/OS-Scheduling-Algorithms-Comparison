@@ -359,17 +359,7 @@ class AnimatedBulletpoints(Mobject):
 
 class MetricResponseTime(Mobject):
     """
-    How to call:
-
-    class ExampleScene(Scene):
-        def construct(self):
-            datasets = [
-                np.array([1, 2, 3, 4]),
-                np.array([4, 3, 2, 1])
-            ]
-            titles = ["Dataset 1", "Dataset 2"]
-            metric_response_time = MetricResponseTimeMobject(datasets, titles)
-            self.play(metric_response_time.create_animation())
+    A custom Mobject for visualizing response times across different datasets.
     """
 
     def __init__(self, datasets: List[np.ndarray], titles: List[str], **kwargs):
@@ -386,14 +376,12 @@ class MetricResponseTime(Mobject):
         # Initialize axes
         ax = Axes(
             x_range=[0, len(datasets[0]) + 1],
-            y_range=[0, max_y_value + 1],
+            y_range=[0, max_y_value + 3],
             x_axis_config={
                 "numbers_to_include": np.arange(0, len(datasets[0]) + 1, 2),
-                "numbers_with_elongated_ticks": np.arange(0, len(datasets[0]) + 1, 2),
             },
             y_axis_config={
                 "numbers_to_include": np.arange(0, max_y_value + 1, 2),
-                "numbers_with_elongated_ticks": np.arange(0, max_y_value + 1, 2),
             },
             tips=True,
         )
@@ -419,27 +407,54 @@ class MetricResponseTime(Mobject):
             legend_group.add(label_line, text)
 
         # Initialize line graphs for all datasets
-        line_graphs = []
+        self.first_dots = []
+        self.line_graphs = []
         for i, dataset in enumerate(datasets):
             color = colors[i]
             line_graph = VMobject(color=color)
             first_point = ax.c2p(1, dataset[0])
             line_graph.start_new_path(first_point)
-            line_graphs.append(line_graph)
-            first_dot = Dot(first_point, color=color).scale(0.7)
-            self.add(first_dot)
 
-        # Store axes, labels, legend, and line graphs as attributes
+            first_dot = Dot(first_point, color=color).scale(0.7)
+            self.first_dots.append(first_dot)
+
+            line_graph.add(first_dot) 
+            self.line_graphs.append(line_graph)
+            self.add(line_graph)  
+
         self.ax = ax
         self.x_label = x_label
         self.y_label = y_label
         self.legend_group = legend_group
-        self.line_graphs = line_graphs
         self.datasets = datasets
         self.colors = colors
 
-        # Add axes, labels, and legend to the Mobject
         self.add(ax, x_label, y_label, legend_group)
+
+    def _create_line_graph_animations(self):
+        line_graph_animations = []
+        last_points = [self.line_graphs[i].get_points()[-1] for i in range(len(self.datasets))]
+
+        for x in range(2, len(self.datasets[0]) + 1):
+            frame_animations = []
+            for i, dataset in enumerate(self.datasets):
+                new_point = self.ax.c2p(x, dataset[x - 1])
+                dot = Dot(new_point, color=self.colors[i]).scale(0.7)
+                
+                last_point = last_points[i]
+                new_line = Line(last_point, new_point, color=self.colors[i], stroke_width=4)
+
+                last_points[i] = new_point
+                self.line_graphs[i].add(new_line)
+                self.line_graphs[i].add(dot)
+
+                frame_animations.append(Create(new_line))
+                frame_animations.append(FadeIn(dot, scale=0.7))
+
+            line_graph_animations.append(AnimationGroup(*frame_animations, run_time=1))
+            line_graph_animations.append(Wait(0.25))
+
+        return line_graph_animations
 
     def create_animation(self):
         setup_animations = [
@@ -451,35 +466,22 @@ class MetricResponseTime(Mobject):
             Wait(1),
             Write(self.y_label, run_time=2),
             Wait(1),
-            FadeIn(self.legend_group, run_time=2),
+            FadeIn(self.legend_group, run_time=2)
         ]
+        
+        # Create a group animation for all first dots
+        first_dot_animations = [FadeIn(dot, scale=0.7, run_time=2) for dot in self.first_dots]
+        setup_animations.append(AnimationGroup(*first_dot_animations))
+
         line_graph_animations = self._create_line_graph_animations()
-        return Succession(*setup_animations, *line_graph_animations)
+        all_animations = setup_animations + line_graph_animations
 
-    def _create_line_graph_animations(self):
-        line_graph_animations = []
-        for x in range(2, len(self.datasets[0]) + 1):
-            frame_animations = []
-            for i, dataset in enumerate(self.datasets):
-                new_point = self.ax.c2p(x, dataset[x - 1])
-                dot = Dot(new_point, color=self.colors[i]).scale(0.7)
-                new_line = Line(
-                    self.line_graphs[i].get_last_point(),
-                    new_point,
-                    color=self.colors[i],
-                    stroke_width=4,
-                )
-                self.line_graphs[i].add_line_to(new_point)
-                frame_animations.extend([Create(new_line), FadeIn(dot, scale=0.7)])
-            line_graph_animations.append(AnimationGroup(*frame_animations, run_time=1))
-            line_graph_animations.append(Wait(0.25))
-        return line_graph_animations
-
+        return Succession(*all_animations)
 
 class MetricBarChart(Mobject):
     """
     How to call: 
-    
+
     class ExampleScene(Scene):
         def construct(self):
             bar_chart = MetricBarChart(
