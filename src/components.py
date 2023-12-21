@@ -474,3 +474,48 @@ class MetricResponseTime(Mobject):
             line_graph_animations.append(AnimationGroup(*frame_animations, run_time=1))
             line_graph_animations.append(Wait(0.25))
         return line_graph_animations
+
+
+class MetricBarChart(Mobject):
+    """
+    How to call: 
+    
+    class ExampleScene(Scene):
+        def construct(self):
+            bar_chart = MetricBarChart(
+                datasets=[12, 5, 3],
+                titles=["FCFS", "SJF", "RR"],
+                y_text="Response Time",
+            )
+            self.add(bar_chart)
+    """
+    def __init__(self, datasets: List[float], titles: List[str], y_text: str, **kwargs):
+        super().__init__(**kwargs)
+
+        if len(datasets) > 5:
+            raise ValueError("MetricBarChart only supports up to 5 datasets")
+        if len(datasets) != len(titles):
+            raise ValueError("Number of datasets must equal number of titles")
+
+        colors = [BLUE, RED, GREEN, ORANGE, PURPLE]
+        used_colors = colors[:len(datasets)]
+
+        max_y_value = max(datasets)
+        
+        self.chart = BarChart(
+            values=datasets,
+            bar_names=titles,
+            y_range=[0, max_y_value + 2, 2],
+            y_length=6,
+            x_length=10,
+            x_axis_config={"font_size": 30},
+            bar_colors=used_colors,
+        )
+
+        c_bar_lbls = self.chart.get_bar_labels(font_size=30)
+
+        y_label = Text(y_text, font_size=24)
+        y_label.rotate(PI / 2, about_point=y_label.get_center())
+        y_label.next_to(self.chart.y_axis, LEFT)
+
+        self.add(self.chart, c_bar_lbls, y_label)
