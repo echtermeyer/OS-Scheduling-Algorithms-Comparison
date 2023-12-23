@@ -197,7 +197,20 @@ class AnimatedTitle(Mobject):
 
     def __init__(self, title_text, **kwargs):
         super().__init__(**kwargs)
-        self.title = Text(title_text, font_size=65)
+
+        # Split the title text into words
+        words = title_text.split()
+
+        # Create the title with differently colored words
+        self.title = VGroup()  # Group to hold the words
+        for i, word in enumerate(words):
+            color = WHITE if i == 0 else BLUE
+            word_text = Text(word, color=color, font_size=65)
+            self.title.add(word_text)
+
+        # Arrange the words in a row
+        self.title.arrange(RIGHT, buff=0.2)
+
         self.add(self.title)
 
     def create_animation(self):
