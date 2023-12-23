@@ -1,11 +1,12 @@
 import manim
 from manim import *
 
+
 class Process(VGroup):
     """Represents a process in a visual format.
 
     This class creates a graphical representation of a process, typically depicted as a rectangle whose length indicates the process's size. Optionally, a square representation can be used. The process can also display a title and its size.
-    
+
     Parameters:
         color (str, optional): Color of the process shape. Default is WHITE.
         size (float, optional): Size of the process, affects shape dimensions. Default is 1.
@@ -13,18 +14,21 @@ class Process(VGroup):
         use_square (bool, optional): Use a square instead of a rectangle if True. Default is False.
         show_size (bool, optional): Display the size with the title if True. Default is True.
         **kwargs: Additional arguments for VGroup superclass.
-    
+
     Example usage:
         process_square = Process(color=WHITE, size=5, title="Process 1", use_square=False, show_size=True)
         self.add(process)
     """
-    def __init__(self, color=WHITE, size=1, title="", use_square=False, show_size=True, **kwargs):
+
+    def __init__(
+        self, color=WHITE, size=1, title="", use_square=False, show_size=True, **kwargs
+    ):
         super().__init__(**kwargs)
         self.color = color
         self.size = size
         self.title = title
         self.use_square = use_square
-        
+
         if show_size:
             title_text = f"{self.title}, {size}"
         else:
@@ -32,12 +36,21 @@ class Process(VGroup):
 
         if self.use_square:
             square_size = 0.5 + 0.25 * max(0, size - 1)
-            self.shape = Square(side_length=square_size).set_fill(self.color, opacity=1).set_stroke(self.color)
+            self.shape = (
+                Square(side_length=square_size)
+                .set_fill(self.color, opacity=1)
+                .set_stroke(self.color)
+            )
         else:
-            self.shape = Rectangle(width=size/2, height=0.5).set_fill(self.color, opacity=1).set_stroke(self.color)
-        
+            self.shape = (
+                Rectangle(width=size / 2, height=0.5)
+                .set_fill(self.color, opacity=1)
+                .set_stroke(self.color)
+            )
+
         self.title_text = Text(title_text, font_size=24).next_to(self.shape, UP)
         self.add(self.shape, self.title_text)
+
 
 class CPU(VGroup):
     """
@@ -55,13 +68,22 @@ class CPU(VGroup):
         rotate_gear(speed=1, duration=None, angle=None): Rotate the gear icon.
 
     Example usage:
-        cpu = CPU(size=1, title="CPU", color=WHITE, show_gear=True) 
+        cpu = CPU(size=1, title="CPU", color=WHITE, show_gear=True)
 
-        self.add(cpu) 
-        
-        self.play(cpu.rotate_gear(speed=1, duration=4)) 
+        self.add(cpu)
+
+        self.play(cpu.rotate_gear(speed=1, duration=4))
     """
-    def __init__(self, title: str = "", color=WHITE, size: float = 1, show_gear: bool = True, gear_pos=UR, **kwargs) -> None:
+
+    def __init__(
+        self,
+        title: str = "",
+        color=WHITE,
+        size: float = 1,
+        show_gear: bool = True,
+        gear_pos=UR,
+        **kwargs,
+    ) -> None:
         super().__init__(**kwargs)
         self.title = title
         self.color = color
@@ -78,16 +100,24 @@ class CPU(VGroup):
         self.add(self.cpu, title)
 
     def add_gear(self) -> None:
-        self.gear = SVGMobject("img/gear.svg", fill_color=self.color).scale(0.25*self.size)
-        self.gear.next_to(self.cpu, self.gear_pos, buff=-0.4)  
+        self.gear = SVGMobject("img/gear.svg", fill_color=self.color).scale(
+            0.25 * self.size
+        )
+        self.gear.next_to(self.cpu, self.gear_pos, buff=-0.4)
         self.add(self.gear)
 
     def rotate_gear(self, speed=1, duration=None, angle=None):
         if duration is not None:
-            angle = TAU * speed/4 * duration
+            angle = TAU * speed / 4 * duration
         elif angle is not None:
             pass
-        return Rotate(self.gear, angle=angle, about_point=self.gear.get_center(), rate_func=linear, run_time=duration)
+        return Rotate(
+            self.gear,
+            angle=angle,
+            about_point=self.gear.get_center(),
+            rate_func=linear,
+            run_time=duration,
+        )
 
 
 class Clock(Mobject):
@@ -358,10 +388,6 @@ class AnimatedBulletpoints(Mobject):
 
 
 class MetricResponseTime(Mobject):
-    """
-    A custom Mobject for visualizing response times across different datasets.
-    """
-
     def __init__(self, datasets: List[np.ndarray], titles: List[str], **kwargs):
         super().__init__(**kwargs)
 
@@ -418,9 +444,9 @@ class MetricResponseTime(Mobject):
             first_dot = Dot(first_point, color=color).scale(0.7)
             self.first_dots.append(first_dot)
 
-            line_graph.add(first_dot) 
+            line_graph.add(first_dot)
             self.line_graphs.append(line_graph)
-            self.add(line_graph)  
+            self.add(line_graph)
 
         self.ax = ax
         self.x_label = x_label
@@ -433,16 +459,20 @@ class MetricResponseTime(Mobject):
 
     def _create_line_graph_animations(self):
         line_graph_animations = []
-        last_points = [self.line_graphs[i].get_points()[-1] for i in range(len(self.datasets))]
+        last_points = [
+            self.line_graphs[i].get_points()[-1] for i in range(len(self.datasets))
+        ]
 
         for x in range(2, len(self.datasets[0]) + 1):
             frame_animations = []
             for i, dataset in enumerate(self.datasets):
                 new_point = self.ax.c2p(x, dataset[x - 1])
                 dot = Dot(new_point, color=self.colors[i]).scale(0.7)
-                
+
                 last_point = last_points[i]
-                new_line = Line(last_point, new_point, color=self.colors[i], stroke_width=4)
+                new_line = Line(
+                    last_point, new_point, color=self.colors[i], stroke_width=4
+                )
 
                 last_points[i] = new_point
                 self.line_graphs[i].add(new_line)
@@ -466,11 +496,13 @@ class MetricResponseTime(Mobject):
             Wait(1),
             Write(self.y_label, run_time=2),
             Wait(1),
-            FadeIn(self.legend_group, run_time=2)
+            FadeIn(self.legend_group, run_time=2),
         ]
-        
+
         # Create a group animation for all first dots
-        first_dot_animations = [FadeIn(dot, scale=0.7, run_time=2) for dot in self.first_dots]
+        first_dot_animations = [
+            FadeIn(dot, scale=0.7, run_time=2) for dot in self.first_dots
+        ]
         setup_animations.append(AnimationGroup(*first_dot_animations))
 
         line_graph_animations = self._create_line_graph_animations()
@@ -478,19 +510,8 @@ class MetricResponseTime(Mobject):
 
         return Succession(*all_animations)
 
-class MetricBarChart(Mobject):
-    """
-    How to call: 
 
-    class ExampleScene(Scene):
-        def construct(self):
-            bar_chart = MetricBarChart(
-                datasets=[12, 5, 3],
-                titles=["FCFS", "SJF", "RR"],
-                y_text="Response Time",
-            )
-            self.add(bar_chart)
-    """
+class MetricBarChart(VMobject):
     def __init__(self, datasets: List[float], titles: List[str], y_text: str, **kwargs):
         super().__init__(**kwargs)
 
@@ -500,10 +521,10 @@ class MetricBarChart(Mobject):
             raise ValueError("Number of datasets must equal number of titles")
 
         colors = [BLUE, RED, GREEN, ORANGE, PURPLE]
-        used_colors = colors[:len(datasets)]
+        used_colors = colors[: len(datasets)]
 
         max_y_value = max(datasets)
-        
+
         self.chart = BarChart(
             values=datasets,
             bar_names=titles,
@@ -514,10 +535,22 @@ class MetricBarChart(Mobject):
             bar_colors=used_colors,
         )
 
-        c_bar_lbls = self.chart.get_bar_labels(font_size=30)
-
         y_label = Text(y_text, font_size=24)
         y_label.rotate(PI / 2, about_point=y_label.get_center())
         y_label.next_to(self.chart.y_axis, LEFT)
 
-        self.add(self.chart, c_bar_lbls, y_label)
+        self.add(self.chart, y_label)
+
+    def animate_bars(self):
+        initial_heights = [bar.height for bar in self.chart.bars]
+        animations = []
+
+        for bar, init_height in zip(self.chart.bars, initial_heights):
+            bar.stretch_to_fit_height(0.01, about_edge=DOWN)
+            stretch_animation = bar.animate.stretch_to_fit_height(
+                init_height, about_edge=DOWN
+            )
+            animations.append(stretch_animation)
+
+        bar_grow_sequence = Succession(*animations, lag_ratio=1.0)
+        return bar_grow_sequence
