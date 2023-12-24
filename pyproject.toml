@@ -11,6 +11,8 @@ numpy = "^1.26.2"
 pandas = "^2.1.4"
 manim = "^0.18.0"
 setuptools = "^69.0.2"
+openai = "^1.6.1"
+python-dotenv = "^1.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
