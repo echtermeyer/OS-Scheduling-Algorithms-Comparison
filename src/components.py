@@ -82,6 +82,7 @@ class CPU(VGroup):
         size: float = 1,
         show_gear: bool = True,
         gear_pos=UR,
+        alignment: str = "center",
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
@@ -90,14 +91,16 @@ class CPU(VGroup):
         self.size = size
         self.show_gear = show_gear
         self.gear_pos = gear_pos
-        self.create_cpu()
+        self.create_cpu(alignment)
         if self.show_gear:
             self.add_gear()
 
-    def create_cpu(self) -> None:
+    def create_cpu(self, alignment) -> None:
         self.cpu = SVGMobject("img/cpu.svg", fill_color=self.color).scale(self.size)
-        title = Text(self.title, font_size=24).next_to(self.cpu, UP)
-        self.add(self.cpu, title)
+        self.title_object = Paragraph(
+            self.title, font_size=24, alignment=alignment
+        ).next_to(self.cpu, UP)
+        self.add(self.cpu, self.title_object)
 
     def add_gear(self) -> None:
         self.gear = SVGMobject("img/gear.svg", fill_color=self.color).scale(
@@ -220,7 +223,8 @@ class AnimatedTitle(Mobject):
             .to_edge(UP, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
             .to_edge(LEFT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
         )
-        return Succession(fade_in, Wait(1), shrink_and_move, Wait(1))
+        # run_time is needed because otherwise the animation breaks
+        return Succession(fade_in, Wait(1), shrink_and_move, Wait(1), run_time=4)
 
 
 class AnimatedLabel(Mobject):

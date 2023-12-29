@@ -1,8 +1,8 @@
 from manim import *
-from jannik import ComponentTest
+from jannik import RR
 
 
 with tempconfig({"quality": "medium_quality"}):
-    scene = ComponentTest()
+    scene = RR()
     scene.render()
 
