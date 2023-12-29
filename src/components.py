@@ -47,7 +47,7 @@ class Process(VGroup):
         self.title_text = self._get_new_title()
         self.add(self.shape, self.title_text)
 
-    def adjust_size_with_animation(self, delta: int = -1) -> AnimationGroup:
+    def adjust_size_with_animation(self, delta: int = -1) -> AnimationGroup | None:
         """Adjusts the size of the shape object by the given delta returns an animationgroup object that can be used to animate this movement. The size reduction will not appear until using the animationgroup.
 
         Args:
@@ -84,7 +84,7 @@ class Process(VGroup):
             title_animation = Transform(
                 self.title_text,
                 self._get_new_title().next_to(
-                    self.shape.copy().stretch_to_fit_width(self.size / 2)
+                    self.shape.copy().stretch_to_fit_width(self.size / 2), UP
                 ),
             )
 
@@ -170,9 +170,9 @@ class CPU(VGroup):
         self.gear.next_to(self.cpu, self.gear_pos, buff=-0.4)
         self.add(self.gear)
 
-    def rotate_gear(self, speed=1, duration=None, angle=None):
+    def rotate_gear(self, speed=1, duration=1, angle=None):
         if duration is not None:
-            angle = TAU * speed / 4 * duration
+            angle = -TAU * speed / 4 * duration
         elif angle is not None:
             pass
         return Rotate(
@@ -228,7 +228,7 @@ class Clock(Mobject):
 
         self.add(self.clock)
 
-    def rotate(self, duration: float = 1, angle: int = PI * 2) -> manim.Rotate:
+    def rotate(self, duration: float = 1, angle: float = PI * 2) -> manim.Rotate | None:
         """Use this method to rotate the clock handle around the middle of the clock.
 
         Args:
@@ -458,7 +458,7 @@ class AnimatedBulletpoints(Mobject):
     def create_animation(self):
         animations = []
         for bullet in self.bullets:
-            run_time = self.speed * len(bullet.text)
+            run_time = self.speed * len(str(bullet.text))
             animations.append(Write(bullet, run_time=run_time))
             animations.append(Wait(1))
 
