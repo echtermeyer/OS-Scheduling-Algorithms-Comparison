@@ -28,14 +28,10 @@ class Process(VGroup):
         self.size = size
         self.title = title
         self.use_square = use_square
-
-        if show_size:
-            title_text = f"{self.title}, {size}"
-        else:
-            title_text = self.title
+        self.show_size = show_size
 
         if self.use_square:
-            square_size = 0.5 + 0.25 * max(0, size - 1)
+            square_size = self._get_square_size()
             self.shape = (
                 Square(side_length=square_size)
                 .set_fill(self.color, opacity=1)
@@ -48,8 +44,73 @@ class Process(VGroup):
                 .set_stroke(self.color)
             )
 
-        self.title_text = Text(title_text, font_size=24).next_to(self.shape, UP)
+        self.title_text = self._get_new_title()
         self.add(self.shape, self.title_text)
+
+    def adjust_size_with_animation(self, delta: int = -1) -> AnimationGroup:
+        """Adjusts the size of the shape object by the given delta returns an animationgroup object that can be used to animate this movement. The size reduction will not appear until using the animationgroup.
+
+        Args:
+            delta (int, optional): This is by how much the size should be adjusted in absolut units. Defaults to -1.
+
+        Returns:
+            AnimationGroup: This is the animation to be executed in order to see the changes.
+        """
+        self.size = self.size + delta
+
+        if self.use_square:
+            square_size = self._get_square_size()
+
+            # animate the shape to adjust to the new size
+            resize_animation = self.shape.animate.set_width(square_size)
+
+            # animate the title to transform from the current to the new title which is set to the new location of the shape.
+            # copy is needed to ensure nothing happens to the actual shape, we only need the location of the shape how it will be after the animation
+            title_animation = Transform(
+                self.title_text,
+                self._get_new_title().next_to(
+                    self.shape.copy().set_width(square_size), UP
+                ),
+            )
+
+            return AnimationGroup(resize_animation, title_animation)
+
+        else:
+            # animate the shape to adjust to the new size
+            resize_animation = self.shape.animate.stretch_to_fit_width(self.size / 2)
+
+            # animate the title to transform from the current to the new title which is set to the new location of the shape.
+            # copy is needed to ensure nothing happens to the actual shape, we only need the location of the shape how it will be after the animation
+            title_animation = Transform(
+                self.title_text,
+                self._get_new_title().next_to(
+                    self.shape.copy().stretch_to_fit_width(self.size / 2)
+                ),
+            )
+
+            return AnimationGroup(resize_animation, title_animation)
+
+    def _get_square_size(self) -> float:
+        """Function to calculate the size of the square.
+
+        Returns:
+            float: the size of the square
+        """
+        return 0.5 + 0.25 * max(0, self.size - 1)
+
+    def _get_new_title(self) -> Text:
+        """Creates a new title object to be used to set the title for animation or initialization
+
+        Returns:
+            Text: This is the text object already placed next to the shape object
+        """
+        title_text = self.title
+        if self.show_size:
+            title_text = f"{title_text}, {self.size}"
+
+        return Text(title_text, font_size=24).next_to(self.shape, UP)
+
+    # def _get_new_title(self):
 
 
 class CPU(VGroup):

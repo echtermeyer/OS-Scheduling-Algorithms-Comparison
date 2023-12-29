@@ -64,11 +64,11 @@ class RR(Scene):
         ]
 
         # self.add_section("RoundRobin01")
-        processes = []
+        processes: List[Process] = []
         # create processes
         for i, size in enumerate(process_sizes):
             process = (
-                Process(title=f"P{i}", size=size)
+                Process(title=f"P{i}", size=size, use_square=True)
                 .to_edge(LEFT)
                 .to_edge(DOWN)
                 .shift(LEFT * 2)
@@ -88,23 +88,34 @@ class RR(Scene):
 
         clock.to_edge(RIGHT).to_edge(UP)
         self.play(FadeIn(clock))
+
+        #
         self.next_section()
 
+        quantum = 1
+        self.wait(2)
         # Animate the process of RoundRobin
-
-        
+        animation = processes[3].adjust_size_with_animation(-3)
+        self.play(animation)
+        self.play(processes[3].title_text.animate.next_to(processes[3].shape, UP))
         self.wait(2)
 
 
-# class ComponentTest(Scene):
-#     def construct(self):
-#         clock = Clock(radius=2)
-#         clock.set_color(GREY)
-#         clock.move_to(LEFT * 3)
-#         self.add(clock)
-#         self.play(clock.rotate(duration=2, angle=2 * PI))
-#         self.play(clock.rotate(angle=2 * PI), run_time=5)
-#         self.play(clock.animate.move_to(RIGHT))
+class RoundRobinAnimation:
+    def __init__(self, quantum: int) -> None:
+        self.quantum = quantum
+        self.process_queue = []
+
+    def add_process(self, process: Process):
+        self.process_queue.append(process)
+
+    def run(self):
+        if len(self.process_queue) == 0:
+            return
+        current_process = self.process_queue.pop(0)
+        current_process.size -= 1
+        if current_process.size >= 0:
+            self.process_queue.append(current_process)
 
 
 # class ExampleScene(Scene):
