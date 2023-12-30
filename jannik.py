@@ -43,28 +43,33 @@ from manim.typing import *
 class RR(Scene):
     def construct(self):
         self.next_section(skip_animations=True)
+        self.next_section()
+
         # create and animate title for RoundRobin
         title = AnimatedTitle("RoundRobin")
         self.play(title.create_animation())
 
         # create and animate CPU
-        cpu = CPU(color=RED, show_gear=True, title="CPU")
+        cpu = CPU(show_gear=True, title="CPU")
 
         # Define all the points around the clock for later use
         faktor = 1.5
 
-        cpu_top: np.ndarray = np.array(cpu.get_top() + UP * faktor)
-        cpu_bottom = np.array(cpu.get_bottom() + DOWN * faktor)
-        cpu_right = np.array(cpu.get_right() + RIGHT * faktor)
-        cpu_left = np.array(cpu.get_left() + LEFT * faktor)
+        CPU_TOP: np.ndarray = np.array(cpu.get_top() + UP * faktor)
+        CPU_BOTTOM = np.array(cpu.get_bottom() + DOWN * faktor)
+        CPU_RIGHT = np.array(cpu.get_right() + RIGHT * faktor)
+        CPU_LEFT = np.array(cpu.get_left() + LEFT * faktor)
 
-        cpu_right_upper_corner = np.array(
-            (cpu_right * X_AXIS + cpu_top * Y_AXIS) * 0.75
+        CPU_RIGHT_UPPER_CORNER = np.array(
+            (CPU_RIGHT * X_AXIS + CPU_TOP * Y_AXIS) * 0.75
         )
-        cpu_left_upper_corner = np.array((cpu_left * X_AXIS + cpu_top * Y_AXIS) * 0.75)
-        cpu_left_lower_corner = np.array(
-            (cpu_left * X_AXIS + cpu_bottom * Y_AXIS) * 0.75
+        CPU_LEFT_UPPER_CORNER = np.array((CPU_LEFT * X_AXIS + CPU_TOP * Y_AXIS) * 0.75)
+        CPU_LEFT_LOWER_CORNER = np.array(
+            (CPU_LEFT * X_AXIS + CPU_BOTTOM * Y_AXIS) * 0.75
         )
+
+        # save where the process to be executed next moves (right to the cpu at the bottom edge)
+        PROCESS_POLE_POSITION = Process().move_to(CPU_RIGHT).to_edge(DOWN).get_center()
 
         self.play(FadeIn(cpu))
         self.wait(2)
@@ -72,11 +77,10 @@ class RR(Scene):
         # initialize the RoundRobin object
         quantum = 1
         rr = RoundRobinAnimation(quantum)
-        # save where the process to be executed next moves (right to the cpu at the bottom edge)
-        PROCESS_POLE_POSITION = Process().move_to(cpu_right).to_edge(DOWN).get_center()
 
         # Define all processes with it's lenghts
-        process_sizes = [2,3]
+        process_sizes = [2, 3, 5, 1, 1, 2]
+
         # create processes and place them just outside the left edge
         for i, size in enumerate(process_sizes):
             process = (
@@ -88,7 +92,6 @@ class RR(Scene):
             rr.add_process(process)
 
         # animate processes into cpu queue position
-
         self.play(
             rr.move_queue(
                 pole_position=PROCESS_POLE_POSITION,
@@ -96,19 +99,20 @@ class RR(Scene):
                 duration=5,
             )
         )
+
         # create and animate clock
         clock = Clock(radius=0.75)
 
         clock.to_edge(RIGHT).to_edge(UP)
         self.play(FadeIn(clock))
 
-        # Animate the process of RoundRobin
-        self.next_section()
+        # animate the process of RoundRobin
         while not rr.get_empty():
+            # calculate the arc from current process next to cpu
             arc_to_cpu = ArcBetweenPoints(
-                rr.process_queue[0].get_center(), cpu_right, angle=TAU / 4
+                rr.process_queue[0].get_center(), CPU_RIGHT, angle=TAU / 4
             )
-
+            # move current process next to cpu
             self.play(MoveAlongPath(rr.process_queue[0], arc_to_cpu))
 
             # animate queue
@@ -117,7 +121,7 @@ class RR(Scene):
                 first_process_in_cpu=True,
                 duration=1,
             )
-
+            # the animation might return 
             if animation is not None:
                 self.play(animation)
 
@@ -136,17 +140,17 @@ class RR(Scene):
                         .get_center()
                     )
 
-                if end_point[0] > cpu_left[0]:
-                    control_point = cpu_left_lower_corner
+                if end_point[0] > CPU_LEFT[0]:
+                    control_point = CPU_LEFT_LOWER_CORNER
                 else:
                     control_point = end_point + UP * 2
 
                 points = [
-                    cpu_right,
-                    cpu_right_upper_corner,
-                    cpu_top,
-                    cpu_left_upper_corner,
-                    cpu_left,
+                    CPU_RIGHT,
+                    CPU_RIGHT_UPPER_CORNER,
+                    CPU_TOP,
+                    CPU_LEFT_UPPER_CORNER,
+                    CPU_LEFT,
                     control_point,
                     end_point,
                 ]
