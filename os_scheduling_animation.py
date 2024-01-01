@@ -218,9 +218,18 @@ class OS(CustomMovingCameraScene):
             # process
             cpu_empty, animation = fcfs.run()
             self.play(AnimationGroup(animation, clock.rotate(), cpu.rotate_gear()))
+        self.play(FadeOut(clock))
 
     def fcfs_bullet_points(self):
-        pass
+        points = [
+            "Processes get queued up in the order they arrive.",
+            "The first process in the queue gets processed until it's finished."
+            + "\n=> Nonpreemptive Schedulung",
+        ]
+
+        bulletpoints = AnimatedBulletpoints(points, edge=self.get_to_edge(RIGHT))
+        self.play(bulletpoints.create_animation())
+        
 
     def fcfs_flow(self):
         pass
