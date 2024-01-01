@@ -1,3 +1,5 @@
+from typing import List, Dict
+
 import manim
 from manim import *
 
@@ -632,3 +634,141 @@ class MetricBarChart(VMobject):
 
         bar_grow_sequence = Succession(*animations, lag_ratio=1.0)
         return bar_grow_sequence
+
+
+class SequenceDiagram(Mobject):
+    """
+    How to use:
+    class ExampleScene(Scene):
+        def construct(self):
+            steps = [
+                {"id": 1, "start": 0, "size": 4},
+                {"id": 2, "start": 4, "size": 2},
+                {"id": 3, "start": 6, "size": 1},
+                {"id": 4, "start": 7, "size": 5},
+                {"id": 2, "start": 12, "size": 2},
+                {"id": 3, "start": 14, "size": 2},
+                {"id": 4, "start": 16, "size": 5},
+                {"id": 3, "start": 21, "size": 3},
+            ]
+            sequence_diagram = SequenceDiagram("FCFS", steps=steps)
+            self.play(sequence_diagram.create_animations())
+    """
+
+    def __init__(self, algorithm: str, steps: List[Dict], **kwargs):
+        super().__init__(**kwargs)
+
+        if algorithm not in ["FCFS", "Round Robin", "MLQ"]:
+            raise ValueError("Invalid algorithm name")
+
+        self.title = Text(f"Sequence Diagram for {algorithm}", font_size=36)
+        self.title.to_edge(UP, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
+
+        self.steps = steps
+        self.processes = [
+            f"P{id} - {size}s" for id, size in self.__calculate_process_sizes().items()
+        ]
+
+    def __calculate_process_sizes(self):
+        size_sum = {}
+        for step in self.steps:
+            size_sum[step["id"]] = size_sum.get(step["id"], 0) + step["size"]
+        return size_sum
+
+    def __create_process_diagram(self):
+        # Displaying the labels for the processes
+        process_texts = [Text(process, font_size=24) for process in self.processes]
+        process_objects = VGroup(*process_texts)
+
+        total_vertical_space = config.frame_height - self.title.get_height() - 1
+        space_per_process = total_vertical_space / len(self.processes)
+        reduced_buff = (space_per_process - process_texts[0].get_height()) * 0.9
+
+        process_objects.arrange(DOWN, aligned_edge=LEFT, buff=reduced_buff)
+        process_objects.to_edge(LEFT, buff=1)
+
+        # Displaying the separator lines
+        separator_lines = VGroup()
+        line_length = config.frame_width - 2
+        for i, process in enumerate(process_texts[:-1]):
+            line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(
+                line_length
+            )
+
+            next_process = process_texts[i + 1]
+            midpoint_y = (process.get_bottom()[1] + next_process.get_top()[1]) / 2
+
+            line_x_position = process.get_left()[0]
+
+            line.move_to(midpoint_y * UP + line_x_position * RIGHT, aligned_edge=LEFT)
+            separator_lines.add(line)
+
+        # Calculate scaling factor for process bars so they match the full width
+        rightmost_object_x_position = (
+            separator_lines[-1].get_right()[0] - DEFAULT_MOBJECT_TO_MOBJECT_BUFFER
+        )
+        leftmost_object_x_position = process_texts[0].get_right()[0]
+        available_space = rightmost_object_x_position - leftmost_object_x_position
+        total_size = sum(step["size"] / 2 for step in self.steps)
+        scaling_factor = available_space / total_size if total_size != 0 else 1
+
+        bars = []
+        process = None
+        for step in self.steps:
+            process = self.create_processes(
+                step["id"],
+                step["size"] * scaling_factor,
+                process_texts,
+                process,
+            )
+            bars.append(process)
+
+        return VGroup(process_objects, separator_lines, *bars)
+
+    def create_processes(
+        self, process_lane: int, size: int, process_texts, previous_process
+    ):
+        lane_y_position = process_texts[process_lane - 1].get_center()[1]
+
+        # y-axis positioning
+        process_bar = Process(color=ORANGE, size=size, show_size=False)
+        process_bar.move_to(lane_y_position * UP)
+
+        # x-axis positioning
+        if not previous_process:
+            process_bar.next_to(
+                process_texts[process_lane - 1],
+                RIGHT,
+                buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER,
+            )
+        else:
+            new_x_position = previous_process.get_right()[0] + process_bar.width / 2
+            process_bar.move_to(new_x_position * RIGHT + lane_y_position * UP)
+
+        return process_bar
+
+    def create_animations(self):
+        process_diagram = self.__create_process_diagram()
+        process_texts = process_diagram[0]
+        separator_lines = process_diagram[1]
+        process_bars = process_diagram[2:]
+
+        write_animations = [Write(text) for text in process_texts]
+        line_animations = [GrowFromEdge(line, LEFT) for line in separator_lines]
+
+        bar_animations = []
+        for bar in process_bars:
+            bar_animations.append(GrowFromEdge(bar, LEFT))
+            bar_animations.append(Wait(0.5))
+
+        line_animation_group = AnimationGroup(*line_animations, lag_ratio=0)
+
+        process_text_animation = Succession(*write_animations)
+        bar_animation_sequence = Succession(*bar_animations)
+
+        return Succession(
+            FadeIn(self.title),
+            process_text_animation,
+            line_animation_group,
+            bar_animation_sequence,
+        )
