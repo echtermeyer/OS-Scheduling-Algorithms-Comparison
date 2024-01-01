@@ -1,8 +1,11 @@
 from manim import *
 from jannik import RR
 
+import manim
 
-with tempconfig({"quality": "medium_quality"}):
-    scene = RR()
-    scene.render()
+print(manim.__version__)
 
+
+# with tempconfig({"quality": "medium_quality"}):
+#     scene = RR()
+#     scene.render()
