@@ -24,7 +24,24 @@ class OS(Scene):
         pass
 
     def fcfs(self):
-        pass
+        # Your code: ...
+
+        # After animation of algorithm (at the moment just dummy data)
+        self.clear()
+        steps = [
+            {"id": 1, "start": 0, "size": 4},
+            {"id": 2, "start": 4, "size": 2},
+            {"id": 3, "start": 6, "size": 1},
+            {"id": 4, "start": 7, "size": 5},
+            {"id": 2, "start": 12, "size": 2},
+            {"id": 3, "start": 14, "size": 2},
+            {"id": 4, "start": 16, "size": 5},
+            {"id": 3, "start": 21, "size": 3},
+        ]
+        sequence_diagram = SequenceDiagram("FCFS", steps=steps)
+        self.play(sequence_diagram.create_animations())
+        self.wait(2)
+        self.clear()
 
     def rr(self):
         self.next_section(skip_animations=True)
@@ -143,13 +160,121 @@ class OS(Scene):
 
                 self.play(MoveAlongPath(rr.process_queue[-1], path), run_time=2)
 
-        self.wait(1)
+        self.wait(2)
+
+        # After animation of algorithm (at the moment just dummy data)
+        self.clear()
+        steps = [
+            {"id": 1, "start": 0, "size": 4},
+            {"id": 2, "start": 4, "size": 2},
+            {"id": 3, "start": 6, "size": 1},
+            {"id": 4, "start": 7, "size": 5},
+            {"id": 2, "start": 12, "size": 2},
+            {"id": 3, "start": 14, "size": 2},
+            {"id": 4, "start": 16, "size": 5},
+            {"id": 3, "start": 21, "size": 3},
+        ]
+        sequence_diagram = SequenceDiagram("RoundRobin", steps=steps)
+        self.play(sequence_diagram.create_animations())
+        self.wait(2)
+        self.clear()
 
     def mqs(self):
-        pass
+        # Your code: ...
+
+        # After animation of algorithm (at the moment just dummy data)
+        self.clear()
+        steps = [
+            {"id": 1, "start": 0, "size": 4},
+            {"id": 2, "start": 4, "size": 2},
+            {"id": 3, "start": 6, "size": 1},
+            {"id": 4, "start": 7, "size": 5},
+            {"id": 2, "start": 12, "size": 2},
+            {"id": 3, "start": 14, "size": 2},
+            {"id": 4, "start": 16, "size": 5},
+            {"id": 3, "start": 21, "size": 3},
+        ]
+        sequence_diagram = SequenceDiagram("MQS", steps=steps)
+        self.play(sequence_diagram.create_animations())
+        self.wait(2)
+        self.clear()
 
     def metrics(self):
-        pass
+        # Title page
+        title = AnimatedTitle("Comparing Scheduling Algorithms")
+        self.play(title.create_animation())
+        self.play(title.animate.to_corner(UP + LEFT))
+
+        # 2D LineChart metric
+        datasets = [
+            np.array([10, 12, 13, 7, 9, 10]),
+            np.array([11, 12, 5, 15, 14, 12]),
+            np.array([12, 13, 12, 10, 11, 13]),
+        ]
+        titles = ["FCFS", "RoundRobin", "MLQ"]
+        metric_response_time = MetricResponseTime(datasets, titles).scale(0.9)
+        self.play(metric_response_time.create_animation())
+        self.play(metric_response_time.animate.scale(0.6).to_edge(LEFT))
+
+        # 2D LineChart bullet points
+        points = [
+            "FCFS has the worst average response time",
+            "Round Robin has the lowest average response time",
+            "MLQ combines FCFS and Round Robin resulting in a middle ground",
+        ]
+        bulletpoints = AnimatedBulletpoints(points, width=40)
+        self.play(bulletpoints.create_animation())
+        self.play(FadeOut(bulletpoints))
+
+        # 1st BarChart metric
+        first_bar_chart = MetricBarChart(
+            datasets=[5, 7, 3],
+            titles=["FCFS", "SJF", "RR"],
+            y_text="Turnaround Time",
+        )
+        first_bar_chart.scale(0.5).to_corner(
+            UP + RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER
+        )
+        self.add(first_bar_chart)
+        bar_grow_sequence = first_bar_chart.animate_bars()
+        self.play(bar_grow_sequence)
+
+        # 2nd BarChart metric
+        second_bar_chart = MetricBarChart(
+            datasets=[12, 5, 3],
+            titles=["FCFS", "SJF", "RR"],
+            y_text="Throughput",
+        )
+        second_bar_chart.scale(0.5).to_corner(
+            DOWN + RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER
+        )
+        self.add(second_bar_chart)
+        bar_grow_sequence = second_bar_chart.animate_bars()
+        self.play(bar_grow_sequence)
+
+        # Fade out the MetricResponseTime
+        self.play(FadeOut(metric_response_time))
+
+        # Move BarCharts to the left
+        bar_charts_group = VGroup(first_bar_chart, second_bar_chart)
+        self.play(
+            bar_charts_group.animate.scale(0.8).to_edge(
+                LEFT, buff=3 * DEFAULT_MOBJECT_TO_EDGE_BUFFER
+            )
+        )
+
+        # BarChart metrics
+        points = [
+            "FCFS excels in average waiting time",
+            "FCFS has the worst average response time",
+            "Round Robin has the lowest average response time",
+            "MLQ has very low average waiting time",
+            "All algorithms have the same average turnaround time",
+        ]
+        bulletpoints = AnimatedBulletpoints(points, width=40)
+        self.play(bulletpoints.create_animation())
+        self.wait(2)
+        self.clear()
 
     def outro(self):
         pass
