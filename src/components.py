@@ -3,6 +3,8 @@ from typing import List, Dict
 import manim
 from manim import *
 
+from typing import Tuple
+
 
 class Process(VGroup):
     """Represents a process in a visual format.
@@ -634,6 +636,81 @@ class MetricBarChart(VMobject):
 
         bar_grow_sequence = Succession(*animations, lag_ratio=1.0)
         return bar_grow_sequence
+
+
+class RoundRobinAnimation:
+    """Class used to create the RoundRobin Animations. It stores processes in a queue and allows to run the Algorithm for one quantum at a time."""
+
+    def __init__(self, quantum: int) -> None:
+        self.quantum = quantum
+        self.process_queue: List[Process] = []
+
+    def get_current_length(self) -> int:
+        length = 0
+        for process in self.process_queue:
+            length += process.size
+        return length
+
+    def get_empty(self) -> bool:
+        return len(self.process_queue) == 0
+
+    def add_process(self, process: Process):
+        self.process_queue.append(process)
+
+    def run(self) -> Tuple[bool, AnimationGroup | None]:
+        if len(self.process_queue) == 0:
+            return (True, None)
+        current_process = self.process_queue.pop(0)
+        animation = current_process.adjust_size_with_animation(-1)
+        if current_process.size > 0:
+            self.process_queue.append(current_process)
+            return False, animation
+
+        else:
+            return True, AnimationGroup(
+                FadeOut(current_process), current_process.animate.scale(0.1)
+            )
+
+    def move_queue(
+        self,
+        pole_position,
+        first_process_in_cpu=False,
+        duration=1,
+    ) -> Succession | None:
+        previous_process = Process()
+
+        if first_process_in_cpu:
+            if len(self.process_queue) <= 1:
+                return None
+        else:
+            if len(self.process_queue) <= 0:
+                return None
+
+        # length = (
+        #     len(self.process_queue)
+        #     if first_process_in_cpu
+        #     else  - 1
+        # )
+        # if length <= 0:
+        #     return None
+
+        animations = []
+        for i, process in enumerate(
+            self.process_queue[1 if first_process_in_cpu else 0 :]
+        ):
+            if i == 0:
+                animations.append(process.animate.move_to(pole_position))
+                previous_process = process.copy().move_to(pole_position)
+            else:
+                animations.append(
+                    process.animate.next_to(previous_process, LEFT, buff=0.5)
+                )
+                previous_process = process.copy().next_to(
+                    previous_process, LEFT, buff=0.5
+                )
+        # if not animations:
+        #     return None
+        return Succession(*animations, run_time=duration)
 
 
 class SequenceDiagram(Mobject):

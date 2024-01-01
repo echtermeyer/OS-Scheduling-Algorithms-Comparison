@@ -1,47 +1,32 @@
 from manim import *
-
-
 from src.components import *
-from typing import Tuple
-from manim.typing import *
 
 
-# class RR(Scene):  #
-#     def construct(self):
-#         # Einführungstext
-#         title = Text("Round Robin Scheduling").scale(0.9)
-#         self.play(Write(title))
-#         self.wait(1)
-#         self.play(FadeOut(title))
-
-#         # Beschreibung des Round Robin Schedulings
-#         description1 = Text(
-#             "Round Robin ist ein präemptives Scheduling-Verfahren."
-#         ).scale(0.6)
-#         description2 = Text(
-#             "Jeder Prozess erhält eine feste Zeitscheibe (Quantum)."
-#         ).scale(0.6)
-#         description3 = Text(
-#             "Prozesse werden in einer zyklischen Reihenfolge ausgeführt."
-#         ).scale(0.6)
-#         description1.shift(UP)
-#         description3.shift(DOWN)
-
-#         # Anzeige der Beschreibung
-#         self.play(Write(description1))
-#         self.wait(1)
-#         self.play(Write(description2))
-#         self.wait(1)
-#         self.play(Write(description3))
-#         self.wait(2)
-
-#         # Verblassen und Szene beenden
-#         self.play(FadeOut(description1), FadeOut(description2), FadeOut(description3))
-#         self.wait(1)
-
-
-class RR(Scene):
+class OS(Scene):
     def construct(self):
+        # creative introduction
+        # 2 min
+        self.introduction()
+        # 2 min
+        self.fcfs()
+        # In der ÜBerleitung Preemptive verwenden und erklären was das bedeutet
+        # 3 min
+        self.rr()
+        # 3 min
+        self.mqs()
+        # 3 min
+        self.metrics()
+        # reallife examples
+        # 2 min
+        self.outro()
+
+    def introduction(self):
+        pass
+
+    def fcfs(self):
+        pass
+
+    def rr(self):
         self.next_section(skip_animations=True)
         self.next_section()
 
@@ -121,7 +106,7 @@ class RR(Scene):
                 first_process_in_cpu=True,
                 duration=1,
             )
-            # the animation might return 
+            # the animation might return
             if animation is not None:
                 self.play(animation)
 
@@ -159,3 +144,12 @@ class RR(Scene):
                 self.play(MoveAlongPath(rr.process_queue[-1], path), run_time=2)
 
         self.wait(1)
+
+    def mqs(self):
+        pass
+
+    def metrics(self):
+        pass
+
+    def outro(self):
+        pass
