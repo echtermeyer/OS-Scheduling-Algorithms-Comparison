@@ -453,7 +453,7 @@ class OS(CustomMovingCameraScene):
 
     def mqs_flow(self):
         # Code to demonstrate the flow of processes in MQS
-         # Your code: ...
+        # Your code: ...
 
         # After animation of algorithm (at the moment just dummy data)
         self.clear()
