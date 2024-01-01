@@ -671,7 +671,7 @@ class MetricBarChart(VMobject):
 
 
 class AlgorithmAnimation:
-    """Class used to create the RoundRobin Animations. It stores processes in a queue and allows to run the Algorithm for one quantum at a time."""
+    """Class used to create and Algorithm Animation for Roundrobin or FCFS. It stores processes in a queue and allows to run the Algorithm for one quantum at a time."""
 
     def __init__(self, quantum: int, type: str) -> None:
         self.quantum = quantum
@@ -693,6 +693,12 @@ class AlgorithmAnimation:
         self.process_queue.append(process)
 
     def run(self) -> Tuple[bool, AnimationGroup | None]:
+        """Runs the algorithm for one quantum and returns the animation or None if the queue is empty.
+        It also returns if the current process finished or not
+
+        Returns:
+            Tuple[bool, AnimationGroup | None]: Returns True if the current process finished and False if not. The second value is the animation to be played or None if the queue is empty.
+        """
         if len(self.process_queue) == 0:
             return (True, None)
 
