@@ -152,4 +152,20 @@ class Comparison(Scene):
         self.play(bulletpoints.create_animation())
 
 
+class ExampleScene(Scene):
+    def construct(self):
+        steps = [
+            {"id": 1, "start": 0, "size": 4},
+            {"id": 2, "start": 4, "size": 2},
+            {"id": 3, "start": 6, "size": 1},
+            {"id": 4, "start": 7, "size": 5},
+            {"id": 2, "start": 12, "size": 2},
+            {"id": 3, "start": 14, "size": 2},
+            {"id": 4, "start": 16, "size": 5},
+            {"id": 3, "start": 21, "size": 3},
+        ]
+        sequence_diagram = SequenceDiagram("FCFS", steps=steps)
+        self.play(sequence_diagram.create_animations())
+
+
 # manim -pql script_name.py FCFS
