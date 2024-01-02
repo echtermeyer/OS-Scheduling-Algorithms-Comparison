@@ -255,15 +255,18 @@ class OS(Scene):
         line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(config.frame_width - 1)
         line.move_to(ORIGIN)
         line.shift(DOWN*0.6)
-        self.add(line)
+        # self.add(line)
+        self.play(FadeIn(line))
 
         queue1 = Text("Queue 1 - High Priority", font_size=24).next_to(process_group, DOWN, aligned_edge=LEFT)
         queue1.shift(DOWN*0.1)
-        self.add(queue1)
+        # self.add(queue1)
+        self.play(FadeIn(queue1))
 
         queue2 = Text("Queue 2 - Low Priority", font_size=24).next_to(line, DOWN, aligned_edge=LEFT)
         queue2.shift(DOWN*0.1)
-        self.add(queue2)
+        # self.add(queue2)
+        self.play(FadeIn(queue2))
         
         self.wait(2)
         # 04 - Queues Examples
@@ -352,22 +355,33 @@ class OS(Scene):
         # 12 - 
         self.remove(queue1, new_queue1_text, line, new_queue2_text, queue2, cpu, clock)
 
-        # review = AnimatedReview(["nice"],["ok"], ["bad"])
-        # self.play(review.create_animation())
+        points = [
+            "Processes are distributed to different queues.",
+            "Queues use different scheduling algorithms.",
+            "Execution of queues determind by priority.",
+        ]
+
+        bulletpoints = AnimatedBulletpoints(points, edge=LEFT)#self.get_to_edge(LEFT))
+        self.play(bulletpoints.create_animation())
+        self.wait(5)
+
+        review = AnimatedReview(["some positive things about this..., and some more"],["this is ok..."], ["these things are very very bad..."]).to_edge(RIGHT)
+        self.play(review.create_animation())
+        
 
         # After animation of algorithm (at the moment just dummy data)
-        # self.clear()
-        # steps = [
-        #     {"id": 1, "start": 0, "size": 4},
-        #     {"id": 2, "start": 4, "size": 2},
-        #     {"id": 3, "start": 6, "size": 1},
-        #     {"id": 4, "start": 7, "size": 5},
-        #     {"id": 2, "start": 12, "size": 2},
-        #     {"id": 3, "start": 14, "size": 2},
-        #     {"id": 4, "start": 16, "size": 5},
-        #     {"id": 3, "start": 21, "size": 3},
-        # ]
-        # sequence_diagram = SequenceDiagram("MLQ", steps=steps)
-        # self.play(sequence_diagram.create_animations())
+        self.clear()
+        steps = [
+            {"id": 1, "start": 0, "size": 4},
+            {"id": 2, "start": 4, "size": 2},
+            {"id": 3, "start": 6, "size": 1},
+            {"id": 4, "start": 7, "size": 5},
+            {"id": 2, "start": 12, "size": 2},
+            {"id": 3, "start": 14, "size": 2},
+            {"id": 4, "start": 16, "size": 5},
+            {"id": 3, "start": 21, "size": 3},
+        ]
+        sequence_diagram = SequenceDiagram("MLQ", steps=steps)
+        self.play(sequence_diagram.create_animations())
         self.wait(2)
         self.clear()
