@@ -174,7 +174,7 @@ class CPU(VGroup):
         self.gear = SVGMobject("img/gear.svg", fill_color=self.color).scale(
             0.25 * self.size
         )
-        self.gear.next_to(self.cpu, self.gear_pos, buff=-0.4*self.size)
+        self.gear.next_to(self.cpu, self.gear_pos, buff=-0.4 * self.size)
         self.add(self.gear)
 
     def rotate_gear(self, speed=1, duration=1, angle=None):
@@ -424,7 +424,7 @@ class AnimatedReview(Mobject):
         self.arrange(DOWN, aligned_edge=LEFT, buff=MED_LARGE_BUFF)
         self.to_edge(RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
 
-    def create_animation(self):
+    def create_animation(self, return_list: bool = False):
         def proportional_write(idx: int, mobject: Mobject):
             run_time = self.speed * self.lengths[idx]
             return Write(mobject, run_time=run_time)
@@ -433,6 +433,9 @@ class AnimatedReview(Mobject):
         for idx, section in enumerate(self.submobjects):
             animations.append(proportional_write(idx, section))
             animations.append(Wait(1))
+
+        if return_list:
+            return animations
 
         return Succession(*animations)
 
@@ -493,12 +496,15 @@ class AnimatedBulletpoints(Mobject):
         else:
             self.move_to(edge - (self.get_width() / 2) * X_AXIS)
 
-    def create_animation(self):
+    def create_animation(self, return_list: bool = False):
         animations = []
         for bullet in self.bullets:
             run_time = self.speed * len(str(bullet.text))
             animations.append(Write(bullet, run_time=run_time))
             animations.append(Wait(1))
+
+        if return_list:
+            return animations
 
         return Succession(*animations)
 
