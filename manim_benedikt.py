@@ -1,5 +1,6 @@
 from manim import *
 import random
+from src.components import *
 
 
 class MQS_content():
@@ -135,8 +136,6 @@ class MQS_content():
 
         scene.wait(4)
 
-        
-
 
 class MFQS_content():
     # def construct(self):
@@ -203,16 +202,172 @@ class MFQS_content():
         scene.play(Create(rects_group), Create(arrows_in_group), Create(arrows_out_group), Create(arrows_group_2), run_time=5)
         scene.wait(5)
 
+# Old Version:
+# class MasterScene(Scene):
+#     def construct(self):
+#         mqs_content = MQS_content()
+#         # mfqs_content = MFQS_content()
 
+#         mqs_content.animation(self)
+#         self.clear()
+#         # mfqs_content.animation(self)
+#         # self.clear()
+#         self.wait(1)
 
-class MasterScene(Scene):
+# New Version:
+
+class OS(Scene):
     def construct(self):
-        mqs_content = MQS_content()
-        # mfqs_content = MFQS_content()
+        # creative introduction
+        # 2 min
+        # self.introduction()
+        # 2 min
+        # self.fcfs()
+        # In der ÜBerleitung Preemptive verwenden und erklären was das bedeutet
+        # 3 min
+        # self.rr()
+        # 3 min
+        self.mqs()
+        # 3 min
+        # self.metrics()
+        # reallife examples
+        # 2 min
+        # self.outro()
 
-        mqs_content.animation(self)
-        self.clear()
-        # mfqs_content.animation(self)
+    def mqs(self):
+        self.next_section(skip_animations=True)
+        self.next_section()
+
+        # 01 - Title
+        title = AnimatedTitle("Multilevel Queue Scheduling")
+        self.play(title.create_animation())
+
+        # 02 - Processes
+        process_sizes = [2,1,3,3,2,1,2]
+        processes = [Process(size=s, title=f"P{len(process_sizes)-i}") for i, s in enumerate(process_sizes)]
+        process_group = VGroup(*processes).arrange(RIGHT, buff=0.5)
+        process_group.to_edge(LEFT)
+        process_group.next_to(title, DOWN, aligned_edge=LEFT)
+        process_group.shift(LEFT*config.frame_width)
+        self.play(process_group.animate.shift(RIGHT*config.frame_width), run_time=4)
+
+        # 03 - Queues
+        line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(config.frame_width - 1)
+        line.move_to(ORIGIN)
+        line.shift(DOWN*0.6)
+        self.add(line)
+
+        queue1 = Text("Queue 1 - High Priority", font_size=24).next_to(process_group, DOWN, aligned_edge=LEFT)
+        queue1.shift(DOWN*0.1)
+        self.add(queue1)
+
+        queue2 = Text("Queue 2 - Low Priority", font_size=24).next_to(line, DOWN, aligned_edge=LEFT)
+        queue2.shift(DOWN*0.1)
+        self.add(queue2)
+        
+        self.wait(2)
+        # 04 - Queues Examples
+        new_queue1_text = Text("Foreground - Round Robin", font_size=24).next_to(process_group, DOWN, aligned_edge=LEFT)
+        new_queue1_text.shift(DOWN*0.1)
+        self.play(FadeOut(queue1))
+        self.play(FadeIn(new_queue1_text))
+
+
+        new_queue2_text = Text("Background - First Come, First Serve", font_size=24).next_to(line, DOWN, aligned_edge=LEFT)
+        new_queue2_text.shift(DOWN*0.1)
+        self.play(FadeOut(queue2))
+        self.play(FadeIn(new_queue2_text))
+        
+        # 05 - Move Processes to Queues
+        above_indexes = [0, 3, 5]
+        below_indexes = [1, 2, 4, 6]
+        queue1_processes = VGroup()
+        queue2_processes = VGroup()
+
+        above_initial_pos = line.get_top() + UP * 0.9 + LEFT * (config.frame_width / 2 - 1)
+        below_initial_pos = line.get_bottom() + DOWN * 1.5 + LEFT * (config.frame_width / 2 - 1)
+
+        buffer_space = 0.5
+
+        if above_indexes:
+            first_proc_above = processes[above_indexes[0]]
+            self.play(first_proc_above.animate.move_to(above_initial_pos))
+            last_process_position = first_proc_above.get_right()
+            queue1_processes.add(first_proc_above)
+
+            for idx in above_indexes[1:]:
+                proc = processes[idx]
+                self.play(proc.animate.next_to(last_process_position, RIGHT, buff=buffer_space))
+                last_process_position = proc.get_right()
+                queue1_processes.add(proc)
+
+        if below_indexes:
+            first_proc_below = processes[below_indexes[0]]
+            self.play(first_proc_below.animate.move_to(below_initial_pos))
+            last_process_position = first_proc_below.get_right()
+            queue2_processes.add(first_proc_below)
+
+            for idx in below_indexes[1:]:
+                proc = processes[idx]
+                self.play(proc.animate.next_to(last_process_position, RIGHT, buff=buffer_space))
+                last_process_position = proc.get_right()
+                queue2_processes.add(proc)
+
+
+        cpu = CPU(size=0.5)
+        clock = Clock(radius=0.5)
+        clock.to_edge(UP + RIGHT, buff=0.3)
+        cpu.next_to(clock, LEFT, buff=0.25)
+        self.add(cpu, clock)
+
+        # 06 - Simulation (1 Foreground)
+        self.wait(4)
+        self.play(FadeOut(queue1_processes), run_time=2)
+        self.wait(2)
+
+        # 07 - Simulation (2 Background Part 1)
+        self.play(FadeOut(queue2_processes[2:4]), run_time=2)
+
+        #TODO: proper animation of RR and FCFS
+        # animation = queue1_processes[0].adjust_size_with_animation(-1)
+        # self.play(AnimationGroup(animation))
+
+        # 08 - New process while execution
+        p8 = Process(size=2, title=f"P8")
+        p8.next_to(title, DOWN, aligned_edge=LEFT)
+        p8.shift(LEFT*config.frame_width)  
+        self.play(p8.animate.shift(RIGHT*config.frame_width), run_time=4)
+
+        # 09 - Move new process to foreground
+        self.play(p8.animate.move_to(above_initial_pos))
+        self.wait(2)
+        # 10 - Simulation (3 Foreground Part 2 (new process))
+        self.play(FadeOut(p8), run_time=2)
+        self.wait(2)
+
+        # 11 - Simulation (4 Background Part 2)
+        self.play(FadeOut(queue2_processes[0:2]), run_time=2)
+
+
+        # 12 - 
+        self.remove(queue1, new_queue1_text, line, new_queue2_text, queue2, cpu, clock)
+
+        # review = AnimatedReview(["nice"],["ok"], ["bad"])
+        # self.play(review.create_animation())
+
+        # After animation of algorithm (at the moment just dummy data)
         # self.clear()
-        self.wait(1)
-
+        # steps = [
+        #     {"id": 1, "start": 0, "size": 4},
+        #     {"id": 2, "start": 4, "size": 2},
+        #     {"id": 3, "start": 6, "size": 1},
+        #     {"id": 4, "start": 7, "size": 5},
+        #     {"id": 2, "start": 12, "size": 2},
+        #     {"id": 3, "start": 14, "size": 2},
+        #     {"id": 4, "start": 16, "size": 5},
+        #     {"id": 3, "start": 21, "size": 3},
+        # ]
+        # sequence_diagram = SequenceDiagram("MLQ", steps=steps)
+        # self.play(sequence_diagram.create_animations())
+        self.wait(2)
+        self.clear()

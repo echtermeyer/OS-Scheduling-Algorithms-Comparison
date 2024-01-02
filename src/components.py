@@ -171,7 +171,7 @@ class CPU(VGroup):
         self.gear = SVGMobject("img/gear.svg", fill_color=self.color).scale(
             0.25 * self.size
         )
-        self.gear.next_to(self.cpu, self.gear_pos, buff=-0.4)
+        self.gear.next_to(self.cpu, self.gear_pos, buff=-0.4*self.size)
         self.add(self.gear)
 
     def rotate_gear(self, speed=1, duration=1, angle=None):

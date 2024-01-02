@@ -174,7 +174,7 @@ class OS(Scene):
             {"id": 4, "start": 16, "size": 5},
             {"id": 3, "start": 21, "size": 3},
         ]
-        sequence_diagram = SequenceDiagram("RoundRobin", steps=steps)
+        sequence_diagram = SequenceDiagram("Round Robin", steps=steps)
         self.play(sequence_diagram.create_animations())
         self.wait(2)
         self.clear()
@@ -194,7 +194,7 @@ class OS(Scene):
             {"id": 4, "start": 16, "size": 5},
             {"id": 3, "start": 21, "size": 3},
         ]
-        sequence_diagram = SequenceDiagram("MQS", steps=steps)
+        sequence_diagram = SequenceDiagram("MLQ", steps=steps)
         self.play(sequence_diagram.create_animations())
         self.wait(2)
         self.clear()
