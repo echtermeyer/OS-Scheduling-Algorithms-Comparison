@@ -1,0 +1,236 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Autoren:
+%   Prof. Dr. Bernhard Drabant
+%   Prof. Dr. Dennis Pfisterer
+%   Prof. Dr. Julian Reichwald
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	ANLEITUNG: 
+%   1. Ersetzen Sie firmenlogo.jpg im Verzeichnis img
+%   2. Passen Sie alle Stellen im Dokument an, die mit 
+%      @stud 
+%      markiert sind
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	ACHTUNG: 
+%   Für das Erstellen des Literaturverzeichnisses wird das 
+%   modernere Paket biblatex in Kombination mit biber 
+%   verwendet - nicht mehr das ältere Paket BibTex!
+%
+%   Bitte stellen Sie Ihre TeX-Umgebung entsprechend ein (z.B. TeXStudio): 
+%   Einstellungen --> Erzeugen --> Standard Bibliographieprogramm: biber
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[fontsize=12pt,BCOR=5mm,DIV=12,parskip=half,listof=totoc,
+               paper=a4,toc=bibliography,pointlessnumbers]{scrreprt}
+               
+               %toc=listof,listof=entryprefix,
+               
+\makeindex
+
+%% Elementare Pakete, Konfigurationen und Definitionen werden geladen (gegebenenfalls anpassen)
+\input{config}
+
+%%
+%% @stud
+%%
+%% PERSÖNLICHE ANGABEN (BITTE VOLLSTÄNDIG EINGEBEN zwischen den Klammern: {...})
+%%
+%\ArtDerArbeit{Seminar} % "Bachelor" oder "Projekt" wählen
+\TitelDerArbeit{OS Scheduling Algorithmen}
+\AutorDerArbeit{Jannik Völker, Benedikt Prisett, Eric Echtermeyer}
+%\Abteilung{<Ihre Abteilung>}
+%\Firma{<Ihre Firma>}
+\Kurs{WWI-21-DSA}
+\Studienrichtung{Data Science}
+\Matrikelnummer{--TODO--, --TODO--, 6373947}
+\Studiengangsleiter{Prof. Dr.-Ing. habil. Dennis Pfisterer}
+\WissBetreuer{Prof. Dr. Maximilian Scherer}
+%\FirmenBetreuer{<Ihr(e) Firmenbetreuer(in)>}
+\Bearbeitungszeitraum{13.11.2023 -- 07.02.2024}
+%\Abgabedatum{11.01.2024}
+
+%%
+%% @stud
+%%
+%% BIBLIOGRAPHY (@stud: Bibliographie-Stil wählen - Position und Indizierung)
+%%  Auswahl zwischen: 
+%%   NUMERIC Style
+%%   IEEE Style
+%%   ALPHABETIC Style
+%%   HARVARD Style
+%%   CHICAGO Style 
+%%   (oder eigenen zulässigen Stil wählen) 
+%%
+%%%%%%%%%%%%%
+%% Zitierstil
+%%%%%%%%%%%%%
+% NUMERIC Style - e. g. [12]
+%\newcommand{\indextype}{numeric} 
+%
+% IEEE Style - numeric kind of style 
+%\newcommand{\indextype}{ieee} 
+%
+% ALPHABETIC Style - e. g. [AB12]
+\newcommand{\indextype}{alphabetic} 
+%
+% HARVARD Style 
+%\newcommand{\indextype}{apa} 
+%
+% CHICAGO Style 
+%\newcommand{\indextype}{authoryear}
+%
+%%%%%%%%%%%%%%%%%%%%%%
+%% Position des Zitats
+%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\position}{inline} 
+%
+% (!!) FOOTNOTE POSITION NOT RECOMMENDED IN MINT DOMAIN:
+%\newcommand{\position}{footnote}
+
+%% Final: Setzen des Zitierstils und der Zitatposition
+\usepackage[backend=biber, autocite=\position, style=\indextype]{biblatex} 	
+\settingBibFootnoteCite
+
+%%
+%% Definitionen und Commands
+%%
+\newcommand{\abs}{\par\vskip 0.2cm\goodbreak\noindent}
+\newcommand{\nl}{\par\noindent}
+\newcommand{\mcl}[1]{\mathcal{#1}}
+\newcommand{\nowrite}[1]{}
+\newcommand{\NN}{{\mathbb N}}
+\newcommand{\imagedir}{img}
+
+\makeindex
+
+\begin{document}
+
+\setTitlepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EHRENWÖRTLICHE ERKLÄRUNG
+%
+% @stud: ewerkl.tex bearbeiten
+%
+%\input{ewerkl} 
+%\cleardoublepage  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SPERRVERMERK
+%
+% @stud: nondisclosurenotice.tex bearbeiten
+%
+%\input{nondisclosurenotice} 
+%\cleardoublepage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	KURZFASSUNG
+%
+% @stud: acknowledge.tex bearbeiten
+%
+%\input{acknowledge}
+%\cleardoublepage 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% VERZEICHNISSE und ABSTRACT
+%
+% @stud: ggf. nicht benötigte Verzeichnisse auskommentieren/löschen
+%
+\tableofcontents
+\cleardoublepage
+
+% Abbildungsverzeichnis
+\phantomsection
+\addcontentsline{toc}{chapter}{\listfigurename}
+\listoffigures
+\cleardoublepage
+
+%	Tabellenverzeichnis
+%\phantomsection
+%\addcontentsline{toc}{chapter}{\listtablename}
+%\listoftables
+%\cleardoublepage
+
+%	Listingsverzeichnis / Quelltextverzeichnis
+%\lstlistoflistings
+%\cleardoublepage
+
+% Algorithmenverzeichnis
+%\listofalgorithms
+%\cleardoublepage
+
+% Abkürzungsverzeichnis
+% @stud: acronyms.tex bearbeiten
+%\input{acronyms} 
+%\cleardoublepage
+
+%	Kurzfassung / Abstract
+% @stud: abstract.tex bearbeiten
+%\input{abstract} 
+%\cleardoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% KAPITEL UND ANHÄNGE
+%
+% @stud:
+%   - nicht benötigte: auskommentieren/löschen
+%   - neue: bei Bedarf hinzufügen mittels input-Kommando an entsprechender Stelle einfügen
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\initializeText
+\onehalfspacing
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% KAPITEL
+%
+% @stud: einzelne Kapitel bearbeiten und eigene Kapitel hier einfügen
+%
+% Einleitung
+%\input{introduction}
+
+% mehrere Grundlagen- und Forschungs-Kapitel
+\input{chapter1}
+\input{chapter2}
+\input{chapter3}´
+
+% Fazit und Ausblick
+%\input{conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ANHÄNGE
+%
+% @stud: einzelne Anhänge bearbeiten und eigene Anhänge hier einfügen 
+%        die nachfolgenden Zeilen deaktivieren, wenn keine Anhänge verwendet werden
+%
+\initializeAppendix
+\input{appendix1}
+%\input{appendix2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\singlespacing
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LITERATURVERZEICHNIS
+% @stud: Literaturverzeichnis in Datei bibliography.bib anpassen. 
+%
+% Alternative zu Verwendung von \initializeBibliography: Citavi ...
+% (dann \initializeBibliography auskommentieren und eigenes LaTex Coding verwenden)
+%
+\initializeBibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% INDEX
+% @stud: ggf. Index auskommentieren, wenn nicht benötigt
+%
+\addcontentsline{toc}{chapter}{Index}
+\printindex
+
+\end{document}

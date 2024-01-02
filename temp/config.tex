@@ -1,0 +1,161 @@
+% !TEX root =  master.tex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	ANLEITUNG: 
+% Passen Sie gegebenenfalls alle Stellen im Dokument an, die mit 
+% @stud 
+% markiert sind.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%
+%% @stud
+%%
+%% LANGUAGE SETTINGS
+\usepackage[ngerman]{babel} 	        % german language
+\usepackage[german=quotes]{csquotes} 	% correct quoting using \enquote{}
+%\usepackage[english]{babel}          % english language
+%\usepackage{csquotes} 	              % correct quoting using \enquote{}
+
+\usepackage{makeidx}                  % allows index generation
+\usepackage{listings}	                %Format Listings properly
+\usepackage{lipsum}                   % Blindtext
+\usepackage{graphicx}                 % use various graphics formats
+\usepackage[german]{varioref}         % nicer references \vref
+\usepackage{caption}	                % better Captions
+\usepackage{booktabs}                 % nicer Tabs
+\usepackage[hidelinks=true]{hyperref} % keine roten Markierungen bei Links
+\usepackage{fnpct}                    % Correct superscripts 
+\usepackage{calc}                     % Used for extra space below footsepline, in particular
+\usepackage{array}
+\usepackage{acronym}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{setspace}
+\usepackage{tocloft}
+
+%% Schriftarten- und Zeichenpakete
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%%
+%% @stud
+%%
+%%	FONT SELECTION: Schriftarten und Schriftfamilie
+%%%%%%%%%%%%%
+%% SCHRIFTART
+%%%%%%%%%%%%%
+% 0) without decomment: normal font families 
+% ...
+% 1) Latin Modern 
+\usepackage{lmodern}        
+% 2) Times 
+%\usepackage{mathptmx}         
+% 3) Helvetica
+%\usepackage[scaled=.92]{helvet} 
+%%%%%%%%%%%%%%%%%%
+%%	SCHRIFTFAMILIE
+%%%%%%%%%%%%%%%%%%
+% ohne Serifen
+\renewcommand*{\familydefault}{\sfdefault}
+\addtokomafont{disposition}{\sffamily}
+%
+% mit Serifen
+%\renewcommand*{\familydefault}{\rmdefault}
+%\addtokomafont{disposition}{\rmfamily}
+%
+% Typewriter
+%\renewcommand*{\familydefault}{\ttdefault}
+%\addtokomafont{disposition}{\ttfamily}
+
+%%
+%% @stud
+%%
+%% Uncomment the following lines to support hard URL breaks in bibliography 
+%\apptocmd{\UrlBreaks}{\do\f\do\m}{}{}
+%\setcounter{biburllcpenalty}{9000}% Kleinbuchstaben
+%\setcounter{biburlucpenalty}{9000}% Großbuchstaben
+
+%%
+%% @stud
+%%
+%% FOOTNOTES: Count footnotes over chapters
+%% \counterwithout{footnote}{chapter}
+
+%	ACRONYMS
+\makeatletter
+\@ifpackagelater{acronym}{2015/03/20}
+{\renewcommand*{\aclabelfont}[1]{\textbf{{\acsfont{#1}}}}}{}
+\makeatother
+
+%	LISTINGS
+% @stud: ggf. Namen/Text anpassen (englisch)
+\renewcommand{\lstlistingname}{Quelltext} 
+\renewcommand{\lstlistlistingname}{Quelltextverzeichnis}
+\lstset{numbers=left,
+	numberstyle=\tiny,
+	captionpos=b,
+	basicstyle=\ttfamily\small}
+
+%	ALGORITHMS
+% @stud: ggf. Namen/Text anpassen (englisch)
+\renewcommand{\listalgorithmname}{Algorithmenverzeichnis}
+\floatname{algorithm}{Algorithmus}
+
+%	PAGE HEADER / FOOTER
+%	Warning: There are some redefinitions throughout the master.tex-file!  DON'T CHANGE THESE REDEFINITIONS!
+\RequirePackage[automark]{scrlayer-scrpage}
+%alternatively with separation lines: \RequirePackage[automark,headsepline,footsepline]{scrlayer-scrpage}
+
+\renewcommand{\chaptermarkformat}{}
+\RedeclareSectionCommand[beforeskip=0pt]{chapter}
+\clearpairofpagestyles
+
+%\ifoot[\rule{0pt}{\ht\strutbox+\dp\strutbox}DHBW Mannheim]{\rule{0pt}{\ht\strutbox+\dp\strutbox}DHBW Mannheim}
+\ofoot[\rule{0pt}{\ht\strutbox+\dp\strutbox}\pagemark]{\rule{0pt}{\ht\strutbox+\dp\strutbox}\pagemark}
+\ohead{\headmark}
+
+\newcommand{\TitelDerArbeit}[1]{\def\DerTitelDerArbeit{#1}\hypersetup{pdftitle={#1}}}
+\newcommand{\AutorDerArbeit}[1]{\def\DerAutorDerArbeit{#1}\hypersetup{pdfauthor={#1}}}
+\newcommand{\Firma}[1]{\def\DerNameDerFirma{#1}}
+\newcommand{\Kurs}[1]{\def\DieKursbezeichnung{#1}}
+\newcommand{\Abteilung}[1]{\def\DerNameDerAbteilung{#1}}
+\newcommand{\Studiengangsleiter}[1]{\def\DerStudiengangsleiter{#1}}
+\newcommand{\WissBetreuer}[1]{\def\DerWissBetreuer{#1}}
+\newcommand{\FirmenBetreuer}[1]{\def\DerFirmenBetreuer{#1}}
+\newcommand{\Bearbeitungszeitraum}[1]{\def\DerBearbeitungszeitraum{#1}}
+\newcommand{\Abgabedatum}[1]{\def\DasAbgabedatum{#1}}
+\newcommand{\Matrikelnummer}[1]{\def\DieMatrikelnummer{#1}}
+\newcommand{\Studienrichtung}[1]{\def\DieStudienrichtung{#1}}
+\newcommand{\ArtDerArbeit}[1]{\def\DieArtDerArbeit{#1}}
+\newcommand{\Literaturverzeichnis}{Literaturverzeichnis}
+
+\newcommand{\settingBibFootnoteCite}{
+	\setlength{\bibparsep}{\parskip}		  % Add some space between biblatex entries in the bibliography
+	\addbibresource{bibliography.bib}	    % Add file bibliography.bib as biblatex resource
+	\DefineBibliographyStrings{ngerman}{andothers = {{et\,al\adddot}},}
+}
+
+\newcommand{\setTitlepage}{
+	\input{titlepage}
+	\pagenumbering{roman} % Römische Seitennummerierung
+	\normalfont	
+}
+
+\newcommand{\initializeText}{
+	\clearpage
+	\ihead{\chaptername~\thechapter} % Neue Header-Definition
+	\pagenumbering{arabic}           % Arabische Seitenzahlen
+}
+
+\newcommand{\initializeBibliography}{
+	\ihead{}
+	\printbibliography[title=\Literaturverzeichnis] 
+	\cleardoublepage
+}
+
+\newcommand{\initializeAppendix}{
+	\appendix
+  \ihead{}
+  \cftaddtitleline{toc}{chapter}{Anhang}{}
+}
+

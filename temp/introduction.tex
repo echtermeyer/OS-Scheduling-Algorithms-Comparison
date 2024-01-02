@@ -1,0 +1,64 @@
+% !TEX root =  master.tex
+\chapter{Einleitung}
+
+\nocite{*}
+
+Dieses Kapitel enthält die Einleitung mit ihren verschiedenen Abschnitten/Sections und Unterabschnitten.
+
+\section{Beispiel Abschnitt: \LaTeX-Installation}
+
+Zur Verwendung von \LaTeX-Installation einer Distribution z.~B.~TeXLive, MikTex etc.~sowie eines Editors z.~B.~TeXStudio, TeXnicCenter etc.~notwendig.
+
+Installieren Sie zun\"achst die Distribution und anschließend den Editor. Beim ersten Start des Editors \"offnet sich ein 
+Konfigurationsassistent, der zun\"achst nach dem Pfad der installierten Distribution fragt. 
+
+Nach der Installation können k\"onnen Einstellungen z.~B.~f\"ur einen PostScript-Viewer gemacht werden. 
+Dieser Schritt kann ohne Weiteres \"ubersprungen werden. Entscheidend sind die Einstellungen f\"ur den pdf-Viewer. 
+
+Jetzt kann \LaTeX~verwendet werden. Um die Ausgabe eines Dokumentes zu erzeugen, muss das Dokument kompiliert werden (Ausgabe >
+Aktives Dokument > Erstellen und betrachten).
+
+\subsection{Beispiel Unterabschnitt: Aufbau eines \LaTeX-Dokuments}
+
+Ein \LaTeX-Dokument besteht in der Regel aus folgenden Komponenten:
+\begin{itemize}
+	\item Pr\"aambel
+	\item Titelseite
+	\item Textteil
+\end{itemize}
+
+\subsection{Beispiel Unterabschnitt auf zweiter Ebene: Pr\"aambel}
+In der Pr\"aambel werden global die Einstellungen f\"ur das gesamte Dokument definiert. Hierbei k\"onnen z.~B.~die Seitenr\"ander, 
+der Zeilenabstand oder auch die Sprache f\"ur die Silbentrennung festgelegt werden. In der ersten Zeile eines jeden Dokumentes wird dabei
+immer die zu verwendende Klasse festgelegt. Standardm\"aßig kann hier die Artikel-Klasse gew\"ahlt werden:
+
+\texttt{\textbackslash documentclass[12pt,titlepage]\{article\}}
+
+In den eckigen Klammern wird dabei u.a. die Standardschriftgr\"o\ss e f\"ur das gesamte Dokument festgelegt. 
+
+Au\ss erdem werden in der Pr\"aambel die f\"ur das Dokument ben\"otigten Pakete festgelegt. Gebr\"auchlich sind vor allem folgende Pakete:
+{\texttt{
+\begin{itemize}
+	\item \textbackslash usepackage[ngerman]\{babel\}
+	\item \textbackslash usepackage[latin1]\{inputenc\}
+	\item \textbackslash usepackage\{color\}
+	\item \textbackslash usepackage[a4paper]\{geometry\}
+	\item \textbackslash usepackage\{amssymb\}
+	\item \textbackslash usepackage\{amsthm\}
+	\item \textbackslash usepackage\{graphicx\}
+\end{itemize}
+}
+
+Im vorliegenden Fall werden die Pakete in der Konfigurationsdatei \texttt{config.tex} festgelegt, deren Inhalt durch 
+\texttt{\textbackslash input\{config\}} in das Hauptdokument \texttt{master.tex} inkludiert wird.
+
+\subsubsection{Beispiel Unterabschnitt auf zweiter Ebene: Titelseite}
+
+Nachdem die Dokumenten-Klasse und die zu verwendenden Pakete festgelegt worden sind,
+folgt die Titelseite. Da die Titelseite bereits Teil des eigentlichen Dokuments ist, muss ihr
+unbedingt der Befehl \texttt{\textbackslash begin\{document\}} vorausgehen. Am Ende des Dokuments sollte der Befehl
+\texttt{\textbackslash end\{document\}} gesetzt werden. Alles was nach diesem Befehl steht, wird vom Compiler nicht mehr beachtet.
+
+\section{Noch ein Beispiel-Abschnitt}
+
+Der Textteil beinhaltet nun den eigentlichen Text des Dokuments.
