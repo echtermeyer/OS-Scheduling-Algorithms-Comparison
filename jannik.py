@@ -6,13 +6,8 @@ from typing import Tuple
 from manim.typing import *
 
 
-# class RR(Scene):  #
+# class RR_old(Scene):  #
 #     def construct(self):
-#         # Einführungstext
-#         title = Text("Round Robin Scheduling").scale(0.9)
-#         self.play(Write(title))
-#         self.wait(1)
-#         self.play(FadeOut(title))
 
 #         # Beschreibung des Round Robin Schedulings
 #         description1 = Text(
@@ -42,8 +37,8 @@ from manim.typing import *
 
 class RR(Scene):
     def construct(self):
+        # With this said we are coming to an algorithm that supports
         self.next_section(skip_animations=True)
-        self.next_section()
 
         # create and animate title for RoundRobin
         title = AnimatedTitle("RoundRobin")
@@ -76,7 +71,7 @@ class RR(Scene):
 
         # initialize the RoundRobin object
         quantum = 1
-        rr = RoundRobinAnimation(quantum)
+        rr = AlgorithmAnimation(quantum)
 
         # Define all processes with it's lenghts
         process_sizes = [2, 3, 5, 1, 1, 2]
@@ -87,7 +82,7 @@ class RR(Scene):
                 Process(title=f"P{i+1}", size=size)
                 .to_edge(LEFT)
                 .to_edge(DOWN)
-                .shift(LEFT * 2)
+                .shift(LEFT * 4)
             )
             rr.add_process(process)
 
@@ -121,7 +116,7 @@ class RR(Scene):
                 first_process_in_cpu=True,
                 duration=1,
             )
-            # the animation might return 
+            # the animation might return
             if animation is not None:
                 self.play(animation)
 
@@ -157,5 +152,16 @@ class RR(Scene):
                 path = VMobject().set_points_as_corners(points).make_smooth()  # type: ignore
 
                 self.play(MoveAlongPath(rr.process_queue[-1], path), run_time=2)
+        self.play(FadeOut(clock))
 
+        points = [
+            "CPU time gets divided into quantums.",
+            "Each process get's processed for the duration of a quantum.",
+            "After each quantum the current process is either finished or it's put back into the queue."
+            + "\n=> Preemptive Schedulung",
+        ]
+
+        self.next_section()
+        bulletpoints = AnimatedBulletpoints(points)
+        self.play(bulletpoints.create_animation())
         self.wait(1)

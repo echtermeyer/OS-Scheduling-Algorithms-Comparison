@@ -148,6 +148,7 @@ class CPU(VGroup):
         show_gear: bool = True,
         gear_pos=UR,
         alignment: str = "center",
+        center: np.ndarray = None,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
@@ -156,18 +157,20 @@ class CPU(VGroup):
         self.size = size
         self.show_gear = show_gear
         self.gear_pos = gear_pos
-        self.create_cpu(alignment)
+        self._create_cpu(alignment=alignment, center=center)
         if self.show_gear:
-            self.add_gear()
+            self._add_gear()
 
-    def create_cpu(self, alignment) -> None:
+    def _create_cpu(self, alignment, center: np.ndarray = None) -> None:
         self.cpu = SVGMobject("img/cpu.svg", fill_color=self.color).scale(self.size)
+        if center is not None:
+            self.cpu.move_to(center)
         self.title_object = Paragraph(
             self.title, font_size=24, alignment=alignment
         ).next_to(self.cpu, UP)
         self.add(self.cpu, self.title_object)
 
-    def add_gear(self) -> None:
+    def _add_gear(self) -> None:
         self.gear = SVGMobject("img/gear.svg", fill_color=self.color).scale(
             0.25 * self.size
         )
@@ -281,15 +284,36 @@ class AnimatedTitle(Mobject):
 
         self.add(self.title)
 
-    def create_animation(self):
-        fade_in = FadeIn(self.title)
+    def create_animation(
+        self, center: np.ndarray = None, corner: np.ndarray = None
+    ) -> Succession:
+        """This method creates an animation for the title to fade in, shrink and optionally move to the specified position.
+        It allows to specify both the center and the corner of the frame for dynamically positioning of the title animation based on the current camera frame.
+
+        Args:
+            center (np.ndarray, optional): current center position of the camera. Defaults to None.
+            corner (np.ndarray, optional): current left upper corner position of the camera. Defaults to None.
+
+        Returns:
+            Succession: Returns the full animation to reveal and move the title
+        """
+
         shrink_and_move = (
             self.title.animate.scale(0.5)
             .to_edge(UP, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
             .to_edge(LEFT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
         )
+
+        if center is not None and corner is not None:
+            self.title.move_to(center)
+            shrink_and_move = self.title.animate.scale(0.5).next_to(
+                corner, DOWN + RIGHT
+            )
+
         # run_time is needed because otherwise the animation breaks
-        return Succession(fade_in, Wait(1), shrink_and_move, Wait(1), run_time=4)
+        return Succession(
+            FadeIn(self.title), Wait(1), shrink_and_move, Wait(1), run_time=4
+        )
 
 
 class AnimatedLabel(Mobject):
@@ -428,7 +452,14 @@ class AnimatedBulletpoints(Mobject):
             self.play(bulletpoints.create_animation())
     """
 
-    def __init__(self, bullet_points: List[str], width=25, speed=0.05, **kwargs):
+    def __init__(
+        self,
+        bullet_points: List[str],
+        width=25,
+        speed=0.05,
+        edge: np.array = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
 
         self.speed = speed
@@ -457,7 +488,10 @@ class AnimatedBulletpoints(Mobject):
 
         self.bullets.arrange(DOWN, aligned_edge=LEFT)
         self.add(self.bullets)
-        self.to_edge(RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
+        if edge is None:
+            self.to_edge(RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
+        else:
+            self.move_to(edge - (self.get_width() / 2) * X_AXIS)
 
     def create_animation(self):
         animations = []
@@ -638,12 +672,15 @@ class MetricBarChart(VMobject):
         return bar_grow_sequence
 
 
-class RoundRobinAnimation:
-    """Class used to create the RoundRobin Animations. It stores processes in a queue and allows to run the Algorithm for one quantum at a time."""
+class AlgorithmAnimation:
+    """Class used to create and Algorithm Animation for Roundrobin or FCFS. It stores processes in a queue and allows to run the Algorithm for one quantum at a time."""
 
-    def __init__(self, quantum: int) -> None:
+    def __init__(self, quantum: int, type: str) -> None:
         self.quantum = quantum
         self.process_queue: List[Process] = []
+        if type not in ["rr", "fcfs"]:
+            raise ValueError("Algorithm type must be either rr or fcfs")
+        self.type = type
 
     def get_current_length(self) -> int:
         length = 0
@@ -658,42 +695,71 @@ class RoundRobinAnimation:
         self.process_queue.append(process)
 
     def run(self) -> Tuple[bool, AnimationGroup | None]:
+        """Runs the algorithm for one quantum and returns the animation or None if the queue is empty.
+        It also returns if the current process finished or not
+
+        Returns:
+            Tuple[bool, AnimationGroup | None]: Returns True if the current process finished and False if not. The second value is the animation to be played or None if the queue is empty.
+        """
         if len(self.process_queue) == 0:
             return (True, None)
+
+        if self.type == "rr":
+            return self._run_rr()
+
+        return self._run_fcfs()
+
+    def _run_fcfs(self) -> Tuple[bool, AnimationGroup | None]:
+        current_process = self.process_queue[0]
+        animation = current_process.adjust_size_with_animation(-1)
+
+        if current_process.size == 0:
+            self.process_queue.pop(0)
+            return True, AnimationGroup(
+                FadeOut(current_process), current_process.animate.scale(0.1)
+            )
+
+        return False, animation
+
+    def _run_rr(self) -> Tuple[bool, AnimationGroup | None]:
         current_process = self.process_queue.pop(0)
         animation = current_process.adjust_size_with_animation(-1)
         if current_process.size > 0:
             self.process_queue.append(current_process)
             return False, animation
 
-        else:
-            return True, AnimationGroup(
-                FadeOut(current_process), current_process.animate.scale(0.1)
-            )
+        return True, AnimationGroup(
+            FadeOut(current_process), current_process.animate.scale(0.1)
+        )
 
     def move_queue(
         self,
-        pole_position,
-        first_process_in_cpu=False,
-        duration=1,
+        pole_position: np.ndarray,
+        first_process_in_cpu: bool = False,
+        duration: int = 1,
     ) -> Succession | None:
+        """Moves the queue of processes to the given pole position. If the first process is in the CPU, it will be ignored.
+
+        Args:
+            pole_position (np.ndarray): The position where the queue should be moved to.
+            first_process_in_cpu (bool, optional): If the first process should be ignored due to it beeing in the cpu. Defaults to False.
+            duration (int, optional): How long the animation should be in seconds. Defaults to 1.
+
+        Returns:
+            Succession | None: This is the Animation object that can be played. If the queue is empty, None will be returned.
+        """
+        # If the length of the queue isn't long enough to move, return None
+        # This occurs when either the length of the queue is 0
+        # or if the first process is in the CPU essentially beeing outside of the queue
+        # and the length of the queue is 1 because the actual queue is empty
+        if (
+            first_process_in_cpu
+            and len(self.process_queue) <= 1
+            or len(self.process_queue) <= 0
+        ):
+            return None
+
         previous_process = Process()
-
-        if first_process_in_cpu:
-            if len(self.process_queue) <= 1:
-                return None
-        else:
-            if len(self.process_queue) <= 0:
-                return None
-
-        # length = (
-        #     len(self.process_queue)
-        #     if first_process_in_cpu
-        #     else  - 1
-        # )
-        # if length <= 0:
-        #     return None
-
         animations = []
         for i, process in enumerate(
             self.process_queue[1 if first_process_in_cpu else 0 :]
@@ -734,9 +800,6 @@ class SequenceDiagram(Mobject):
 
     def __init__(self, algorithm: str, steps: List[Dict], **kwargs):
         super().__init__(**kwargs)
-
-        if algorithm not in ["FCFS", "Round Robin", "MLQ"]:
-            raise ValueError("Invalid algorithm name")
 
         self.title = Text(f"Sequence Diagram for {algorithm}", font_size=36)
         self.title.to_edge(UP, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
