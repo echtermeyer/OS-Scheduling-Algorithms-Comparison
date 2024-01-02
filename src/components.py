@@ -801,9 +801,6 @@ class SequenceDiagram(Mobject):
     def __init__(self, algorithm: str, steps: List[Dict], **kwargs):
         super().__init__(**kwargs)
 
-        if algorithm not in ["FCFS", "Round Robin", "MLQ"]:
-            raise ValueError("Invalid algorithm name")
-
         self.title = Text(f"Sequence Diagram for {algorithm}", font_size=36)
         self.title.to_edge(UP, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
 
