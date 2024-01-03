@@ -1,54 +1,40 @@
 % !TEX root =  master.tex
 \chapter{OS Scheduling Algorithmen}
-Das Kernstück eines jeden modernen Betriebssystems is dessen Fähigkeit eine Vielzahl von Prozessen effizient und effektiv zu verwalten. Diese Prozessverwaltung, auch bekannt als Scheduling, ist eine komplexe Aufgabe, welche darüber entscheidet, welcher Prozess zu welchem Zeitpunkt von der \ac{CPU} verarbeitet wird. Da moderne Betriebssysteme stets eine hohe Anzahl von Hintergrundprozessen bis hin zu anspruchsvollen Anwendungen verarbeiten müssen, ist die Verwendung leistungsfähiger OS Scheduling Algorithmen essentiell. Die richtige Auswahl dieser ist ein kritischer Bestandteil, um die Gesamtleistung und Reaktionsfähigkeit des Computersystems zu optimieren. Die zentrale Herausforderung des OS Schedulings ist die begrenzte Leistungsfähigkeit der Hardware, insbesondere der CPU, da diese zu einem Zeitpunkt stets nur einen Prozess ausführen kann. Dieser Engpass wird durch eine intelligente Planung gemindert, bei der entschieden wird, welcher Prozess als nächstes Zugang zur CPU erhalten soll. Ein effektives Scheduling muss dabei eine Balance zwischen verschiedenen wichtigen Metriken finden:
+Das Kernstück eines jeden modernen Betriebssystems is dessen Fähigkeit eine Vielzahl von Prozessen effizient und effektiv zu verwalten. Diese Prozessverwaltung, auch bekannt als Scheduling, ist eine komplexe Aufgabe, welche darüber entscheidet, welcher Prozess zu welchem Zeitpunkt von der \ac{CPU} verarbeitet wird. Da moderne Betriebssysteme stets eine hohe Anzahl von Hintergrundprozessen bis hin zu anspruchsvollen Anwendungen verarbeiten müssen, ist die Verwendung leistungsfähiger OS Scheduling Algorithmen essentiell. Im folgenden werden drei unterschiedliche Algorithmen des OS Scheduling vorgestellt, mit aufsteigender Komplexität. Jeder dieser Algorithmen hat eigenen Stärken und Schwächen, die ihn für bestimmte Szenarien und Anforderungen geeignet machen. Von den einfachen, aber grundlegenden Ansätzen wie First Come First Serve bis hin zu komplexeren Strategien wie Multilevel Queue Scheduling, spiegelt die Entwicklung dieser Algorithmen die Fortschritte in der Computertechnologie und unser zunehmendes Verständnis von effizientem Prozessmanagement wider.
 
-\begin{itemize}
-	\item \textbf{Durchsatz (Throughput)}: 
-	
-	Der Durchsatz misst die Anzahl der Prozesse, die in einer bestimmten Zeiteinheit vollständig abgearbeitet werden. Ein höherer Durchsatz bedeutet eine effizientere Verarbeitung von Prozessen durch das System. Bei vollständiger \ac{CPU}-Auslastung, ist diese Metrik bei unterschiedlichen Algorithmen konstant. 
-	\[ \text{Durchsatz} = \frac{\text{Anzahl\:abgeschlossener\:Prozesse}}{\text{Zeiteinheit}} \]
-	Diese Formel berechnet den Durchsatz als Anzahl der Prozesse, die pro Zeiteinheit abgeschlossen werden.
-	
-	\item \textbf{Wartezeit (Waiting Time)}: 
-	
-	Die Wartezeit ist die Gesamtzeit, die ein Prozess in der Warteschlange verbringt, bevor er Zugang zur \ac{CPU} erhält. Niedrigere Wartezeiten sind in der Regel wünschenswert, da sie auf ein reaktionsfähigeres System hinweisen.
-	\[ \text{Wartezeit} = \frac{1}{n} \sum_{i=1}^{n} (\text{Startzeit}_i - \text{Ankunftszeit}_i) \]
-	Hierbei ist \( n \) die Anzahl der Prozesse, und die Wartezeit wird als Durchschnitt der Zeit berechnet, die jeder Prozess vom Ankunftszeitpunkt bis zum Start der Ausführung wartet.
-	
-	\item \textbf{Antwortzeit (Response Time)}: 
-	
-	Die Antwortzeit misst die Zeit vom Beginn eines Prozesses bis zur ersten Antwort, nicht bis zur vollständigen Ausführung. Diese Metrik ist besonders wichtig in interaktiven Systemen, wo eine schnelle Reaktion auf Benutzereingaben erforderlich ist.
-	\[ \text{Antwortzeit} = \frac{1}{n} \sum_{i=1}^{n} (\text{Erste\:Antwortzeit}_i - \text{Ankunftszeit}_i) \]
-	Die Antwortzeit misst die Zeit vom Ankunft bis zur ersten Antwort jedes Prozesses, gemittelt über alle Prozesse.
-	
-	\item \textbf{Ausführungszeit (Turnaround Time)}: 
-	
-	Die Ausführungszeit ist die gesamte Zeit vom Start eines Prozesses bis zu seinem Abschluss. Diese Metrik berücksichtigt sowohl die Wartezeit als auch die Ausführungszeit und gibt somit ein umfassendes Bild von der Effizienz des Scheduling-Algorithmus.
-	\[ \text{Ausführungszeit} = \frac{1}{n} \sum_{i=1}^{n} (\text{Abschlusszeit}_i - \text{Ankunftszeit}_i) \]
-	Die Ausführungszeit wird als durchschnittliche Gesamtzeit berechnet, die ein Prozess vom Ankunftszeitpunkt bis zum Abschluss benötigt.
-	
-	\item \textbf{\ac{CPU}-Auslastung (\ac{CPU} Utilization)}: 
-	
-	Diese Metrik gibt an, wie effektiv die \ac{CPU} genutzt wird. Eine hohe \ac{CPU}-Auslastung bedeutet, dass die \ac{CPU} aktiv Prozesse bearbeitet und nicht untätig ist, was auf eine effiziente Nutzung der Ressourcen hinweist.
-	\[ \text{\ac{CPU}-Auslastung} = \left( \frac{\text{Gesamtzeit\:\ac{CPU}-Beschäftigung}}{\text{Gesamtbeobachtungszeit}} \right) \times 100\% \]
-	Diese Formel gibt den Prozentsatz der Zeit an, in der die CPU aktiv Prozesse bearbeitet hat, bezogen auf die gesamte Beobachtungszeit.
-	
-	\item \textbf{Fairness}: 
-	
-	Fairness misst, wie gleichmäßig die \ac{CPU}-Zeit zwischen den verschiedenen Prozessen aufgeteilt wird. Ein fairer Scheduling-Algorithmus stellt sicher, dass kein Prozess übermäßig bevorzugt oder benachteiligt wird. Es handelt sich hierbei um eine qualitative Metrik und lässt sich nicht direkt durch eine allgemeine Formel quantifizieren. Stattdessen wird sie oft durch die Analyse der Verteilung der \ac{CPU}-Zeit und der Wartezeiten über die verschiedenen Prozesse hinweg bewertet.
-\end{itemize}
+\section{First-Come-First-Serve}
 
-In den folgenden Abschnitten dieses Kapitels werden verschiedene Scheduling-Algorithmen vorgestellt und analysiert. Jeder Algorithmus hat seine eigenen Stärken und Schwächen, die ihn für bestimmte Szenarien und Anforderungen geeignet machen. Von den einfachen, aber grundlegenden Ansätzen wie First Come First Serve bis hin zu komplexeren Strategien wie Multilevel Queue Scheduling, spiegelt die Entwicklung dieser Algorithmen die Fortschritte in der Computertechnologie und unser zunehmendes Verständnis von effizientem Prozessmanagement wider.
+Einer der grundlegenden Scheduling Algorithmen für Betriebssysteme ist \ac{FCFS}, welcher auch als \ac{FIFO} bekannt ist. \ac{FCFS} verarbeitet eingehende Prozesse in der Reihenfolge ihres Eintreffens, wobei der zuerst ankommende Prozess als erstes prozessiert wird. Implementiert wird \ac{FCFS} für gewöhnlich als Warteschlange, aus welcher eingehende Prozesse anschließend sequentiell verarbeitet werden können. 
 
-\section{First Come First Serve (FCFS)}
+\begin{algorithm}
+	\caption{\ac{FCFS} Scheduling Algorithm}
+	\label{alg:fcfs}
+	\begin{algorithmic}[1]
+		\Procedure{FCFS}{$processes$}
+		\State $n \gets \text{length}(processes)$
+		\State Sort $processes$ by arrival time
+		\For{$i \gets 1$ to $n$}
+		\If{$i = 1$}
+		\State $start\_time[i] \gets processes[i].arrival$
+		\Else
+		\State $start\_time[i] \gets \max(processes[i].arrival, finish\_time[i-1])$
+		\EndIf
+		\State $finish\_time[i] \gets start\_time[i] + processes[i].burst$
+		\State $waiting\_time[i] \gets start\_time[i] - processes[i].arrival$
+		\State $turnaround\_time[i] \gets finish\_time[i] - processes[i].arrival$
+		\EndFor
+		\State \textbf{return} $start\_time$, $finish\_time$, $waiting\_time$, $turnaround\_time$
+		\EndProcedure
+	\end{algorithmic}
+\end{algorithm}
 
-First Come First Serve (FCFS), auch bekannt als First In, First Out (FIFO), stellt einen der grundlegendsten Scheduling-Algorithmen in Betriebssystemen dar. Dieser Algorithmus verarbeitet Prozesse in der Reihenfolge ihres Eintreffens, wobei der zuerst ankommende Prozess als erster bedient wird. Die Implementierung von FCFS erfolgt üblicherweise durch eine Warteschlange, in der Prozesse gehalten und sequenziell abgearbeitet werden, sobald die CPU verfügbar ist. Aufgrund seiner Einfachheit und leichten Implementierbarkeit wird FCFS oft in Lehrbüchern wie Silberschatz, Galvin und Gagne (2018) im Kontext grundlegender Betriebssystemkonzepte diskutiert.
+Der Pseudocode in Abbildung \ref{alg:fcfs} implementiert den \ac{FCFS}-Scheduling-Algorithmus für einen Satz von Prozessen. Dabei wird angenommen, dass jeder Prozess Eigenschaften wie Ankunftszeit (arrival) und Ausführungszeit (burst) hat. Der Algorithmus berechnet die Startzeit, Endzeit, Wartezeit und Umlaufzeit für jeden Prozess. 
 
-Einer der Hauptvorteile von FCFS liegt in seiner Einfachheit und der daraus resultierenden leichten Implementierbarkeit. Dieser Algorithmus ist transparent und vorhersehbar, da die Reihenfolge der Prozessbearbeitung direkt von ihrer Ankunftszeit abhängt. Zudem gewährleistet er eine faire Behandlung der Prozesse ohne Bevorzugung, da jeder Prozess in der Reihenfolge seines Eintreffens bearbeitet wird (Stallings, 2012). 
+Der große Vorteil von \ac{FCFS} liegt in dessen Einfachheit und der hieraus resultierenden leichten Implementierbarkeit. Daher wird dieser auch oft in Lehrbüchern im Kontext grundlegender Betriebssystemkonzepte diskutiert. % Silberschatz, Galvin und Gagne (2018)
+Zudem ist \ac{FCFS} transparent und einfach vorhersehbar, da die Reihenfolge und Bearbeitungsdauer aller Prozesse lediglich von deren Ankunftszeiten abhängig ist. Ein zusätzlicher Vorteil liegt in der fairen Behandlung aller Prozesse, welche ohne Bevorzugung stattfindet, da jeder Prozess in der Reihenfolge seines Eintreffens bearbeitet wird. % (Stallings, 2012)
 
-Jedoch weist FCFS auch signifikante Nachteile auf. Ein wesentliches Problem ist der sogenannte Convoy-Effekt, bei dem ein langer Prozess, der früh in der Warteschlange erscheint, nachfolgende, kürzere Prozesse verzögern kann. Diese Situation führt zu einer ineffizienten CPU-Auslastung und verlängerten Wartezeiten, wie von Tanenbaum und Bos (2014) hervorgehoben. Weiterhin berücksichtigt FCFS weder die Dauer noch die Priorität von Prozessen, was besonders nachteilig für interaktive Systeme ist, in denen schnelle Antwortzeiten entscheidend sind. Diese Mängel machen FCFS für viele moderne Anwendungen, insbesondere in Multitasking-Umgebungen, unpraktikabel.
-
-Insgesamt bietet FCFS einen grundlegenden Einblick in die Konzepte des Prozessscheduling, ist jedoch aufgrund seiner begrenzten Effizienz und Flexibilität in praktischen Anwendungen oft nicht die bevorzugte Wahl.
+Nichtsdestotrotz, weist \ac{FCFS} auch signifikante Nachteile auf, weshalb in der Praxis meist von einer alleinigen Nutzung dieses Algorithmus abgesehen wird. Das wesentliche Problem ist nämlich der Convoy-Effekt, bei dem ein langer Prozess, der früh in der Warteschlange erscheint, nachfolgende, kürzere Prozesse verzögert. Diese Situation führt zu einer ineffizienten \ac{CPU}-Auslastung und verlängerten Wartezeiten. % Tanenbaum, Bos (2014) 
+Weiterhin berücksichtigt \ac{FCFS} neben der Dauer auch nicht die unterschiedliche Priorität von Prozessen, was besonders nachteilig für interaktive Systeme ist, in denen schnelle Antwortzeiten von höchster Relevanz sind. Diese Mängel machen \ac{FCFS} für viele moderne Anwendungen unpraktikabel. Daher wird im folgenden der OS Scheduling Algorithmus Round Robin näher betrachtet, welcher versucht eine schnellere Antwortzeit zu ermöglichen.
 
 %\textit{Referenzen:}
 %\begin{itemize}
@@ -58,14 +44,43 @@ Insgesamt bietet FCFS einen grundlegenden Einblick in die Konzepte des Prozesssc
 %\end{itemize}
 
 \section{Round Robin}
+Round Robin ist ein weit verbreiteter OS Scheduling-Algorithmus in Betriebssystemen, welcher für seine Fairness und Eignung für Zeitscheiben-basiertes Multitasking bekannt ist. Dieser Algorithmus weist jedem Prozess in der Warteschlange ein festes Zeitintervall, auch bezeichnet als Quantum, zu. Nach Ablauf des Quantums wird der aktuell laufende Prozess unterbrochen und an das Ende der Warteschlange gestellt, um dem nächsten Prozess in der Warteschlange \ac{CPU}-Zeit zuweisen zu können. Diese Methode gewährleistet, dass alle Prozesse regelmäßige \ac{CPU}-Zeit erhalten und kein Prozess andere blockiert, wie es bei \ac{FCFS} mit dem Convoy-Effekt der Fall ist. Durch diese Rotation wird eine gleichmäßigere Verteilung der \ac{CPU}-Zeit über alle Prozesse erreicht. % Tanenbaum und Bos (2014) 
 
-Round Robin ist ein weit verbreiteter Scheduling-Algorithmus in Betriebssystemen, der insbesondere für seine Fairness und Eignung für Zeitscheiben-basiertes Multitasking bekannt ist. Dieser Algorithmus weist jedem Prozess in der Warteschlange ein festes Zeitintervall oder Quantum zu. Nach Ablauf des Quantums wird der aktuell laufende Prozess unterbrochen und an das Ende der Warteschlange gestellt, um dem nächsten Prozess in der Warteschlange CPU-Zeit zuzuweisen. Diese Methode gewährleistet, dass alle Prozesse regelmäßige CPU-Zeit erhalten und kein Prozess andere blockiert. Tanenbaum und Bos (2014) heben hervor, dass durch die Rotation aller Prozesse eine gleichmäßigere Verteilung der CPU-Zeit über alle Prozesse erreicht wird.
+\begin{algorithm}
+	\caption{Round Robin Scheduling Algorithmus}
+	\begin{algorithmic}[1]
+		\Procedure{RoundRobin}{$processes$, $quantum$}
+		\State $n \gets \text{length}(processes)$
+		\State $time \gets 0$
+		\State Initialize $remaining\_burst[n]$ with burst times of $processes$
+		\While{any $remaining\_burst > 0$}
+		\For{$i \gets 1$ to $n$}
+		\If{$remaining\_burst[i] > 0$}
+		\State $start\_time[i] \gets time$
+		\State Execute process $i$ for $\min(remaining\_burst[i], quantum)$ time
+		\State $time \gets time + \min(remaining\_burst[i], quantum)$
+		\State $remaining\_burst[i] \gets remaining\_burst[i] - \min(remaining\_burst[i], quantum)$
+		\If{$remaining\_burst[i] = 0$}
+		\State $finish\_time[i] \gets time$
+		\State $waiting\_time[i] \gets finish\_time[i] - processes[i].burst - processes[i].arrival$
+		\State $turnaround\_time[i] \gets finish\_time[i] - processes[i].arrival$
+		\EndIf
+		\EndIf
+		\EndFor
+		\EndWhile
+		\State \textbf{return} $start\_time$, $finish\_time$, $waiting\_time$, $turnaround\_time$
+		\EndProcedure
+	\end{algorithmic}
+\end{algorithm}
 
-Ein wesentlicher Vorteil des Round Robin-Algorithmus liegt in seiner Fähigkeit, eine niedrige Antwortzeit für alle Prozesse zu gewährleisten, was ihn besonders für interaktive Systeme geeignet macht. Da jeder Prozess innerhalb eines bestimmten Zeitrahmens bedient wird, wird vermieden, dass Prozesse zu lange auf die CPU-Zuteilung warten müssen. Diese Eigenschaft wird von Silberschatz, Galvin und Gagne (2018) als entscheidend für Systeme mit hoher Prozessanzahl und Anforderungen an die Reaktionsfähigkeit angesehen.
+Abbildung \ref{alg:rr} zeigt Pseudocode für die Implementation des Round Robin Scheduling Algorithmus für einen Satz von Prozessen. Jeder Prozess wird für eine Zeitdauer bis zum definierten Quantum ausgeführt. Der Algorithmus berechnet Start- und Endzeiten, Wartezeiten und Umlaufzeiten für jeden Prozess. 
 
-Jedoch hat der Round Robin-Algorithmus auch einige Nachteile. Ein wesentlicher Punkt ist die Wahl der Länge des Zeitquantums. Ein zu kurzes Quantum kann zu häufigen Prozesswechseln führen, was die Overhead-Kosten erhöht und die CPU-Effizienz verringert, wie Stallings (2012) anmerkt. Andererseits kann ein zu langes Quantum die Antwortzeiten für Prozesse verlängern und den Effekt einer quasi FCFS-Behandlung haben. Daher ist die Optimierung des Zeitquantums für die spezifische Anwendungsumgebung kritisch.
+Ein wesentlicher Vorteil des Round Robin-Algorithmus ist dessen Fähigkeit, eine niedrige Antwortzeit für alle Prozesse zu gewährleisten, weshalb dieser besonders für interaktive Systeme von hoher Eignung ist. Da jeder Prozess innerhalb eines bestimmten Zeitrahmens bedient wird, kommt es nicht zu langen Wartezeiten bis die Prozesse \ac{CPU}-Zeit zugeteilt bekommen. Diese Eigenschaft wird von Silberschatz, Galvin und Gagne (2018) als entscheidend für Systeme mit hoher Prozessanzahl und Anforderungen an die Reaktionsfähigkeit angesehen, wie es bei modernen Betriebssystemen der Fall ist. 
 
-Insgesamt bietet der Round Robin-Algorithmus eine ausgewogene Lösung für das Scheduling-Problem, insbesondere in Umgebungen, in denen Fairness und schnelle Antwortzeiten gefordert sind. Seine Einfachheit und Effizienz machen ihn zu einer beliebten Wahl in vielen Betriebssystemen.
+Allerdings weist Round Robin auch Nachteile auf. Ein wesentlicher Punkt ist hierbei die Wahl der Länge des Zeitquantums. Bei einem zu kurzen Quantum, kommt es durch den Round Robin Algorithmus zu häufigen Prozesswechseln, wodurch ein Overhead entsteht und hierdurch die \ac{CPU}-Effizient verringert wird. % Stallings (2012)
+Wenn allerdings ein zu langes Quantum gewählt wird, verlängern sich die Antwortzeiten für Prozesse und in extremen Fällen kann es zum gleichen Convoy-Effekt wie bei \ac{FCFS} kommen. Daher ist die Optimierung des Quantums abhängig von den spezifischen Anwendungsumgebungen und von hoher Relevanz. Ein weiterer Nachteil, ähnlich wie bei \ac{FCFS} ist die fehlende Betrachtung von unterschiedlichen Prioritäten der eingehenden Prozesse. Im folgenden wird ein weiterer OS Scheduling Algorithmus beschrieben, welcher versucht diese Herausforderung eines prioritäten-basierten Schedulings zu beheben. 
+
+Insgesamt bietet der Round Robin-Algorithmus eine ausgewogene Lösung für das Scheduling-Problem, insbesondere in Umgebungen, bei welchen Fairness und schnelle Antwortzeiten gefordert sind. Seine Einfachheit und Effizienz machen ihn zu einer beliebten Wahl in vielen Betriebssystemen.
 
 %\textit{Referenzen:}
 %\begin{itemize}
@@ -76,14 +91,36 @@ Insgesamt bietet der Round Robin-Algorithmus eine ausgewogene Lösung für das S
 
 
 \section{Multilevel Queue Scheduling}
+Die Prozesse, welche ein modernes Betriebssystem verarbeitet kann in unterschiedliche Kategorien unterteilt werden. So gibt es beispielsweise interaktive Prozesse, bei welchen eine schnelle Antwortzeit essentiell ist, und Hintergrundprozesse, welche nicht direkt abgearbeitet werden müssen. Für gewöhnlich haben interaktive Prozesse daher eine höhere Priorität und müssen daher schneller \ac{CPU}-Zeit zugeteilt bekommen. \ac{MLQ} Scheduling ist ein fortgeschrittener Scheduling-Algorithmus, welcher versucht diese Prozesse mit unterschiedlichen Prozessen effizient zu verwalten. Bei \ac{MLQ} wird die Prozesswarteschlange in mehrere separate Warteschlangen aufgeteilt, wobei jede Warteschlange eine eigene Prioritätsebene besitzt. Eingehende Prozesse werden nun basierend auf ihrer Priorität in die jeweilig zuständige Warteschlange eingeteilt. Jede dieser Warteschlangen hat nun einen eigenen Scheduling-Algorithmus, um eine differenzierte Behandlung der Prozesse zu ermöglichen. % Silberschatz, Galvin und Gagne (2018)
+Bei der Verarbeitung der Prozesse wird nun stets die Warteschlange mit der höheren Priorität zuerst abgearbeitet, bis diese vollständig entleert wurde. Anschließend fängt die Verarbeitung der nächst-geringeren Prioritätsstufe an. Sofern ein Prozess mit höherer Priorität nun eintreffen sollte, wird die Verarbeitung der Warteschlange mit geringerer Priorität pausiert. 
 
-Multilevel Queue Scheduling ist ein fortgeschrittener Scheduling-Algorithmus, der in Betriebssystemen verwendet wird, um verschiedene Klassen von Prozessen effizient zu verwalten. Dieser Ansatz teilt die Prozesswarteschlange in mehrere separate Warteschlangen auf, wobei jede Warteschlange eine eigene Prioritätsebene hat. Prozesse werden basierend auf ihren Eigenschaften, wie Prozesspriorität, Prozesstyp oder Speicheranforderungen, in diese Warteschlangen eingeteilt. Silberschatz, Galvin und Gagne (2018) beschreiben, dass jede Warteschlange ihren eigenen Scheduling-Algorithmus haben kann, was eine differenzierte Behandlung der Prozesse ermöglicht.
+\begin{algorithm}
+	\caption{Multilevel Queue Scheduling Algorithmus mit \ac{FCFS} and Round Robin}
+	\label{alg:mlq}
+	\begin{algorithmic}[1]
+		\Procedure{MLQ}{$queues$, $processes$, $quantum$}
+		\State Assign each process to a queue based on its priority or category
+		\For{each $queue$ in $queues$}
+		\If{queue is for interactive tasks}
+		\State Apply Round Robin Scheduling (Refer to Round Robin Algorithm) with quantum $quantum$
+		\State Execute interactive tasks in $queue$ using RR
+		\ElsIf{queue is for background tasks}
+		\State Apply First-Come, First-Served Scheduling (Refer to FCFS Algorithm)
+		\State Execute background tasks in $queue$ using FCFS
+		\EndIf
+		\EndFor
+		\State \textbf{return} scheduling results for each process
+		\EndProcedure
+	\end{algorithmic}
+\end{algorithm}
 
-Ein Hauptvorteil dieses Ansatzes liegt in seiner Flexibilität und Effizienz bei der Behandlung verschiedener Prozesstypen. Beispielsweise können Systemprozesse, interaktive Prozesse und Batch-Prozesse in verschiedenen Warteschlangen mit entsprechenden Prioritäten und Scheduling-Strategien verwaltet werden. Tanenbaum und Bos (2014) betonen, dass durch diese Methode eine bessere Anpassung an die Anforderungen spezifischer Prozesstypen erreicht werden kann, was zu einer verbesserten Gesamtleistung des Systems führt.
+Der Pseudocode aus Abbildung \ref{alg:mlq} beschreibt, wie bei \ac{MLQ} verschiedene Warteschlangen für interaktive und Hintergrundtasks verwendet werden, wobei für interaktive Tasks der Round Robin und für Hintergrundtasks der \ac{FCFS} angewendet wird.
 
-Ein Nachteil des Multilevel Queue Scheduling liegt in seiner Komplexität, sowohl in der Implementierung als auch im Management. Die korrekte Einordnung von Prozessen in Warteschlangen und die Auswahl geeigneter Scheduling-Algorithmen für jede Warteschlange erfordern sorgfältige Planung und ständige Anpassung. Wie Stallings (2012) anmerkt, kann dies zu einem erhöhten Overhead führen und die Systemeffizienz beeinträchtigen, wenn nicht richtig verwaltet.
+Der zentrale Vorteil von \ac{MLQ} liegt in dessen Flexibilität und Effizienz bei der Behandlung verschiedener Prozesstypen. Beispielsweise können Systemprozesse, interaktive Prozesse und Batch-Prozesse in verschiedenen Warteschlangen mit entsprechenden Prioritäten und Scheduling-Strategien verwaltet werden. Hierdurch wird eine bessere Anpassung an die Anforderungen spezifischer Prozesstypen erreicht, was zu einer verbesserten Gesamtleistung des Systems führt. % Tanenbaum und Bos (2014) 
 
-Trotz dieser Herausforderungen bleibt Multilevel Queue Scheduling eine mächtige Methode in Betriebssystemen, insbesondere dort, wo eine Vielzahl unterschiedlicher Prozesse und Anforderungen effizient verwaltet werden muss.
+Ein Nachteil von \ac{MLQ} liegt allerdings in seiner Komplexität, sowohl in der Implementierung als auch im Management. Die korrekte Einordnung von Prozessen in Warteschlangen und die Auswahl geeigneter Scheduling-Algorithmen für jede Warteschlange erfordern sorgfältige Planung und ständige Anpassung. Eine nachteilige Auswahl und Konfiguration dieser Algorithmen kann zu einem erhöhten Overhead führen und die Systemeffizienz negativ beeinträchtigen. % Stallings (2012)
+
+Trotz dieser Herausforderungen ist \ac{MLQ} ein beliebter Scheduling Algorithmus in Betriebssystemen, insbesondere dort, wo eine Vielzahl unterschiedlicher Prozesse und Anforderungen effizient verwaltet werden muss.
 
 %\textit{Referenzen:}
 %\begin{itemize}
