@@ -1,45 +1,32 @@
 % !TEX root =  master.tex
-% 2.5 Seiten lang
-\chapter{Quantitativer Vergleich}
+\chapter{Performance Analyse}
+Die richtige Auswahl dieser Algorithmen ist ein kritischer Bestandteil, um die Gesamtleistung und Reaktionsfähigkeit des Computersystems zu optimieren. Die zentrale Herausforderung hierbei ist die begrenzte Leistungsfähigkeit der Hardware, insbesondere der \ac{CPU}, da diese zu einem Zeitpunkt stets nur einen Prozess ausführen kann. Dieser Engpass wird durch die OS Scheduling Algorithmen gemindert, da diese entscheiden welcher Prozess als nächstes Zugang zur \ac{CPU} erhalten soll. Um den am besten passenden OS Scheduling Algorithmus für das spezifische Anwendungsgebiet auswählen zu können, ist es hilfreich unterschiedliche Metriken zu betrachten, um die richtige Balance zu finden. Im folgenden werden die wichtigsten Metriken kurz vorgestellt und anschließend auf die bereits zuvor beschriebenen OS Scheduling Algorithmen \ac{FCFS}, Round Robin und \ac{MLQ} angewendet. 
 
 \section{Metriken}
-Die richtige Auswahl dieser Algorithmen ist ein kritischer Bestandteil, um die Gesamtleistung und Reaktionsfähigkeit des Computersystems zu optimieren. Die zentrale Herausforderung hierbei ist die begrenzte Leistungsfähigkeit der Hardware, insbesondere der \ac{CPU}, da diese zu einem Zeitpunkt stets nur einen Prozess ausführen kann. Dieser Engpass wird durch die OS Scheduling Algorithmen gemindert, da diese entscheiden welcher Prozess als nächstes Zugang zur \ac{CPU} erhalten soll. Ein effektives OS Scheduling muss dabei eine Balance zwischen verschiedenen wichtigen Metriken finden:
+Während für spezifische Anwendungsgebiete unterschiedliche Metriken von besonderer Relevanz sind, werden folgende Metriken meistens betrachtet, um eine fundierte Entscheidung treffen zu können. Während in interaktive Systeme beispielsweise eine geringe Antwortzeit priorisieren, ist bei Batch-Processing-Systemen eine niedrige Ausführungszeit von höherer Relevanz.
 
-\begin{itemize}
-	\item \textbf{Durchsatz (Throughput)}: 
-	
-	Der Durchsatz misst die Anzahl der Prozesse, die in einer bestimmten Zeiteinheit vollständig abgearbeitet werden. Ein höherer Durchsatz bedeutet eine effizientere Verarbeitung von Prozessen durch das System. Bei vollständiger \ac{CPU}-Auslastung, ist diese Metrik bei unterschiedlichen Algorithmen konstant. 
-	\[ \text{Durchsatz} = \frac{\text{Anzahl\:abgeschlossener\:Prozesse}}{\text{Zeiteinheit}} \]
-	Diese Formel berechnet den Durchsatz als Anzahl der Prozesse, die pro Zeiteinheit abgeschlossen werden.
-	
-	\item \textbf{Wartezeit (Waiting Time)}: 
-	
-	Die Wartezeit ist die Gesamtzeit, die ein Prozess in der Warteschlange verbringt, bevor er Zugang zur \ac{CPU} erhält. Niedrigere Wartezeiten sind in der Regel wünschenswert, da sie auf ein reaktionsfähigeres System hinweisen.
-	\[ \text{Wartezeit} = \frac{1}{n} \sum_{i=1}^{n} (\text{Startzeit}_i - \text{Ankunftszeit}_i) \]
-	Hierbei ist \( n \) die Anzahl der Prozesse, und die Wartezeit wird als Durchschnitt der Zeit berechnet, die jeder Prozess vom Ankunftszeitpunkt bis zum Start der Ausführung wartet.
-	
-	\item \textbf{Antwortzeit (Response Time)}: 
-	
-	Die Antwortzeit misst die Zeit vom Beginn eines Prozesses bis zur ersten Antwort, nicht bis zur vollständigen Ausführung. Diese Metrik ist besonders wichtig in interaktiven Systemen, wo eine schnelle Reaktion auf Benutzereingaben erforderlich ist.
-	\[ \text{Antwortzeit} = \frac{1}{n} \sum_{i=1}^{n} (\text{Erste\:Antwortzeit}_i - \text{Ankunftszeit}_i) \]
-	Die Antwortzeit misst die Zeit vom Ankunft bis zur ersten Antwort jedes Prozesses, gemittelt über alle Prozesse.
-	
-	\item \textbf{Ausführungszeit (Turnaround Time)}: 
-	
-	Die Ausführungszeit ist die gesamte Zeit vom Start eines Prozesses bis zu seinem Abschluss. Diese Metrik berücksichtigt sowohl die Wartezeit als auch die Ausführungszeit und gibt somit ein umfassendes Bild von der Effizienz des Scheduling-Algorithmus.
-	\[ \text{Ausführungszeit} = \frac{1}{n} \sum_{i=1}^{n} (\text{Abschlusszeit}_i - \text{Ankunftszeit}_i) \]
-	Die Ausführungszeit wird als durchschnittliche Gesamtzeit berechnet, die ein Prozess vom Ankunftszeitpunkt bis zum Abschluss benötigt.
-	
-	\item \textbf{\ac{CPU}-Auslastung (\ac{CPU} Utilization)}: 
-	
-	Diese Metrik gibt an, wie effektiv die \ac{CPU} genutzt wird. Eine hohe \ac{CPU}-Auslastung bedeutet, dass die \ac{CPU} aktiv Prozesse bearbeitet und nicht untätig ist, was auf eine effiziente Nutzung der Ressourcen hinweist.
-	\[ \text{\ac{CPU}-Auslastung} = \left( \frac{\text{Gesamtzeit\:\ac{CPU}-Beschäftigung}}{\text{Gesamtbeobachtungszeit}} \right) \times 100\% \]
-	Diese Formel gibt den Prozentsatz der Zeit an, in der die CPU aktiv Prozesse bearbeitet hat, bezogen auf die gesamte Beobachtungszeit.
-	
-	\item \textbf{Fairness}: 
-	
-	Fairness misst, wie gleichmäßig die \ac{CPU}-Zeit zwischen den verschiedenen Prozessen aufgeteilt wird. Ein fairer Scheduling-Algorithmus stellt sicher, dass kein Prozess übermäßig bevorzugt oder benachteiligt wird. Es handelt sich hierbei um eine qualitative Metrik und lässt sich nicht direkt durch eine allgemeine Formel quantifizieren. Stattdessen wird sie oft durch die Analyse der Verteilung der \ac{CPU}-Zeit und der Wartezeiten über die verschiedenen Prozesse hinweg bewertet.
-\end{itemize}
+
+\textbf{Durchsatz (Throughput)}: Der Durchsatz misst die Anzahl der Prozesse, die in einer bestimmten Zeiteinheit vollständig abgearbeitet werden. Ein höherer Durchsatz bedeutet eine effizientere Verarbeitung von Prozessen durch das System. Bei vollständiger \ac{CPU}-Auslastung, ist diese Metrik bei unterschiedlichen Algorithmen konstant. Folgende Formel berechnet den Durchsatz als Anzahl der Prozesse, die pro Zeiteinheit abgeschlossen werden.
+\[ \text{Durchsatz} = \frac{\text{Anzahl\:abgeschlossener\:Prozesse}}{\text{Zeiteinheit}} \]
+
+
+\textbf{Wartezeit (Waiting Time)}: Die Wartezeit ist die Gesamtzeit, die ein Prozess in der Warteschlange verbringt, bevor er Zugang zur \ac{CPU} erhält. Niedrigere Wartezeiten sind in der Regel wünschenswert, da sie auf ein reaktionsfähigeres System hinweisen. Hierbei ist \( n \) die Anzahl der Prozesse, und die Wartezeit wird als Durchschnitt der Zeit berechnet, die jeder Prozess vom Ankunftszeitpunkt bis zum Start der Ausführung wartet.
+\[ \text{Wartezeit} = \frac{1}{n} \sum_{i=1}^{n} (\text{Startzeit}_i - \text{Ankunftszeit}_i) \]
+
+
+\textbf{Antwortzeit (Response Time)}: Die Antwortzeit misst die Zeit vom Beginn eines Prozesses bis zur ersten Antwort, nicht bis zur vollständigen Ausführung. Diese Metrik ist besonders wichtig in interaktiven Systemen, wo eine schnelle Reaktion auf Benutzereingaben erforderlich ist. Die Antwortzeit misst die Zeit vom Ankunft bis zur ersten Antwort jedes Prozesses, gemittelt über alle Prozesse.
+\[ \text{Antwortzeit} = \frac{1}{n} \sum_{i=1}^{n} (\text{Erste\:Antwortzeit}_i - \text{Ankunftszeit}_i) \]
+
+
+\textbf{Ausführungszeit (Turnaround Time)}: Die Ausführungszeit ist die gesamte Zeit vom Start eines Prozesses bis zu seinem Abschluss. Diese Metrik berücksichtigt sowohl die Wartezeit als auch die Ausführungszeit und gibt somit ein umfassendes Bild von der Effizienz des Scheduling-Algorithmus. Die Ausführungszeit wird als durchschnittliche Gesamtzeit berechnet, die ein Prozess vom Ankunftszeitpunkt bis zum Abschluss benötigt.
+\[ \text{Ausführungszeit} = \frac{1}{n} \sum_{i=1}^{n} (\text{Abschlusszeit}_i - \text{Ankunftszeit}_i) \]
+
+
+\textbf{\ac{CPU}-Auslastung (\ac{CPU} Utilization)}: Diese Metrik gibt an, wie effektiv die \ac{CPU} genutzt wird. Eine hohe \ac{CPU}-Auslastung bedeutet, dass die \ac{CPU} aktiv Prozesse bearbeitet und nicht untätig ist, was auf eine effiziente Nutzung der Ressourcen hinweist. Die folgende Formel gibt den Prozentsatz der Zeit an, in der die CPU aktiv Prozesse bearbeitet hat, bezogen auf die gesamte Beobachtungszeit.
+\[ \text{\ac{CPU}-Auslastung} = \left( \frac{\text{Gesamtzeit\:\ac{CPU}-Beschäftigung}}{\text{Gesamtbeobachtungszeit}} \right) \times 100\% \]
+
+
+\textbf{Fairness}: Fairness misst, wie gleichmäßig die \ac{CPU}-Zeit zwischen den verschiedenen Prozessen aufgeteilt wird. Ein fairer Scheduling-Algorithmus stellt sicher, dass kein Prozess übermäßig bevorzugt oder benachteiligt wird. Es handelt sich hierbei um eine qualitative Metrik und lässt sich nicht direkt durch eine allgemeine Formel quantifizieren. Stattdessen wird sie oft durch die Analyse der Verteilung der \ac{CPU}-Zeit und der Wartezeiten über die verschiedenen Prozesse hinweg bewertet.
 
 
 \section{Simulationsergebnisse}
