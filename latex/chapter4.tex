@@ -1,2 +1,22 @@
 % !TEX root =  master.tex
 \chapter{Anwendungsgebiete}
+Innerhalb dieses Kapitels werden wird auf konkrete Anwendungsgebiete der zuvor genannten OS-Scheduling Algorithmen eingegangen. Da diese Algorithmen auch außerhalb von Betriebssystemen einen zentrale Rolle spielen, werden auch Beispiele solcher Anwendungsgebiete aufgenommen.
+
+\section{Innerhalb von Betriebssystemen}
+Ein häufiges Anwendungsgebiet von \ac{FCFS} ist für Aufgaben der Batch-Verarbeitung, da hierbei der Convoy-Effekt nicht entscheidend ist. Ein klassisches Beispiel ist das Druckmanagement in frühen Betriebssystemen, wo Druckaufträge in der Reihenfolge ihres Eintreffens abgearbeitet werden.  %\textit{Referenz:} Silberschatz, Galvin, and Gagne. \textit{Operating System Concepts}. 9th ed., John Wiley \& Sons, 2012.
+
+Round Robin hingegen ist ein weit verbreiteter Scheduling Algorithmus in zeitkritischen Betriebssystemen. Ein Beispiel hierfür ist das Thread-Scheduling in Unix-basierten Systemen, bei dem jedem Thread eine feste Zeitscheibe zugeteilt wird. %\textit{Referenz:} Tanenbaum, Andrew S., and Bos, Herbert. \textit{Modern Operating Systems}. 4th ed., Pearson, 2014.
+
+\ac{MLQ} wird in modernen Betriebssystemen wie Linux angewendet, um Prozesse basierend auf ihrer Priorität zu ordnen, wobei systemkritische Prozesse höher priorisiert werden als Benutzerprozesse. % \textit{Referenz:} Love, Robert. \textit{Linux Kernel Development}. 3rd ed., Addison-Wesley Professional, 2010.
+
+\section{Außerhalb von Betriebssystemen}
+\ac{FCFS} wird in zahlreichen Gebieten verwendet, insbesondere bei Prozessen die eine schwierige Digitalisierbarkeit aufweisen. Beispielsweise wird \ac{FCFS} in der Industrieautomatisierung, insbesondere in der Steuerung von Fertigungsstraßen, verwendet, bei welcher Aufträge in der Reihenfolge ihres Eingangs bearbeitet werden. % \textit{Referenz:} Groover, Mikell P. \textit{Automation, Production Systems, and Computer-Integrated Manufacturing}. 4th ed., Prentice Hall, 2016.
+Auch in Bereichen fernab von Computern und Industrie wird \ac{FCFS} in alltäglichen Situationen eingesetzt. Ob die Warteschlange an der Kasse im Supermarkt, die Patientenabfertigung im Krankenhaus in der Notaufnahme oder auch der Essensausgabe in der Kantine. 
+
+Ein bekanntes Anwendungsgebiet von Round Robin ist die Telekommunikation. Hierbei wird Round Robin für die Paketvermittlung und Lastverteilung in Netzwerkroutern eingesetzt. Ein Beispiel ist die Verteilung von Netzwerkbandbreite in Cisco-Routern. %\textit{Referenz:} Kurose, James F., and Ross, Keith W. \textit{Computer Networking: A Top-Down Approach}. 7th ed., Pearson, 2016.
+Darüber hinaus wird Round Robin in der Luftfahrtindustrie für die Flugzeugbodenabfertigung eingesetzt, um eine faire und effiziente Zuteilung von Abfertigungsdiensten zu gewährleisten. %\textit{Referenz:} Wells, Alexander T., and Young, Seth B. \textit{Airport Planning \& Management}. 6th ed., McGraw-Hill Education, 2011.
+
+\ac{MLQ} findet beispielsweise Anwendung in Cloud-Computing-Umgebungen wie AWS oder Google Cloud, wo verschiedene Instanzen oder Services in getrennten Warteschlangen basierend auf SLAs verwaltet werden. %\textit{Referenz:} Rhoton, John. \textit{Cloud Computing Explained: Implementation Handbook for Enterprises}. 2nd ed., Recursive Press, 2013.
+
+
+
