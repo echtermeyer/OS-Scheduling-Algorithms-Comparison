@@ -117,7 +117,7 @@ class OS(CustomMovingCameraScene):
         # creative introduction
         # 2 min
         self.wait(1)
-        self.introduction()
+        # self.introduction()
         # # 2 min
         # self.fcfs()
         # # In der ÜBerleitung Preemptive verwenden und erklären was das bedeutet
@@ -130,7 +130,7 @@ class OS(CustomMovingCameraScene):
         # self.metrics()
         # # reallife examples
         # # 2 min
-        # self.outro()
+        self.outro()
 
     def introduction(self):
         # 01 - todo list
@@ -720,4 +720,29 @@ class OS(CustomMovingCameraScene):
         self.clear()
 
     def outro(self):
-        pass
+        # 01 - recap
+        summary1 = Text("First Come First Serve", font_size=28)
+        summary2 = Text("Round Robin", font_size=28)
+        summary3 = Text("Multi Level Queue", font_size=28)
+
+        summary = VGroup(summary1, summary2, summary3).arrange(DOWN, aligned_edge=LEFT).to_edge(LEFT, buff=1)
+        self.play(Write(summary), run_time=4)
+        self.wait(2)
+
+        # todo list
+        # 01 - todo list
+        todo = Text("My TODO List:", font_size=24)
+        todo1 = Text("- Buy groceries.", font_size=24)
+        todo2 = Text("- Annoy Lasse.", font_size=24)
+        todo3 = Text("- Take out the trash.", font_size=24)
+        todo4 = Text("- Finish AAML Homework.", font_size=24)
+
+        todo_group = VGroup(todo, todo1, todo2, todo3, todo4).arrange(DOWN, aligned_edge=LEFT).to_edge(RIGHT, buff=3)
+        self.play(Write(todo_group), run_time=4)
+        self.wait(2)
+
+        # icons
+        check = SVGMobject("img/intro_outro/check.svg", fill_color=WHITE).scale(0.15)
+        check_group = VGroup(*[check.copy() for _ in range(4)]).arrange(DOWN, buff=0.25).next_to(todo_group,direction=RIGHT).shift(DOWN*0.25)
+        self.play(ShowIncreasingSubsets(check_group, run_time=4))
+        self.wait(2)     
