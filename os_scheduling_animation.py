@@ -118,22 +118,59 @@ class OS(CustomMovingCameraScene):
         # 2 min
         self.wait(1)
         self.introduction()
-        # 2 min
-        self.fcfs()
-        # In der ÜBerleitung Preemptive verwenden und erklären was das bedeutet
-        # 3 min
-        self.rr()
+        # # 2 min
+        # self.fcfs()
+        # # In der ÜBerleitung Preemptive verwenden und erklären was das bedeutet
+        # # 3 min
+        # self.rr()
 
-        # 3 min
-        self.mqs()
-        # 3 min
-        self.metrics()
-        # reallife examples
-        # 2 min
-        self.outro()
+        # # 3 min
+        # self.mqs()
+        # # 3 min
+        # self.metrics()
+        # # reallife examples
+        # # 2 min
+        # self.outro()
 
     def introduction(self):
-        pass
+        # 01 - todo list
+        todo = Text("My TODO List:", font_size=24)
+        todo1 = Text("- Buy groceries.", font_size=24)
+        todo2 = Text("- Annoy Lasse.", font_size=24)
+        todo3 = Text("- Take out the trash.", font_size=24)
+        todo4 = Text("- Finish AAML Homework.", font_size=24)
+
+        todo_group = VGroup(todo, todo1, todo2, todo3, todo4).arrange(DOWN, aligned_edge=LEFT).to_edge(LEFT)
+        self.play(Write(todo_group), run_time=4)
+
+        # 02 - symbols
+        icon1 = SVGMobject("img/intro_outro/double_arrow.svg", fill_color=WHITE).scale(0.5)
+        icon2_1 = SVGMobject("img/intro_outro/arrow_left", fill_color=WHITE).scale(0.4)
+        # icon2_1.shift(LEFT*2)
+        icon2_2 = SVGMobject("img/intro_outro/arrow_right", fill_color=WHITE).scale(0.4)
+        # icon2_2.shift(RIGHT*2)
+        icon2 = VGroup(icon2_1, icon2_2).arrange(RIGHT, buff=-0.3) 
+        # icon2 = VGroup(icon2_1, icon2_2).arrange(DOWN, buff=-0.3)
+        icon3 = SVGMobject("img/intro_outro/prio1", fill_color=WHITE).scale(0.6)
+
+        icons = VGroup(icon1, icon2, icon3).arrange(DOWN, buff=1)
+         
+        self.play(ShowIncreasingSubsets(icons, run_time= 3))
+
+        # 03 - question mark
+        question = SVGMobject("img/intro_outro/question",fill_color=WHITE).scale(1.2).to_edge(RIGHT, buff=1.75)
+        self.play(FadeIn(question), run_time=2)
+        self.wait(4)
+        self.play(FadeOut(question), run_time=2)
+
+        # 04 - cpu
+        cpu = CPU(size=1).to_edge(RIGHT, buff=1.75)
+        self.play(FadeIn(cpu), run_time=2)
+        self.wait(4)
+
+        # 05 - evlt. processes hinzufügen
+        # fadout mit question mark. und fade in von prozessen mit cpu
+        
 
     def fcfs(self):
         self.fcfs_animation()
