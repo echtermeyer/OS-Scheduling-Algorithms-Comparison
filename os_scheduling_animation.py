@@ -53,25 +53,32 @@ class CustomMovingCameraScene(MovingCameraScene):
         return None
 
     def get_to_edge(
-        self, edge: np.ndarray, margin: float = DEFAULT_MOBJECT_TO_EDGE_BUFFER
+        self,
+        edge: np.ndarray,
+        margin: float = DEFAULT_MOBJECT_TO_EDGE_BUFFER,
+        object_width: float = 0,
+        object_height: float = 0,
     ) -> np.ndarray:
         """Used to get the position of the edge of the camera frame with a margin
 
         Args:
             edge (np.ndarray): This is the edge of the camera frame that should be returned (e.g. LEFT, RIGHT, UP, DOWN)
             margin (float, optional): This is how far from the edge the center of the returned position should be. Defaults to DEFAULT_MOBJECT_TO_EDGE_BUFFER.
+            object_width (float, optional): When used to move an object this takes the width of an object to adjust the margin. Defaults to 0.
+            object_width (float, optional): When used to move an object this takes the height of an object to adjust the margin. Defaults to 0.
 
         Returns:
             np.ndarray: position of the edge of the camera frame with a margin
         """
+
         if np.array_equal(edge, UP):
-            return self.get_edge(UP) + DOWN * margin
+            return self.get_edge(UP) + DOWN * margin + DOWN * object_height / 2
         if np.array_equal(edge, DOWN):
-            return self.get_edge(DOWN) + UP * margin
+            return self.get_edge(DOWN) + UP * margin + UP * object_height / 2
         if np.array_equal(edge, LEFT):
-            return self.get_edge(LEFT) + RIGHT * margin
+            return self.get_edge(LEFT) + RIGHT * margin + RIGHT * object_width / 2
         if np.array_equal(edge, RIGHT):
-            return self.get_edge(RIGHT) + LEFT * margin
+            return self.get_edge(RIGHT) + LEFT * margin + LEFT * object_width / 2
         return None
 
     def get_to_corner(
@@ -79,16 +86,24 @@ class CustomMovingCameraScene(MovingCameraScene):
         corner: np.ndarray,
         x_margin: float = DEFAULT_MOBJECT_TO_EDGE_BUFFER,
         y_margin: float = DEFAULT_MOBJECT_TO_EDGE_BUFFER,
+        object_width: float = 0,
+        object_height: float = 0,
     ) -> np.ndarray:
         """Used to get to a specific corner of the camera frame with a margin
+
         Args:
             corner (np.ndarray): The desired corner
             x_margin (float, optional): the margin on the X-Axis. Defaults to DEFAULT_MOBJECT_TO_EDGE_BUFFER.
             y_margin (float, optional): the margin on the Y-Axis. Defaults to DEFAULT_MOBJECT_TO_EDGE_BUFFER.
+            object_width (float, optional): When used to move an object this takes the width of an object to adjust the margin. Defaults to 0.
+            object_height (float, optional): When used to move an object this takes the height of an object to adjust the margin. Defaults to 0.
 
         Returns:
             np.ndarray: position of the corner of the camera frame with a margin
         """
+
+        x_margin += object_width / 2
+        y_margin += object_height / 2
         if np.array_equal(corner, UR):
             return (
                 self.get_to_edge(edge=RIGHT, margin=x_margin) * X_AXIS
@@ -116,8 +131,10 @@ class OS(CustomMovingCameraScene):
     def construct(self):
         # creative introduction
         # 2 min
+
         self.wait(1)
-        self.introduction()
+        self.next_section(skip_animations=True)
+        # self.introduction()
         # # 2 min
         # self.fcfs()
         # # In der ÜBerleitung Preemptive verwenden und erklären was das bedeutet
@@ -125,7 +142,7 @@ class OS(CustomMovingCameraScene):
         # self.rr()
 
         # # 3 min
-        # self.mqs()
+        self.mqs()
         # # 3 min
         # self.metrics()
         # # reallife examples
@@ -143,11 +160,7 @@ class OS(CustomMovingCameraScene):
         todo_group = VGroup(todo, todo1, todo2, todo3, todo4).arrange(
             DOWN, aligned_edge=LEFT
         )
-        todo_group.move_to(
-            self.get_to_edge(
-                LEFT, margin=DEFAULT_MOBJECT_TO_EDGE_BUFFER + todo_group.get_width() / 2
-            )
-        )
+        todo_group.move_to(self.get_to_edge(LEFT, object_width=todo_group.get_width()))
         self.play(Write(todo_group), run_time=4)
 
         # 02 - symbols
@@ -168,14 +181,16 @@ class OS(CustomMovingCameraScene):
 
         # 03 - question mark
         question = SVGMobject("img/intro_outro/question", fill_color=WHITE).scale(1.2)
-        question.move_to(self.get_to_edge(RIGHT, margin=1.75 + question.get_width() / 2))
+        question.move_to(
+            self.get_to_edge(RIGHT, margin=1.75, object_width=question.get_width())
+        )
         self.play(FadeIn(question), run_time=2)
         self.wait(4)
         self.play(FadeOut(question), run_time=2)
 
         # 04 - cpu
         cpu = CPU(size=1)
-        cpu.move_to(self.get_to_edge(RIGHT, margin=1.75 + cpu.get_width() / 2))
+        cpu.move_to(self.get_to_edge(RIGHT, margin=1.75, object_width=cpu.get_width()))
         self.play(FadeIn(cpu), run_time=2)
         self.wait(4)
 
@@ -486,19 +501,24 @@ class OS(CustomMovingCameraScene):
         pass
 
     def mqs(self):
-        # self.mqs_animation()
-        self.mqs_bullet_points()
+        self.wait(1)
+        self.play(self.move_one_slide(x=RIGHT))
+        self.mqs_animation()
+
+        # self.mqs_bullet_points()
         # self.mqs_flow()
         # self.mqs_pros_cons()
-        self.clear()
+
+        self.wait(1)
 
     def mqs_animation(self):
-        # self.next_section(skip_animations=True)
-        # self.next_section()
-
         # 01 - Title
         title = AnimatedTitle("Multilevel Queue Scheduling")
-        self.play(title.create_animation())
+        self.play(
+            title.create_animation(
+                center=self.get_current_center(), corner=self.get_to_corner(UL)
+            )
+        )
 
         # 02 - Processes
         process_sizes = [2, 1, 3, 3, 2, 1, 2]
@@ -507,18 +527,22 @@ class OS(CustomMovingCameraScene):
             for i, s in enumerate(process_sizes)
         ]
         process_group = VGroup(*processes).arrange(RIGHT, buff=0.5)
-        process_group.to_edge(LEFT)
+
         process_group.next_to(title, DOWN, aligned_edge=LEFT)
-        process_group.shift(LEFT * config.frame_width)
-        self.play(process_group.animate.shift(RIGHT * config.frame_width), run_time=4)
+        process_group.shift(LEFT * self.get_current_width())
+        self.play(
+            process_group.animate.shift(RIGHT * self.get_current_width()), run_time=4
+        )
 
         # 03 - Queues
-        line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(
-            config.frame_width - 1
+
+        line = DashedLine(
+            self.get_to_edge(LEFT),
+            self.get_to_edge(RIGHT),
+            dash_length=0.005,
         )
-        line.move_to(ORIGIN)
-        line.shift(DOWN * 0.6)
-        # self.add(line)
+        line.move_to(self.get_current_center()).shift(DOWN * 0.6)
+
         self.play(FadeIn(line))
 
         queue1 = Text("Queue 1 - High Priority", font_size=24).next_to(
@@ -557,18 +581,16 @@ class OS(CustomMovingCameraScene):
         queue1_processes = VGroup()
         queue2_processes = VGroup()
 
-        above_initial_pos = (
-            line.get_top() + UP * 0.9 + LEFT * (config.frame_width / 2 - 1)
-        )
-        below_initial_pos = (
-            line.get_bottom() + DOWN * 1.5 + LEFT * (config.frame_width / 2 - 1)
-        )
-
         buffer_space = 0.5
 
         if above_indexes:
             first_proc_above = processes[above_indexes[0]]
-            self.play(first_proc_above.animate.move_to(above_initial_pos))
+            self.play(
+                first_proc_above.animate.next_to(
+                    new_queue1_text, DOWN, aligned_edge=LEFT
+                )
+            )
+
             last_process_position = first_proc_above.get_right()
             queue1_processes.add(first_proc_above)
 
@@ -584,7 +606,14 @@ class OS(CustomMovingCameraScene):
 
         if below_indexes:
             first_proc_below = processes[below_indexes[0]]
-            self.play(first_proc_below.animate.move_to(below_initial_pos))
+            self.next_section()
+            self.play(
+                first_proc_below.animate.next_to(
+                    new_queue2_text, DOWN, aligned_edge=LEFT
+                )
+            )
+            self.wait(2)
+            self.next_section(skip_animations=True)
             last_process_position = first_proc_below.get_right()
             queue2_processes.add(first_proc_below)
 
@@ -597,10 +626,19 @@ class OS(CustomMovingCameraScene):
                 )
                 last_process_position = proc.get_right()
                 queue2_processes.add(proc)
+        self.wait(2)
 
         cpu = CPU(size=0.5)
         clock = Clock(radius=0.5)
-        clock.to_edge(UP + RIGHT, buff=0.3)
+        clock.move_to(
+            self.get_to_corner(
+                UR,
+                x_margin=0.3,
+                y_margin=0.3,
+                object_width=clock.get_width(),
+                object_height=clock.get_height(),
+            )
+        )
         cpu.next_to(clock, LEFT, buff=0.25)
         self.add(cpu, clock)
 
@@ -619,11 +657,11 @@ class OS(CustomMovingCameraScene):
         # 08 - New process while execution
         p8 = Process(size=2, title=f"P8")
         p8.next_to(title, DOWN, aligned_edge=LEFT)
-        p8.shift(LEFT * config.frame_width)
-        self.play(p8.animate.shift(RIGHT * config.frame_width), run_time=4)
+        p8.shift(LEFT * self.get_current_width())
+        self.play(p8.animate.shift(RIGHT * self.get_current_width()), run_time=4)
 
         # 09 - Move new process to foreground
-        self.play(p8.animate.move_to(above_initial_pos))
+        self.play(p8.animate.next_to(new_queue1_text, DOWN, aligned_edge=LEFT))
         self.wait(2)
         # 10 - Simulation (3 Foreground Part 2 (new process))
         self.play(FadeOut(p8), run_time=2)

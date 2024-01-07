@@ -307,7 +307,7 @@ class AnimatedTitle(Mobject):
         if center is not None and corner is not None:
             self.title.move_to(center)
             shrink_and_move = self.title.animate.scale(0.5).next_to(
-                corner, DOWN + RIGHT
+                corner, DR, buff=0
             )
 
         # run_time is needed because otherwise the animation breaks
