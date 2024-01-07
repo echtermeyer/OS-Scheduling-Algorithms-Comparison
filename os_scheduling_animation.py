@@ -133,7 +133,7 @@ class OS(CustomMovingCameraScene):
         # 2 min
 
         self.wait(1)
-        self.next_section(skip_animations=True)
+
         # self.introduction()
         # # 2 min
         # self.fcfs()
@@ -606,14 +606,13 @@ class OS(CustomMovingCameraScene):
 
         if below_indexes:
             first_proc_below = processes[below_indexes[0]]
-            self.next_section()
+
             self.play(
                 first_proc_below.animate.next_to(
                     new_queue2_text, DOWN, aligned_edge=LEFT
                 )
             )
-            self.wait(2)
-            self.next_section(skip_animations=True)
+
             last_process_position = first_proc_below.get_right()
             queue2_processes.add(first_proc_below)
 
