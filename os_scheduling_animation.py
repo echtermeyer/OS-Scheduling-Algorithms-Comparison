@@ -117,7 +117,7 @@ class OS(CustomMovingCameraScene):
         # creative introduction
         # 2 min
         self.wait(1)
-        # self.introduction()
+        self.introduction()
         # # 2 min
         # self.fcfs()
         # # In der ÜBerleitung Preemptive verwenden und erklären was das bedeutet
@@ -125,7 +125,7 @@ class OS(CustomMovingCameraScene):
         # self.rr()
 
         # # 3 min
-        self.mqs()
+        # self.mqs()
         # # 3 min
         # self.metrics()
         # # reallife examples
@@ -140,37 +140,47 @@ class OS(CustomMovingCameraScene):
         todo3 = Text("- Take out the trash.", font_size=24)
         todo4 = Text("- Finish AAML Homework.", font_size=24)
 
-        todo_group = VGroup(todo, todo1, todo2, todo3, todo4).arrange(DOWN, aligned_edge=LEFT).to_edge(LEFT)
+        todo_group = VGroup(todo, todo1, todo2, todo3, todo4).arrange(
+            DOWN, aligned_edge=LEFT
+        )
+        todo_group.move_to(
+            self.get_to_edge(
+                LEFT, margin=DEFAULT_MOBJECT_TO_EDGE_BUFFER + todo_group.get_width() / 2
+            )
+        )
         self.play(Write(todo_group), run_time=4)
 
         # 02 - symbols
-        icon1 = SVGMobject("img/intro_outro/double_arrow.svg", fill_color=WHITE).scale(0.5)
+        icon1 = SVGMobject("img/intro_outro/double_arrow.svg", fill_color=WHITE).scale(
+            0.5
+        )
         icon2_1 = SVGMobject("img/intro_outro/arrow_left", fill_color=WHITE).scale(0.4)
         # icon2_1.shift(LEFT*2)
         icon2_2 = SVGMobject("img/intro_outro/arrow_right", fill_color=WHITE).scale(0.4)
         # icon2_2.shift(RIGHT*2)
-        icon2 = VGroup(icon2_1, icon2_2).arrange(RIGHT, buff=-0.3) 
+        icon2 = VGroup(icon2_1, icon2_2).arrange(RIGHT, buff=-0.3)
         # icon2 = VGroup(icon2_1, icon2_2).arrange(DOWN, buff=-0.3)
         icon3 = SVGMobject("img/intro_outro/prio1", fill_color=WHITE).scale(0.6)
 
         icons = VGroup(icon1, icon2, icon3).arrange(DOWN, buff=1)
-         
-        self.play(ShowIncreasingSubsets(icons, run_time= 3))
+        icons.move_to(self.get_current_center())
+        self.play(ShowIncreasingSubsets(icons, run_time=3))
 
         # 03 - question mark
-        question = SVGMobject("img/intro_outro/question",fill_color=WHITE).scale(1.2).to_edge(RIGHT, buff=1.75)
+        question = SVGMobject("img/intro_outro/question", fill_color=WHITE).scale(1.2)
+        question.move_to(self.get_to_edge(RIGHT, margin=1.75 + question.get_width() / 2))
         self.play(FadeIn(question), run_time=2)
         self.wait(4)
         self.play(FadeOut(question), run_time=2)
 
         # 04 - cpu
-        cpu = CPU(size=1).to_edge(RIGHT, buff=1.75)
+        cpu = CPU(size=1)
+        cpu.move_to(self.get_to_edge(RIGHT, margin=1.75 + cpu.get_width() / 2))
         self.play(FadeIn(cpu), run_time=2)
         self.wait(4)
 
         # 05 - evlt. processes hinzufügen
         # fadout mit question mark. und fade in von prozessen mit cpu
-        
 
     def fcfs(self):
         self.fcfs_animation()
@@ -491,52 +501,68 @@ class OS(CustomMovingCameraScene):
         self.play(title.create_animation())
 
         # 02 - Processes
-        process_sizes = [2,1,3,3,2,1,2]
-        processes = [Process(size=s, title=f"P{len(process_sizes)-i}") for i, s in enumerate(process_sizes)]
+        process_sizes = [2, 1, 3, 3, 2, 1, 2]
+        processes = [
+            Process(size=s, title=f"P{len(process_sizes)-i}")
+            for i, s in enumerate(process_sizes)
+        ]
         process_group = VGroup(*processes).arrange(RIGHT, buff=0.5)
         process_group.to_edge(LEFT)
         process_group.next_to(title, DOWN, aligned_edge=LEFT)
-        process_group.shift(LEFT*config.frame_width)
-        self.play(process_group.animate.shift(RIGHT*config.frame_width), run_time=4)
+        process_group.shift(LEFT * config.frame_width)
+        self.play(process_group.animate.shift(RIGHT * config.frame_width), run_time=4)
 
         # 03 - Queues
-        line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(config.frame_width - 1)
+        line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(
+            config.frame_width - 1
+        )
         line.move_to(ORIGIN)
-        line.shift(DOWN*0.6)
+        line.shift(DOWN * 0.6)
         # self.add(line)
         self.play(FadeIn(line))
 
-        queue1 = Text("Queue 1 - High Priority", font_size=24).next_to(process_group, DOWN, aligned_edge=LEFT)
-        queue1.shift(DOWN*0.1)
+        queue1 = Text("Queue 1 - High Priority", font_size=24).next_to(
+            process_group, DOWN, aligned_edge=LEFT
+        )
+        queue1.shift(DOWN * 0.1)
         # self.add(queue1)
         self.play(FadeIn(queue1))
 
-        queue2 = Text("Queue 2 - Low Priority", font_size=24).next_to(line, DOWN, aligned_edge=LEFT)
-        queue2.shift(DOWN*0.1)
+        queue2 = Text("Queue 2 - Low Priority", font_size=24).next_to(
+            line, DOWN, aligned_edge=LEFT
+        )
+        queue2.shift(DOWN * 0.1)
         # self.add(queue2)
         self.play(FadeIn(queue2))
-        
+
         self.wait(2)
         # 04 - Queues Examples
-        new_queue1_text = Text("Foreground - Round Robin", font_size=24).next_to(process_group, DOWN, aligned_edge=LEFT)
-        new_queue1_text.shift(DOWN*0.1)
+        new_queue1_text = Text("Foreground - Round Robin", font_size=24).next_to(
+            process_group, DOWN, aligned_edge=LEFT
+        )
+        new_queue1_text.shift(DOWN * 0.1)
         self.play(FadeOut(queue1))
         self.play(FadeIn(new_queue1_text))
 
-
-        new_queue2_text = Text("Background - First Come, First Serve", font_size=24).next_to(line, DOWN, aligned_edge=LEFT)
-        new_queue2_text.shift(DOWN*0.1)
+        new_queue2_text = Text(
+            "Background - First Come, First Serve", font_size=24
+        ).next_to(line, DOWN, aligned_edge=LEFT)
+        new_queue2_text.shift(DOWN * 0.1)
         self.play(FadeOut(queue2))
         self.play(FadeIn(new_queue2_text))
-        
+
         # 05 - Move Processes to Queues
         above_indexes = [0, 3, 5]
         below_indexes = [1, 2, 4, 6]
         queue1_processes = VGroup()
         queue2_processes = VGroup()
 
-        above_initial_pos = line.get_top() + UP * 0.9 + LEFT * (config.frame_width / 2 - 1)
-        below_initial_pos = line.get_bottom() + DOWN * 1.5 + LEFT * (config.frame_width / 2 - 1)
+        above_initial_pos = (
+            line.get_top() + UP * 0.9 + LEFT * (config.frame_width / 2 - 1)
+        )
+        below_initial_pos = (
+            line.get_bottom() + DOWN * 1.5 + LEFT * (config.frame_width / 2 - 1)
+        )
 
         buffer_space = 0.5
 
@@ -548,7 +574,11 @@ class OS(CustomMovingCameraScene):
 
             for idx in above_indexes[1:]:
                 proc = processes[idx]
-                self.play(proc.animate.next_to(last_process_position, RIGHT, buff=buffer_space))
+                self.play(
+                    proc.animate.next_to(
+                        last_process_position, RIGHT, buff=buffer_space
+                    )
+                )
                 last_process_position = proc.get_right()
                 queue1_processes.add(proc)
 
@@ -560,10 +590,13 @@ class OS(CustomMovingCameraScene):
 
             for idx in below_indexes[1:]:
                 proc = processes[idx]
-                self.play(proc.animate.next_to(last_process_position, RIGHT, buff=buffer_space))
+                self.play(
+                    proc.animate.next_to(
+                        last_process_position, RIGHT, buff=buffer_space
+                    )
+                )
                 last_process_position = proc.get_right()
                 queue2_processes.add(proc)
-
 
         cpu = CPU(size=0.5)
         clock = Clock(radius=0.5)
@@ -579,15 +612,15 @@ class OS(CustomMovingCameraScene):
         # 07 - Simulation (2 Background Part 1)
         self.play(FadeOut(queue2_processes[2:4]), run_time=2)
 
-        #TODO: proper animation of RR and FCFS
+        # TODO: proper animation of RR and FCFS
         # animation = queue1_processes[0].adjust_size_with_animation(-1)
         # self.play(AnimationGroup(animation))
 
         # 08 - New process while execution
         p8 = Process(size=2, title=f"P8")
         p8.next_to(title, DOWN, aligned_edge=LEFT)
-        p8.shift(LEFT*config.frame_width)  
-        self.play(p8.animate.shift(RIGHT*config.frame_width), run_time=4)
+        p8.shift(LEFT * config.frame_width)
+        self.play(p8.animate.shift(RIGHT * config.frame_width), run_time=4)
 
         # 09 - Move new process to foreground
         self.play(p8.animate.move_to(above_initial_pos))
@@ -599,16 +632,21 @@ class OS(CustomMovingCameraScene):
         # 11 - Simulation (4 Background Part 2)
         self.play(FadeOut(queue2_processes[0:2]), run_time=2)
 
-
-        # 12 - 
+        # 12 -
         self.remove(queue1, new_queue1_text, line, new_queue2_text, queue2, cpu, clock)
 
     def mqs_bullet_points(self):
         # TODO: add title
-        # several queues 
+        # several queues
         line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(7)
         lines = [line.copy() for _ in range(4)]
-        queues = [Text("system processes"), Text("interactive processes"), Text("interactive editing processes"), Text("batch processes"), Text("student processes")]
+        queues = [
+            Text("system processes"),
+            Text("interactive processes"),
+            Text("interactive editing processes"),
+            Text("batch processes"),
+            Text("student processes"),
+        ]
         group = []
         for i in range(len(lines)):
             group.append(queues[i].scale(0.5))
@@ -617,7 +655,7 @@ class OS(CustomMovingCameraScene):
         lines = VGroup(*group).arrange(DOWN, buff=0.25)
 
         lines.move_to(self.get_current_center())
-        lines.shift(LEFT*3)
+        lines.shift(LEFT * 3)
         self.play(FadeIn(lines))
         self.wait(5)
 
@@ -628,7 +666,9 @@ class OS(CustomMovingCameraScene):
             "Execution of queues determind by priority.",
         ]
 
-        bulletpoints = AnimatedBulletpoints(points, edge=self.get_to_edge(RIGHT), width=40)
+        bulletpoints = AnimatedBulletpoints(
+            points, edge=self.get_to_edge(RIGHT), width=40
+        )
         self.play(bulletpoints.create_animation())
         self.wait(5)
 
@@ -743,7 +783,11 @@ class OS(CustomMovingCameraScene):
         summary2 = Text("Round Robin", font_size=28)
         summary3 = Text("Multi Level Queue", font_size=28)
 
-        summary = VGroup(summary1, summary2, summary3).arrange(DOWN, aligned_edge=LEFT).to_edge(LEFT, buff=1)
+        summary = (
+            VGroup(summary1, summary2, summary3)
+            .arrange(DOWN, aligned_edge=LEFT)
+            .to_edge(LEFT, buff=1)
+        )
         self.play(Write(summary), run_time=4)
         self.wait(2)
 
@@ -755,12 +799,21 @@ class OS(CustomMovingCameraScene):
         todo3 = Text("- Take out the trash.", font_size=24)
         todo4 = Text("- Finish AAML Homework.", font_size=24)
 
-        todo_group = VGroup(todo, todo1, todo2, todo3, todo4).arrange(DOWN, aligned_edge=LEFT).to_edge(RIGHT, buff=3)
+        todo_group = (
+            VGroup(todo, todo1, todo2, todo3, todo4)
+            .arrange(DOWN, aligned_edge=LEFT)
+            .to_edge(RIGHT, buff=3)
+        )
         self.play(Write(todo_group), run_time=4)
         self.wait(2)
 
         # icons
         check = SVGMobject("img/intro_outro/check.svg", fill_color=WHITE).scale(0.15)
-        check_group = VGroup(*[check.copy() for _ in range(4)]).arrange(DOWN, buff=0.25).next_to(todo_group,direction=RIGHT).shift(DOWN*0.25)
+        check_group = (
+            VGroup(*[check.copy() for _ in range(4)])
+            .arrange(DOWN, buff=0.25)
+            .next_to(todo_group, direction=RIGHT)
+            .shift(DOWN * 0.25)
+        )
         self.play(ShowIncreasingSubsets(check_group, run_time=4))
-        self.wait(2)     
+        self.wait(2)
