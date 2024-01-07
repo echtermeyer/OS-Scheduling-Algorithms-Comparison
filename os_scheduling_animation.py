@@ -125,12 +125,12 @@ class OS(CustomMovingCameraScene):
         # self.rr()
 
         # # 3 min
-        # self.mqs()
+        self.mqs()
         # # 3 min
         # self.metrics()
         # # reallife examples
         # # 2 min
-        self.outro()
+        # self.outro()
 
     def introduction(self):
         # 01 - todo list
@@ -476,10 +476,10 @@ class OS(CustomMovingCameraScene):
         pass
 
     def mqs(self):
-        self.mqs_animation()
+        # self.mqs_animation()
         self.mqs_bullet_points()
-        self.mqs_flow()
-        self.mqs_pros_cons()
+        # self.mqs_flow()
+        # self.mqs_pros_cons()
         self.clear()
 
     def mqs_animation(self):
@@ -604,13 +604,31 @@ class OS(CustomMovingCameraScene):
         self.remove(queue1, new_queue1_text, line, new_queue2_text, queue2, cpu, clock)
 
     def mqs_bullet_points(self):
+        # TODO: add title
+        # several queues 
+        line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(7)
+        lines = [line.copy() for _ in range(4)]
+        queues = [Text("system processes"), Text("interactive processes"), Text("interactive editing processes"), Text("batch processes"), Text("student processes")]
+        group = []
+        for i in range(len(lines)):
+            group.append(queues[i].scale(0.5))
+            group.append(lines[i])
+        group.append(queues[-1].scale(0.5))
+        lines = VGroup(*group).arrange(DOWN, buff=0.25)
+
+        lines.move_to(self.get_current_center())
+        lines.shift(LEFT*3)
+        self.play(FadeIn(lines))
+        self.wait(5)
+
+        # bullet points
         points = [
             "Processes are distributed to different queues.",
             "Queues use different scheduling algorithms.",
             "Execution of queues determind by priority.",
         ]
 
-        bulletpoints = AnimatedBulletpoints(points, edge=LEFT)#self.get_to_edge(LEFT))
+        bulletpoints = AnimatedBulletpoints(points, edge=self.get_to_edge(RIGHT), width=40)
         self.play(bulletpoints.create_animation())
         self.wait(5)
 
