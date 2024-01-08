@@ -1,5 +1,6 @@
 from manim import *
 from src.components import *
+from src.algorithms import schedule_processes, FirstComeFirstServe, RoundRobin, MultiLevelQueue
 
 
 class CustomMovingCameraScene(MovingCameraScene):
@@ -293,16 +294,20 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
 
     def fcfs_flow(self):
-        steps = [
-            {"id": 1, "start": 0, "size": 4},
-            {"id": 2, "start": 4, "size": 2},
-            {"id": 3, "start": 6, "size": 1},
-            {"id": 4, "start": 7, "size": 5},
-            {"id": 2, "start": 12, "size": 2},
-            {"id": 3, "start": 14, "size": 2},
-            {"id": 4, "start": 16, "size": 5},
-            {"id": 3, "start": 21, "size": 3},
-        ]
+        # TODO: Sind das die von euch @Jannik/Benedikt oder noch von mir?
+        # steps = [
+        #     {"id": 1, "start": 0, "size": 4},
+        #     {"id": 2, "start": 4, "size": 2},
+        #     {"id": 3, "start": 6, "size": 1},
+        #     {"id": 4, "start": 7, "size": 5},
+        #     {"id": 2, "start": 12, "size": 2},
+        #     {"id": 3, "start": 14, "size": 2},
+        #     {"id": 4, "start": 16, "size": 5},
+        #     {"id": 3, "start": 21, "size": 3},
+        # ]
+        fcfs = FirstComeFirstServe()
+        steps = schedule_processes(fcfs)
+
         sequence_diagram = SequenceDiagram("FCFS", steps=steps)
         self.play(sequence_diagram.create_animations())
         self.wait(2)
@@ -480,18 +485,23 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
 
     def rr_flow(self):
-        # After animation of algorithm (at the moment just dummy data)
         self.clear()
-        steps = [
-            {"id": 1, "start": 0, "size": 4},
-            {"id": 2, "start": 4, "size": 2},
-            {"id": 3, "start": 6, "size": 1},
-            {"id": 4, "start": 7, "size": 5},
-            {"id": 2, "start": 12, "size": 2},
-            {"id": 3, "start": 14, "size": 2},
-            {"id": 4, "start": 16, "size": 5},
-            {"id": 3, "start": 21, "size": 3},
-        ]
+
+        # TODO: Sind das die von euch @Jannik/Benedikt oder noch von mir?
+        # steps = [
+        #     {"id": 1, "start": 0, "size": 4},
+        #     {"id": 2, "start": 4, "size": 2},
+        #     {"id": 3, "start": 6, "size": 1},
+        #     {"id": 4, "start": 7, "size": 5},
+        #     {"id": 2, "start": 12, "size": 2},
+        #     {"id": 3, "start": 14, "size": 2},
+        #     {"id": 4, "start": 16, "size": 5},
+        #     {"id": 3, "start": 21, "size": 3},
+        # ]
+
+        rr = RoundRobin(quantum=1)
+        steps = schedule_processes(rr)
+
         sequence_diagram = SequenceDiagram("Round Robin", steps=steps)
         self.play(sequence_diagram.create_animations())
         self.wait(2)
@@ -716,18 +726,23 @@ class OS(CustomMovingCameraScene):
         # Code to demonstrate the flow of processes in MQS
         # Your code: ...
 
-        # After animation of algorithm (at the moment just dummy data)
         self.clear()
-        steps = [
-            {"id": 1, "start": 0, "size": 4},
-            {"id": 2, "start": 4, "size": 2},
-            {"id": 3, "start": 6, "size": 1},
-            {"id": 4, "start": 7, "size": 5},
-            {"id": 2, "start": 12, "size": 2},
-            {"id": 3, "start": 14, "size": 2},
-            {"id": 4, "start": 16, "size": 5},
-            {"id": 3, "start": 21, "size": 3},
-        ]
+
+        # TODO: Sind das die von euch @Jannik/Benedikt oder noch von mir?
+        # steps = [
+        #     {"id": 1, "start": 0, "size": 4},
+        #     {"id": 2, "start": 4, "size": 2},
+        #     {"id": 3, "start": 6, "size": 1},
+        #     {"id": 4, "start": 7, "size": 5},
+        #     {"id": 2, "start": 12, "size": 2},
+        #     {"id": 3, "start": 14, "size": 2},
+        #     {"id": 4, "start": 16, "size": 5},
+        #     {"id": 3, "start": 21, "size": 3},
+        # ]
+        
+        mlq = MultiLevelQueue(quantum=1)
+        steps = schedule_processes(mlq)
+
         sequence_diagram = SequenceDiagram("MLQ", steps=steps)
         self.play(sequence_diagram.create_animations())
         self.wait(2)

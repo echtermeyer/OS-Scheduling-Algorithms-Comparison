@@ -1,6 +1,6 @@
 import numpy as np
 
-from typing import Tuple
+from typing import Tuple, List
 from abc import ABC, abstractmethod
 
 
@@ -29,8 +29,12 @@ class Algorithm(ABC):
     def get_steps(self):
         combined = []
         for step in self.__steps:
-            if combined and step['id'] == combined[-1]['id'] and step['start'] == combined[-1]['start'] + combined[-1]['size']:
-                combined[-1]['size'] += step['size']
+            if (
+                combined
+                and step["id"] == combined[-1]["id"]
+                and step["start"] == combined[-1]["start"] + combined[-1]["size"]
+            ):
+                combined[-1]["size"] += step["size"]
             else:
                 combined.append(step.copy())
         return combined
@@ -208,3 +212,27 @@ class Scheduler:
         for metric, value in self.metrics.items():
             print(f"{metric.replace('_', ' ').title()}: {value:.2f} Einheiten")
         print()
+
+
+def create_test_processes() -> List[Process]:
+    processes = [
+        Process(1, 0, 2, "low"),
+        Process(2, 2, 4, "high"),
+        Process(3, 2, 3, "low"),
+        Process(4, 10, 4, "high"),
+    ]
+    return processes
+
+
+def schedule_processes(algorithm: Algorithm, processes=None) -> None:
+    scheduler = Scheduler()
+
+    if not processes:
+        processes = create_test_processes()
+
+    for process in processes:
+        scheduler.add_process(process)
+
+    scheduler.run_algorithm(algorithm)
+
+    return algorithm.get_steps()
