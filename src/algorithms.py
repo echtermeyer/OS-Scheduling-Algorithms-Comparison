@@ -17,10 +17,23 @@ class Process:
 class Algorithm(ABC):
     def __init__(self, name) -> None:
         self.name = name
+        self.__steps = []
+
+    def add_step(self, id: int, start: int, size: int) -> None:
+        self.__steps.append({"id": id, "start": start, "size": size})
 
     @abstractmethod
     def schedule(self, processes):
         pass
+
+    def get_steps(self):
+        combined = []
+        for step in self.__steps:
+            if combined and step['id'] == combined[-1]['id'] and step['start'] == combined[-1]['start'] + combined[-1]['size']:
+                combined[-1]['size'] += step['size']
+            else:
+                combined.append(step.copy())
+        return combined
 
 
 class FirstComeFirstServe(Algorithm):
@@ -42,6 +55,7 @@ class FirstComeFirstServe(Algorithm):
 
             first_response_time = current_time - process.arrival_time
             wait_times.append(first_response_time)
+            self.add_step(process.id, current_time, process.burst_time)
 
             current_time += process.burst_time
             if process != processes[0]:
@@ -80,6 +94,8 @@ class RoundRobin(Algorithm):
 
             execution_time = min(_process.burst_time, self.quantum)
             _process.burst_time -= execution_time
+            self.add_step(_process.id, current_time, execution_time)
+
             current_time += execution_time
             last_start_time[_process.id - 1] = current_time
 
@@ -115,6 +131,7 @@ class MultiLevelQueue(Algorithm):
                 if next_process.priority == "high":
                     execution_time = min(next_process.burst_time, self.quantum)
                     next_process.burst_time -= execution_time
+                    self.add_step(next_process.id, current_time, execution_time)
 
                     if current_time >= last_start_time[next_process.id - 1]:
                         wait_times[next_process.id - 1] += (
@@ -127,12 +144,23 @@ class MultiLevelQueue(Algorithm):
                     if next_process.burst_time > 0:
                         high_priority.append(next_process)
                         context_switches += 1
-                else:
-                    wait_times[next_process.id - 1] = (
+
+                elif next_process.priority == "low":
+                    execution_time = min(next_process.burst_time, 1)
+                    next_process.burst_time -= execution_time
+                    self.add_step(next_process.id, current_time, execution_time)
+
+                    if current_time >= last_start_time[next_process.id - 1]:
+                        wait_times[next_process.id - 1] += (
+                            current_time - last_start_time[next_process.id - 1]
+                        )
+
+                    wait_times[next_process.id - 1] += (
                         current_time - next_process.arrival_time
                     )
-                    next_process.burst_time -= 1
-                    current_time += 1
+
+                    current_time += execution_time
+                    last_start_time[next_process.id - 1] = current_time
 
                     if next_process.burst_time > 0:
                         low_priority.insert(0, next_process)
