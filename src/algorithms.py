@@ -1,3 +1,4 @@
+import random
 import numpy as np
 
 from typing import Tuple, List
@@ -182,10 +183,11 @@ class Scheduler:
     def add_process(self, process) -> None:
         self.processes.append(process)
 
-    def run_algorithm(self, algorithm) -> None:
+    def run_algorithm(self, algorithm, display=True) -> None:
         context_switches, current_time, wait_times = algorithm.schedule(self.processes)
         self.calculate_metrics(context_switches, current_time, wait_times)
-        self.display_metrics(algorithm.name)
+        if display:
+            self.display_metrics(algorithm.name)
 
     def calculate_metrics(
         self, context_switches: int, current_time: int, wait_times: int
@@ -207,6 +209,12 @@ class Scheduler:
             "context_switches": context_switches,
         }
 
+    def set_processes(self, processes) -> None:
+        self.processes = processes
+
+    def get_metrics(self) -> dict:
+        return self.metrics
+
     def display_metrics(self, name) -> None:
         print(f"Evaluating {name}")
         for metric, value in self.metrics.items():
@@ -222,6 +230,56 @@ def create_test_processes() -> List[Process]:
         Process(4, 10, 4, "high"),
     ]
     return processes
+
+
+def create_processes(
+    num_processes: int = 100,
+    mean_burst_time: int = 3,
+    std_dev_burst: float = np.sqrt(5),
+    percentage_high_priority: float = 0.1,
+) -> List[Process]:
+    processes = []
+
+    base_arrival_time = 0
+    for i in range(num_processes):
+        burst_time = max(
+            1, int(round(np.random.normal(mean_burst_time, std_dev_burst)))
+        )
+        priority = "high" if random.random() < percentage_high_priority else "low"
+        arrival_time = max(0, int(base_arrival_time))
+
+        process = Process(
+            id=i + 1,
+            arrival_time=arrival_time,
+            burst_time=burst_time,
+            priority=priority,
+        )
+        processes.append(process)
+
+        base_arrival_time += max(0, round(random.uniform(-2, 5)))
+
+    return processes
+
+
+def create_linechart_metrics(
+    algorithms: List[Algorithm],
+    steps: int = 10,
+    stepsize: int = 1_000,
+    metric: str = "average_turnaround_time",
+) -> List[np.ndarray]:
+    dataset = []
+    processes = []
+    for algorithm in algorithms:
+        stats = []
+        for _ in range(steps):
+            processes.extend(create_processes(num_processes=stepsize))
+            scheduler = Scheduler()
+            scheduler.set_processes(processes)
+            scheduler.run_algorithm(algorithm, display=False)
+            metrics = scheduler.get_metrics()
+            stats.append(metrics[metric])
+        dataset.append(np.array(stats))
+    return dataset
 
 
 def schedule_processes(algorithm: Algorithm, processes=None) -> None:

@@ -1,3 +1,5 @@
+import math
+
 from typing import List, Dict
 
 import manim
@@ -661,10 +663,16 @@ class MetricBarChart(VMobject):
 
         max_y_value = max(datasets)
 
+        def round_up_to_nearest_five(n):
+            return math.ceil(n / 5) * 5
+        
+        adjusted_max_y_value = round_up_to_nearest_five(max_y_value)
+        tick_interval = round_up_to_nearest_five(adjusted_max_y_value / 5)
+
         self.chart = BarChart(
             values=datasets,
             bar_names=titles,
-            y_range=[0, max_y_value + 2, 2],
+            y_range=[0, adjusted_max_y_value, tick_interval],
             y_length=6,
             x_length=10,
             x_axis_config={"font_size": 30},

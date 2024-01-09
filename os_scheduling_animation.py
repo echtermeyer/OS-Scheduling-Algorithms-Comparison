@@ -1,11 +1,6 @@
 from manim import *
 from src.components import *
-from src.algorithms import (
-    schedule_processes,
-    FirstComeFirstServe,
-    RoundRobin,
-    MultiLevelQueue,
-)
+from src.algorithms import *
 
 
 class CustomMovingCameraScene(MovingCameraScene):
@@ -345,14 +340,10 @@ class OS(CustomMovingCameraScene):
     def fcfs_flow(self):
         # TODO: Sind das die von euch @Jannik/Benedikt oder noch von mir?
         # Sind jetzt angepasst von Jannik
-
+        # TODO 
         steps = [
-            {
-                "id": i + 1,
-                "start": sum(PROCESS_SIZES_FCFS[:i]),
-                "size": PROCESS_SIZES_FCFS[i],
-            }
-            for i in range(len(PROCESS_SIZES_FCFS))
+            Process(id=i + 1, arrival_time=0, burst_time=PROCESS_SIZES_FCFS[i])
+            for i in enumerate(PROCESS_SIZES_FCFS)
         ]
         steps.append(
             {
@@ -362,8 +353,8 @@ class OS(CustomMovingCameraScene):
             }
         )
 
-        # fcfs = FirstComeFirstServe()
-        # steps = schedule_processes(fcfs)
+        fcfs = FirstComeFirstServe()
+        steps = schedule_processes(fcfs)
 
         sequence_diagram = SequenceDiagram("FCFS", steps=steps)
         self.play(sequence_diagram.create_animations())
@@ -577,26 +568,35 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
 
     def rr_flow(self):
-        steps = [
-            {"id": 1, "start": 0, "size": 1},
-            {"id": 2, "start": 1, "size": 1},
-            {"id": 3, "start": 2, "size": 1},
-            {"id": 4, "start": 3, "size": 1},
-            {"id": 5, "start": 4, "size": 1},
-            {"id": 6, "start": 5, "size": 1},
-            {"id": 1, "start": 6, "size": 1},
-            {"id": 2, "start": 7, "size": 1},
-            {"id": 7, "start": 8, "size": 1},
-            {"id": 3, "start": 9, "size": 1},
-            {"id": 6, "start": 10, "size": 1},
-            {"id": 2, "start": 11, "size": 1},
-            {"id": 3, "start": 12, "size": 1},
-            {"id": 3, "start": 13, "size": 1},
-            {"id": 3, "start": 14, "size": 1},
-        ]
+        # steps = [
+        #     {"id": 1, "start": 0, "size": 1},
+        #     {"id": 2, "start": 1, "size": 1},
+        #     {"id": 3, "start": 2, "size": 1},
+        #     {"id": 4, "start": 3, "size": 1},
+        #     {"id": 5, "start": 4, "size": 1},
+        #     {"id": 6, "start": 5, "size": 1},
+        #     {"id": 1, "start": 6, "size": 1},
+        #     {"id": 2, "start": 7, "size": 1},
+        #     {"id": 7, "start": 8, "size": 1},
+        #     {"id": 3, "start": 9, "size": 1},
+        #     {"id": 6, "start": 10, "size": 1},
+        #     {"id": 2, "start": 11, "size": 1},
+        #     {"id": 3, "start": 12, "size": 1},
+        #     {"id": 3, "start": 13, "size": 1},
+        #     {"id": 3, "start": 14, "size": 1},
+        # ]
+# id: int, arrival_time: int, burst_time: int
+        processes = [Process(id =1, arrival_time=0, burst_time=2),
+                     Process(id =2, arrival_time=0, burst_time=3),
+                     Process(id =3, arrival_time=0, burst_time=5),
+                     Process(id =4, arrival_time=0, burst_time=1),
+                     Process(id =5, arrival_time=0, burst_time=1),
+                     Process(id =6, arrival_time=0, burst_time=2),
+                     Process(id =7, arrival_time=8, burst_time=2),
 
-        # rr = RoundRobin(quantum=1)
-        # steps = schedule_processes(rr)
+        ]
+        rr = RoundRobin(quantum=1)
+        steps = schedule_processes(rr, processes)
 
         sequence_diagram = SequenceDiagram("Round Robin", steps=steps)
         self.play(sequence_diagram.create_animations())
@@ -885,6 +885,15 @@ class OS(CustomMovingCameraScene):
             np.array([11, 12, 5, 15, 14, 12]),
             np.array([12, 13, 12, 10, 11, 13]),
         ]
+        datasets = create_linechart_metrics(
+            algorithms=[
+                FirstComeFirstServe(),
+                RoundRobin(quantum=1),
+                MultiLevelQueue(quantum=1),
+            ],
+            stepsize=10
+        )
+        print(datasets)
         titles = ["FCFS", "RoundRobin", "MLQ"]
         metric_response_time = MetricResponseTime(datasets, titles).scale(0.9)
         self.play(metric_response_time.create_animation())
@@ -900,11 +909,36 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
         self.play(FadeOut(bulletpoints))
 
+        # Calculate metrics for bar charts
+        processes = create_processes()
+
+        fcfs_algo = FirstComeFirstServe()
+        fcfs_scheduler = Scheduler()
+        fcfs_scheduler.set_processes(processes)
+        fcfs_scheduler.run_algorithm(fcfs_algo, display=True)
+        fcfs_metrics = fcfs_scheduler.get_metrics()
+
+        rr_algo = RoundRobin(quantum=1)
+        rr_scheduler = Scheduler()
+        rr_scheduler.set_processes(processes)
+        rr_scheduler.run_algorithm(rr_algo, display=True)
+        rr_metrics = rr_scheduler.get_metrics()
+
+        mlq_algo = MultiLevelQueue(quantum=1)
+        mlq_scheduler = Scheduler()
+        mlq_scheduler.set_processes(processes)
+        mlq_scheduler.run_algorithm(mlq_algo, display=True)
+        mlq_metrics = mlq_scheduler.get_metrics()
+
         # 1st BarChart metric
         first_bar_chart = MetricBarChart(
-            datasets=[5, 7, 3],
-            titles=["FCFS", "SJF", "RR"],
-            y_text="Turnaround Time",
+            datasets=[
+                fcfs_metrics["fairness_index"],
+                rr_metrics["fairness_index"],
+                mlq_metrics["fairness_index"],
+            ],
+            titles=["FCFS", "RR", "MLQ"],
+            y_text="Fairness Index",
         )
         first_bar_chart.scale(0.5).to_corner(
             UP + RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER
@@ -915,9 +949,13 @@ class OS(CustomMovingCameraScene):
 
         # 2nd BarChart metric
         second_bar_chart = MetricBarChart(
-            datasets=[12, 5, 3],
-            titles=["FCFS", "SJF", "RR"],
-            y_text="Throughput",
+            datasets=[
+                fcfs_metrics["context_switches"],
+                rr_metrics["context_switches"],
+                mlq_metrics["context_switches"],
+            ],
+            titles=["FCFS", "RR", "MLQ"],
+            y_text="Context Switches",
         )
         second_bar_chart.scale(0.5).to_corner(
             DOWN + RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER
