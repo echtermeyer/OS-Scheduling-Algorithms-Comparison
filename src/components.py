@@ -256,6 +256,14 @@ class Clock(Mobject):
         )
 
 
+class CustomTitle(VGroup):
+    def __init__(self, title_text, corner, **kwargs):
+        super().__init__(**kwargs)
+        self.title = Text(title_text, font_size=36)
+        self.add(self.title)  # Add the title to the group of submobjects
+        self.title.next_to(corner, DR)  # Position the title
+
+
 class AnimatedTitle(Mobject):
     """
     How to call:
@@ -306,9 +314,7 @@ class AnimatedTitle(Mobject):
 
         if center is not None and corner is not None:
             self.title.move_to(center)
-            shrink_and_move = self.title.animate.scale(0.5).next_to(
-                corner, DR, buff=0
-            )
+            shrink_and_move = self.title.animate.scale(0.5).next_to(corner, DR, buff=0)
 
         # run_time is needed because otherwise the animation breaks
         return Succession(
@@ -370,6 +376,8 @@ class AnimatedReview(Mobject):
         negative: List[str],
         width=25,
         speed=0.05,
+        center: np.array = None,
+        left_edge: np.array = None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -422,7 +430,13 @@ class AnimatedReview(Mobject):
         )
         self.add(*sections)
         self.arrange(DOWN, aligned_edge=LEFT, buff=MED_LARGE_BUFF)
-        self.to_edge(RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
+
+        if center is not None:
+            self.move_to(center)
+        elif left_edge is not None:
+            self.next_to(left_edge, RIGHT)
+        else:
+            self.to_edge(RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
 
     def create_animation(self, return_list: bool = False):
         def proportional_write(idx: int, mobject: Mobject):
@@ -494,7 +508,7 @@ class AnimatedBulletpoints(Mobject):
         if edge is None:
             self.to_edge(RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
         else:
-            self.move_to(edge - (self.get_width() / 2) * X_AXIS)
+            self.next_to(edge, LEFT)
 
     def create_animation(self, return_list: bool = False):
         animations = []
@@ -808,8 +822,7 @@ class SequenceDiagram(Mobject):
         super().__init__(**kwargs)
 
         self.title = Text(f"Sequence Diagram for {algorithm}", font_size=36)
-        self.title.to_edge(UP, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER)
-
+        self.title.to_corner(UL)
         self.steps = steps
         self.processes = [
             f"P{id} - {size}s" for id, size in self.__calculate_process_sizes().items()

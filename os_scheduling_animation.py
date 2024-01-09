@@ -1,6 +1,11 @@
 from manim import *
 from src.components import *
-from src.algorithms import schedule_processes, FirstComeFirstServe, RoundRobin, MultiLevelQueue
+from src.algorithms import (
+    schedule_processes,
+    FirstComeFirstServe,
+    RoundRobin,
+    MultiLevelQueue,
+)
 
 
 class CustomMovingCameraScene(MovingCameraScene):
@@ -11,7 +16,13 @@ class CustomMovingCameraScene(MovingCameraScene):
     """
 
     def construct(self):
-        pass
+        self._initial_camera_width = self.camera.frame.get_width()
+        self._initial_camera_center = self.camera.frame.get_center()
+
+    def move_camera_to_initial_position(self):
+        return self.camera.frame.animate.move_to(self._initial_camera_center).set_width(
+            self._initial_camera_width
+        )
 
     def get_current_center(self):
         return self.camera.frame.get_center()
@@ -128,27 +139,48 @@ class CustomMovingCameraScene(MovingCameraScene):
         return None
 
 
+PROCESS_SIZES_FCFS = [2, 3, 5, 1, 1, 2]
+ADDITIONAL_PROCESS_FCFS = 2
+PROCESS_SIZES_RR = PROCESS_SIZES_FCFS
+ADDITIONAL_PROCESS_RR = ADDITIONAL_PROCESS_FCFS
+
+
 class OS(CustomMovingCameraScene):
     def construct(self):
+        super().construct()
         # creative introduction
         # 2 min
-
-        self.wait(1)
-
-        # self.introduction()
+        self.camera.frame.save_state()
+        self.introduction()
+        self.clear()
+        self.camera.frame.restore()
         # # 2 min
-        # self.fcfs()
-        # # In der ÜBerleitung Preemptive verwenden und erklären was das bedeutet
+        self.play(self.move_one_slide(x=RIGHT))
+        self.fcfs()
+        self.clear()
+        self.camera.frame.restore()
+        # # In der Überleitung Preemptive verwenden und erklären was das bedeutet
         # # 3 min
-        # self.rr()
+
+        self.rr()
+        self.clear()
+        self.camera.frame.restore()
 
         # # 3 min
         self.mqs()
+        self.clear()
+        self.camera.frame.restore()
+
         # # 3 min
-        # self.metrics()
+        self.metrics()
+        self.clear()
+        self.camera.frame.restore()
+
         # # reallife examples
         # # 2 min
-        # self.outro()
+        self.outro()
+        self.clear()
+        self.camera.frame.restore()
 
     def introduction(self):
         # 01 - todo list
@@ -199,13 +231,17 @@ class OS(CustomMovingCameraScene):
         # fadout mit question mark. und fade in von prozessen mit cpu
 
     def fcfs(self):
+        # TODO an camera position anpassen
+
         self.fcfs_animation()
         self.fcfs_bullet_points()
+        self.play(self.move_camera_to_initial_position())
         self.fcfs_flow()
+        self.play(self.move_one_slide(x=RIGHT * 2))
         self.fcfs_pros_cons()
 
     def fcfs_animation(self):
-        title = AnimatedTitle("FirstComeFirstServe")
+        title = AnimatedTitle("First-Come-First-Serve")
         self.play(
             title.create_animation(
                 center=self.get_current_center(),
@@ -216,8 +252,8 @@ class OS(CustomMovingCameraScene):
         cpu = CPU(show_gear=True, title="CPU", center=self.get_current_center())
 
         # Define all the points around the clock for later use
-        faktor = 1.5
-        CPU_RIGHT = np.array(cpu.get_right() + RIGHT * faktor)
+        factor = 1.5
+        CPU_RIGHT = np.array(cpu.get_right() + RIGHT * factor)
 
         PROCESS_POLE_POSITION = (
             Process()
@@ -231,10 +267,8 @@ class OS(CustomMovingCameraScene):
         self.play(FadeIn(cpu))
         self.wait(2)
 
-        process_sizes = [2, 3, 5, 1, 1, 2]
-
         # create processes and place them just outside the left edge
-        for i, size in enumerate(process_sizes):
+        for i, size in enumerate(PROCESS_SIZES_FCFS):
             process = (
                 Process(title=f"P{i+1}", size=size)
                 .move_to(self.get_to_corner(DL, y_margin=1))
@@ -258,10 +292,24 @@ class OS(CustomMovingCameraScene):
         self.play(FadeIn(clock))
 
         cpu_empty = True
+
+        # Track the number of quantums that have been executed
+        enumeration = 0
         while not fcfs.get_empty():
-            # calculate the arc from current process next to cpu
+            # Add a new process after the third quantum
+            if enumeration == 3:
+                fcfs.add_process(
+                    Process(
+                        title=f"P{len(PROCESS_SIZES_FCFS)+1}",
+                        size=ADDITIONAL_PROCESS_FCFS,
+                        color=RED,
+                    )
+                    .move_to(self.get_to_corner(DL, y_margin=1))
+                    .shift(LEFT * 4)
+                )
 
             if cpu_empty:
+                # calculate the arc from current process next to cpu
                 arc_to_cpu = ArcBetweenPoints(
                     fcfs.process_queue[0].get_center(), CPU_RIGHT, angle=TAU / 4
                 )
@@ -269,25 +317,26 @@ class OS(CustomMovingCameraScene):
                 self.play(MoveAlongPath(fcfs.process_queue[0], arc_to_cpu))
 
                 # animate queue
-                animation = fcfs.move_queue(
+                queue_movement = fcfs.move_queue(
                     pole_position=PROCESS_POLE_POSITION,
                     first_process_in_cpu=True,
                     duration=1,
                 )
                 # the animation might return None if the queue is empty
-                if animation is not None:
-                    self.play(animation)
+                if queue_movement is not None:
+                    self.play(queue_movement)
 
             # process
-            cpu_empty, animation = fcfs.run()
-            self.play(AnimationGroup(animation, clock.rotate(), cpu.rotate_gear()))
+            cpu_empty, run_animation = fcfs.run()
+            self.play(AnimationGroup(run_animation, clock.rotate(), cpu.rotate_gear()))
+            enumeration += 1
         self.play(FadeOut(clock))
 
     def fcfs_bullet_points(self):
         points = [
             "Processes get queued up in the order they arrive.",
-            "The first process in the queue gets processed until it's finished."
-            + "\n=> Nonpreemptive Schedulung",
+            "The first process in the queue gets processed until it's finished.",
+            "The processes then get moved up in the queue and are processed until there is no process left.",
         ]
 
         bulletpoints = AnimatedBulletpoints(points, edge=self.get_to_edge(RIGHT))
@@ -295,25 +344,58 @@ class OS(CustomMovingCameraScene):
 
     def fcfs_flow(self):
         # TODO: Sind das die von euch @Jannik/Benedikt oder noch von mir?
-        # steps = [
-        #     {"id": 1, "start": 0, "size": 4},
-        #     {"id": 2, "start": 4, "size": 2},
-        #     {"id": 3, "start": 6, "size": 1},
-        #     {"id": 4, "start": 7, "size": 5},
-        #     {"id": 2, "start": 12, "size": 2},
-        #     {"id": 3, "start": 14, "size": 2},
-        #     {"id": 4, "start": 16, "size": 5},
-        #     {"id": 3, "start": 21, "size": 3},
-        # ]
-        fcfs = FirstComeFirstServe()
-        steps = schedule_processes(fcfs)
+        # Sind jetzt angepasst von Jannik
+
+        steps = [
+            {
+                "id": i + 1,
+                "start": sum(PROCESS_SIZES_FCFS[:i]),
+                "size": PROCESS_SIZES_FCFS[i],
+            }
+            for i in range(len(PROCESS_SIZES_FCFS))
+        ]
+        steps.append(
+            {
+                "id": len(steps) + 1,
+                "start": sum(PROCESS_SIZES_FCFS),
+                "size": ADDITIONAL_PROCESS_FCFS,
+            }
+        )
+
+        # fcfs = FirstComeFirstServe()
+        # steps = schedule_processes(fcfs)
 
         sequence_diagram = SequenceDiagram("FCFS", steps=steps)
         self.play(sequence_diagram.create_animations())
         self.wait(2)
 
     def fcfs_pros_cons(self):
-        pass
+        title = CustomTitle(
+            title_text="Pros and Cons of FCFS", corner=self.get_to_corner(UL)
+        )
+        self.play(FadeIn(title))
+        positive = [
+            "Due to it's simplicity FCFS is easy to implement and understand.",
+            "It treats all processes equally, which is fair.",
+            "It also doesn't starve processes as high priority processes don't delay the processing of lower prio processes.",
+        ]
+        neutral = [
+            "It's application is limited systems without the need of prioritization or real time processing.",
+        ]
+        negative = [
+            "FCFS can lead to long waiting times, especially for tasks that arrive just after a long task.",
+            "It cannot prioritize important or urgent tasks.",
+            "Once a task starts executing, it runs to completion (Non-preemptive). This can cause issues if a high-priority task arrives after a long-running task has already started",
+        ]
+
+        animated_review = AnimatedReview(
+            positive,
+            neutral,
+            negative,
+            width=90,
+            left_edge=self.get_to_edge(LEFT),
+        )
+        self.play(animated_review.create_animation())
 
     def rr(self):
         self.play(self.move_one_slide(x=RIGHT))
@@ -324,16 +406,18 @@ class OS(CustomMovingCameraScene):
         self.rr_bullet_points()
         self.wait(1)
 
-        self.play(self.move_one_slide(y=DOWN))
+        # self.play(self.move_one_slide(y=DOWN))
+        self.move_camera_to_initial_position()
         self.rr_flow()
         self.wait(1)
 
-        self.play(self.move_one_slide(x=RIGHT))
+        self.play(self.move_one_slide(x=RIGHT * 2))
         self.rr_pros_cons()
+        self.wait(2)
 
     def rr_animation(self):
         # create and animate title for RoundRobin
-        title = AnimatedTitle("RoundRobin")
+        title = AnimatedTitle("Round Robin")
         self.play(
             title.create_animation(
                 center=self.get_current_center(),
@@ -403,8 +487,15 @@ class OS(CustomMovingCameraScene):
         self.play(FadeIn(clock))
 
         # animate the process of RoundRobin
-
+        enumeration = 0
         while not rr.get_empty():
+            if enumeration == 3:
+                new_process = (
+                    Process(title=f"P{len(process_sizes)+1}", size=2, color=RED)
+                    .move_to(self.get_to_corner(DL, y_margin=1))
+                    .shift(LEFT * 4)
+                )
+                rr.add_process(new_process)
             # calculate the arc from current process next to cpu
             arc_to_cpu = ArcBetweenPoints(
                 rr.process_queue[0].get_center(), CPU_RIGHT, angle=TAU / 4
@@ -455,6 +546,7 @@ class OS(CustomMovingCameraScene):
                 path = VMobject().set_points_as_corners(points).make_smooth()  # type: ignore
 
                 self.play(MoveAlongPath(rr.process_queue[-1], path), run_time=2)
+            enumeration += 1
 
         self.play(FadeOut(clock))
         for i, size in enumerate(process_sizes):
@@ -485,22 +577,26 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
 
     def rr_flow(self):
-        self.clear()
+        steps = [
+            {"id": 1, "start": 0, "size": 1},
+            {"id": 2, "start": 1, "size": 1},
+            {"id": 3, "start": 2, "size": 1},
+            {"id": 4, "start": 3, "size": 1},
+            {"id": 5, "start": 4, "size": 1},
+            {"id": 6, "start": 5, "size": 1},
+            {"id": 1, "start": 6, "size": 1},
+            {"id": 2, "start": 7, "size": 1},
+            {"id": 7, "start": 8, "size": 1},
+            {"id": 3, "start": 9, "size": 1},
+            {"id": 6, "start": 10, "size": 1},
+            {"id": 2, "start": 11, "size": 1},
+            {"id": 3, "start": 12, "size": 1},
+            {"id": 3, "start": 13, "size": 1},
+            {"id": 3, "start": 14, "size": 1},
+        ]
 
-        # TODO: Sind das die von euch @Jannik/Benedikt oder noch von mir?
-        # steps = [
-        #     {"id": 1, "start": 0, "size": 4},
-        #     {"id": 2, "start": 4, "size": 2},
-        #     {"id": 3, "start": 6, "size": 1},
-        #     {"id": 4, "start": 7, "size": 5},
-        #     {"id": 2, "start": 12, "size": 2},
-        #     {"id": 3, "start": 14, "size": 2},
-        #     {"id": 4, "start": 16, "size": 5},
-        #     {"id": 3, "start": 21, "size": 3},
-        # ]
-
-        rr = RoundRobin(quantum=1)
-        steps = schedule_processes(rr)
+        # rr = RoundRobin(quantum=1)
+        # steps = schedule_processes(rr)
 
         sequence_diagram = SequenceDiagram("Round Robin", steps=steps)
         self.play(sequence_diagram.create_animations())
@@ -508,16 +604,41 @@ class OS(CustomMovingCameraScene):
         self.clear()
 
     def rr_pros_cons(self):
-        pass
+        title = CustomTitle(
+            title_text="Pros and Cons of RR", corner=self.get_to_corner(UL)
+        )
+        self.play(FadeIn(title))
+        positive = [
+            "RR is designed to treat all processes equally by allocating each a fixed time slice.",
+            "RR can offer good response times and real time processing.",
+            "Similar to FCFS every process gets an equal chance to execute, and can't starve.",
+            "RR is preemptive which means that no single process can clogg the CPU.",
+        ]
+        neutral = [
+            "The efficiency of RR heavily depends on the appropriate choice of the time quantum. A balance betwen high average waiting time and few context switches must be found.",
+        ]
+        negative = [
+            "Processes that require more time than the average may suffer in terms of throughput",
+            "RR doesn't support priority scheduling.",
+        ]
+
+        animated_review = AnimatedReview(
+            positive,
+            neutral,
+            negative,
+            width=90,
+            left_edge=self.get_to_edge(LEFT),
+        )
+        self.play(animated_review.create_animation())
 
     def mqs(self):
         self.wait(1)
         self.play(self.move_one_slide(x=RIGHT))
         self.mqs_animation()
 
-        # self.mqs_bullet_points()
-        # self.mqs_flow()
-        # self.mqs_pros_cons()
+        self.mqs_bullet_points()
+        self.mqs_flow()
+        self.mqs_pros_cons()
 
         self.wait(1)
 
@@ -739,7 +860,7 @@ class OS(CustomMovingCameraScene):
         #     {"id": 4, "start": 16, "size": 5},
         #     {"id": 3, "start": 21, "size": 3},
         # ]
-        
+
         mlq = MultiLevelQueue(quantum=1)
         steps = schedule_processes(mlq)
 
