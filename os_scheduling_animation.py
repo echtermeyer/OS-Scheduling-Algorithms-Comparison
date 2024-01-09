@@ -1,7 +1,11 @@
 from manim import *
 from src.components import *
 from src.algorithms import Scheduler, FirstComeFirstServe, RoundRobin, MultiLevelQueue
-from src.algorithms import schedule_processes, create_visualization_processes
+from src.algorithms import (
+    schedule_processes,
+    create_processes,
+    create_linechart_metrics,
+)
 
 
 class CustomMovingCameraScene(MovingCameraScene):
@@ -740,7 +744,7 @@ class OS(CustomMovingCameraScene):
         #     {"id": 4, "start": 16, "size": 5},
         #     {"id": 3, "start": 21, "size": 3},
         # ]
-        
+
         mlq = MultiLevelQueue(quantum=1)
         steps = schedule_processes(mlq)
 
@@ -765,6 +769,15 @@ class OS(CustomMovingCameraScene):
             np.array([11, 12, 5, 15, 14, 12]),
             np.array([12, 13, 12, 10, 11, 13]),
         ]
+        datasets = create_linechart_metrics(
+            algorithms=[
+                FirstComeFirstServe(),
+                RoundRobin(quantum=1),
+                MultiLevelQueue(quantum=1),
+            ],
+            stepsize=10
+        )
+        print(datasets)
         titles = ["FCFS", "RoundRobin", "MLQ"]
         metric_response_time = MetricResponseTime(datasets, titles).scale(0.9)
         self.play(metric_response_time.create_animation())
@@ -781,7 +794,7 @@ class OS(CustomMovingCameraScene):
         self.play(FadeOut(bulletpoints))
 
         # Calculate metrics for bar charts
-        processes = create_visualization_processes(kind="boxplot")
+        processes = create_processes()
 
         fcfs_algo = FirstComeFirstServe()
         fcfs_scheduler = Scheduler()
@@ -803,7 +816,11 @@ class OS(CustomMovingCameraScene):
 
         # 1st BarChart metric
         first_bar_chart = MetricBarChart(
-            datasets=[fcfs_metrics["fairness_index"], rr_metrics["fairness_index"], mlq_metrics["fairness_index"]],
+            datasets=[
+                fcfs_metrics["fairness_index"],
+                rr_metrics["fairness_index"],
+                mlq_metrics["fairness_index"],
+            ],
             titles=["FCFS", "RR", "MLQ"],
             y_text="Fairness Index",
         )
@@ -816,7 +833,11 @@ class OS(CustomMovingCameraScene):
 
         # 2nd BarChart metric
         second_bar_chart = MetricBarChart(
-            datasets=[fcfs_metrics["context_switches"], rr_metrics["context_switches"], mlq_metrics["context_switches"]],
+            datasets=[
+                fcfs_metrics["context_switches"],
+                rr_metrics["context_switches"],
+                mlq_metrics["context_switches"],
+            ],
             titles=["FCFS", "RR", "MLQ"],
             y_text="Context Switches",
         )
