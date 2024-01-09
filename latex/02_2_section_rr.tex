@@ -1,0 +1,47 @@
+% !TEX root =  master.tex
+
+\section{Round Robin}
+Round Robin ist ein weit verbreiteter OS Scheduling-Algorithmus in Betriebssystemen, welcher für seine Fairness und Eignung für Zeitscheiben-basiertes Multitasking bekannt ist. Dieser Algorithmus weist jedem Prozess in der Warteschlange ein festes Zeitintervall, auch bezeichnet als Quantum, zu. Nach Ablauf des Quantums wird der aktuell laufende Prozess unterbrochen und an das Ende der Warteschlange gestellt, um dem nächsten Prozess in der Warteschlange \ac{CPU}-Zeit zuweisen zu können. Diese Methode gewährleistet, dass alle Prozesse regelmäßige \ac{CPU}-Zeit erhalten und kein Prozess andere blockiert, wie es bei \ac{FCFS} mit dem Convoy-Effekt der Fall ist. Durch diese Rotation wird eine gleichmäßigere Verteilung der \ac{CPU}-Zeit über alle Prozesse erreicht. % Tanenbaum und Bos (2014) 
+
+%\begin{algorithm}
+%	\caption{Round Robin Scheduling Algorithmus}
+%	\begin{algorithmic}[1]
+%		\Procedure{RoundRobin}{$processes$, $quantum$}
+%		\State $n \gets \text{length}(processes)$
+%		\State $time \gets 0$
+%		\State Initialize $remaining\_burst[n]$ with burst times of $processes$
+%		\While{any $remaining\_burst > 0$}
+%		\For{$i \gets 1$ to $n$}
+%		\If{$remaining\_burst[i] > 0$}
+%		\State $start\_time[i] \gets time$
+%		\State Execute process $i$ for $\min(remaining\_burst[i], quantum)$ time
+%		\State $time \gets time + \min(remaining\_burst[i], quantum)$
+%		\State $remaining\_burst[i] \gets remaining\_burst[i] - \min(remaining\_burst[i], quantum)$
+%		\If{$remaining\_burst[i] = 0$}
+%		\State $finish\_time[i] \gets time$
+%		\State $waiting\_time[i] \gets finish\_time[i] - processes[i].burst - processes[i].arrival$
+%		\State $turnaround\_time[i] \gets finish\_time[i] - processes[i].arrival$
+%		\EndIf
+%		\EndIf
+%		\EndFor
+%		\EndWhile
+%		\State \textbf{return} $start\_time$, $finish\_time$, $waiting\_time$, $turnaround\_time$
+%		\EndProcedure
+%	\end{algorithmic}
+%\end{algorithm}
+
+Abbildung \ref{alg:rr} zeigt Pseudocode für die Implementation des Round Robin Scheduling Algorithmus für einen Satz von Prozessen. Jeder Prozess wird für eine Zeitdauer bis zum definierten Quantum ausgeführt. Der Algorithmus berechnet Start- und Endzeiten, Wartezeiten und Umlaufzeiten für jeden Prozess. 
+
+Ein wesentlicher Vorteil des Round Robin-Algorithmus ist dessen Fähigkeit, eine niedrige Antwortzeit für alle Prozesse zu gewährleisten, weshalb dieser besonders für interaktive Systeme von hoher Eignung ist. Da jeder Prozess innerhalb eines bestimmten Zeitrahmens bedient wird, kommt es nicht zu langen Wartezeiten bis die Prozesse \ac{CPU}-Zeit zugeteilt bekommen. Diese Eigenschaft wird von Silberschatz, Galvin und Gagne (2018) als entscheidend für Systeme mit hoher Prozessanzahl und Anforderungen an die Reaktionsfähigkeit angesehen, wie es bei modernen Betriebssystemen der Fall ist. 
+
+Allerdings weist Round Robin auch Nachteile auf. Ein wesentlicher Punkt ist hierbei die Wahl der Länge des Zeitquantums. Bei einem zu kurzen Quantum, kommt es durch den Round Robin Algorithmus zu häufigen Prozesswechseln, wodurch ein Overhead entsteht und hierdurch die \ac{CPU}-Effizient verringert wird. % Stallings (2012)
+Wenn allerdings ein zu langes Quantum gewählt wird, verlängern sich die Antwortzeiten für Prozesse und in extremen Fällen kann es zum gleichen Convoy-Effekt wie bei \ac{FCFS} kommen. Daher ist die Optimierung des Quantums abhängig von den spezifischen Anwendungsumgebungen und von hoher Relevanz. Ein weiterer Nachteil, ähnlich wie bei \ac{FCFS} ist die fehlende Betrachtung von unterschiedlichen Prioritäten der eingehenden Prozesse. Im folgenden wird ein weiterer OS Scheduling Algorithmus beschrieben, welcher versucht diese Herausforderung eines prioritäten-basierten Schedulings zu beheben. 
+
+Insgesamt bietet der Round Robin-Algorithmus eine ausgewogene Lösung für das Scheduling-Problem, insbesondere in Umgebungen, bei welchen Fairness und schnelle Antwortzeiten gefordert sind. Seine Einfachheit und Effizienz machen ihn zu einer beliebten Wahl in vielen Betriebssystemen.
+
+%\textit{Referenzen:}
+%\begin{itemize}
+%	\item Tanenbaum, A. S., \& Bos, H. (2014). Modern Operating Systems. Pearson.
+%	\item Silberschatz, A., Galvin, P. B., \& Gagne, G. (2018). Operating System Concepts. Wiley.
+%	\item Stallings, W. (2012). Operating Systems: Internals and Design Principles. Prentice Hall.
+%\end{itemize}
