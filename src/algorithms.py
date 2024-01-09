@@ -1,3 +1,4 @@
+import random
 import numpy as np
 
 from typing import Tuple, List
@@ -182,10 +183,11 @@ class Scheduler:
     def add_process(self, process) -> None:
         self.processes.append(process)
 
-    def run_algorithm(self, algorithm) -> None:
+    def run_algorithm(self, algorithm, display=True) -> None:
         context_switches, current_time, wait_times = algorithm.schedule(self.processes)
         self.calculate_metrics(context_switches, current_time, wait_times)
-        self.display_metrics(algorithm.name)
+        if display:
+            self.display_metrics(algorithm.name)
 
     def calculate_metrics(
         self, context_switches: int, current_time: int, wait_times: int
@@ -207,6 +209,12 @@ class Scheduler:
             "context_switches": context_switches,
         }
 
+    def set_processes(self, processes) -> None:
+        self.processes = processes
+
+    def get_metrics(self) -> dict:
+        return self.metrics
+
     def display_metrics(self, name) -> None:
         print(f"Evaluating {name}")
         for metric, value in self.metrics.items():
@@ -221,6 +229,31 @@ def create_test_processes() -> List[Process]:
         Process(3, 2, 3, "low"),
         Process(4, 10, 4, "high"),
     ]
+    return processes
+
+
+def create_visualization_processes(kind: str) -> List[Process]:
+    if kind not in ["lineplot", "boxplot"]:
+        raise ValueError(f"Invalid kind: {kind}")
+    
+    num_processes = 100
+    mean_burst_time = 3
+    std_dev_burst = np.sqrt(5)
+    percentage_high_priority = 0.1
+
+    processes = []
+
+    base_arrival_time = 0
+    for i in range(num_processes):
+        burst_time = max(1, int(round(np.random.normal(mean_burst_time, std_dev_burst))))
+        priority = "high" if random.random() < percentage_high_priority else "low"
+        arrival_time = max(0, int(base_arrival_time))
+
+        process = Process(id=i+1, arrival_time=arrival_time, burst_time=burst_time, priority=priority)
+        processes.append(process)
+
+        base_arrival_time += max(0, round(random.uniform(-2, 5)))
+
     return processes
 
 

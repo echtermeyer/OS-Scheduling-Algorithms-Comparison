@@ -1,6 +1,7 @@
 from manim import *
 from src.components import *
-from src.algorithms import schedule_processes, FirstComeFirstServe, RoundRobin, MultiLevelQueue
+from src.algorithms import Scheduler, FirstComeFirstServe, RoundRobin, MultiLevelQueue
+from src.algorithms import schedule_processes, create_visualization_processes
 
 
 class CustomMovingCameraScene(MovingCameraScene):
@@ -133,7 +134,7 @@ class OS(CustomMovingCameraScene):
         # creative introduction
         # 2 min
 
-        self.wait(1)
+        # self.wait(1)
 
         # self.introduction()
         # # 2 min
@@ -143,9 +144,9 @@ class OS(CustomMovingCameraScene):
         # self.rr()
 
         # # 3 min
-        self.mqs()
+        # self.mqs()
         # # 3 min
-        # self.metrics()
+        self.metrics()
         # # reallife examples
         # # 2 min
         # self.outro()
@@ -779,11 +780,32 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
         self.play(FadeOut(bulletpoints))
 
+        # Calculate metrics for bar charts
+        processes = create_visualization_processes(kind="boxplot")
+
+        fcfs_algo = FirstComeFirstServe()
+        fcfs_scheduler = Scheduler()
+        fcfs_scheduler.set_processes(processes)
+        fcfs_scheduler.run_algorithm(fcfs_algo, display=True)
+        fcfs_metrics = fcfs_scheduler.get_metrics()
+
+        rr_algo = RoundRobin(quantum=1)
+        rr_scheduler = Scheduler()
+        rr_scheduler.set_processes(processes)
+        rr_scheduler.run_algorithm(rr_algo, display=True)
+        rr_metrics = rr_scheduler.get_metrics()
+
+        mlq_algo = MultiLevelQueue(quantum=1)
+        mlq_scheduler = Scheduler()
+        mlq_scheduler.set_processes(processes)
+        mlq_scheduler.run_algorithm(mlq_algo, display=True)
+        mlq_metrics = mlq_scheduler.get_metrics()
+
         # 1st BarChart metric
         first_bar_chart = MetricBarChart(
-            datasets=[5, 7, 3],
-            titles=["FCFS", "SJF", "RR"],
-            y_text="Turnaround Time",
+            datasets=[fcfs_metrics["fairness_index"], rr_metrics["fairness_index"], mlq_metrics["fairness_index"]],
+            titles=["FCFS", "RR", "MLQ"],
+            y_text="Fairness Index",
         )
         first_bar_chart.scale(0.5).to_corner(
             UP + RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER
@@ -794,9 +816,9 @@ class OS(CustomMovingCameraScene):
 
         # 2nd BarChart metric
         second_bar_chart = MetricBarChart(
-            datasets=[12, 5, 3],
-            titles=["FCFS", "SJF", "RR"],
-            y_text="Throughput",
+            datasets=[fcfs_metrics["context_switches"], rr_metrics["context_switches"], mlq_metrics["context_switches"]],
+            titles=["FCFS", "RR", "MLQ"],
+            y_text="Context Switches",
         )
         second_bar_chart.scale(0.5).to_corner(
             DOWN + RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER
