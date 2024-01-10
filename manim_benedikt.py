@@ -244,7 +244,7 @@ class OS(Scene):
 
         # 02 - Processes
         process_sizes = [2,1,3,3,2,1,2]
-        processes = [Process(size=s, title=f"P{len(process_sizes)-i}") for i, s in enumerate(process_sizes)]
+        processes = [ProcessAnimated(size=s, title=f"P{len(process_sizes)-i}") for i, s in enumerate(process_sizes)]
         process_group = VGroup(*processes).arrange(RIGHT, buff=0.5)
         process_group.to_edge(LEFT)
         process_group.next_to(title, DOWN, aligned_edge=LEFT)
@@ -336,7 +336,7 @@ class OS(Scene):
         # self.play(AnimationGroup(animation))
 
         # 08 - New process while execution
-        p8 = Process(size=2, title=f"P8")
+        p8 = ProcessAnimated(size=2, title=f"P8")
         p8.next_to(title, DOWN, aligned_edge=LEFT)
         p8.shift(LEFT*config.frame_width)  
         self.play(p8.animate.shift(RIGHT*config.frame_width), run_time=4)

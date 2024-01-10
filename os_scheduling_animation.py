@@ -154,36 +154,37 @@ class OS(CustomMovingCameraScene):
         # creative introduction
         # 2 min
         self.camera.frame.save_state()
-        self.introduction()
-        self.clear()
-        self.camera.frame.restore()
+        # self.introduction()
+        # self.clear()
+        # self.camera.frame.restore()
         # # 2 min
-        self.play(self.move_one_slide(x=RIGHT))
+        self.play(self.move_one_slide(x=RIGHT*0.5))
         self.fcfs()
-        self.clear()
-        self.camera.frame.restore()
+        self.wait(1)
+        # self.clear()
+        # self.camera.frame.restore()
         # # In der Überleitung Preemptive verwenden und erklären was das bedeutet
         # # 3 min
 
-        self.rr()
-        self.clear()
-        self.camera.frame.restore()
+        # self.rr()
+        # self.clear()
+        # self.camera.frame.restore()
 
         # # 3 min
-        self.mqs()
-        self.clear()
-        self.camera.frame.restore()
+        # self.mqs()
+        # self.clear()
+        # self.camera.frame.restore()
 
         # # 3 min
-        self.metrics()
-        self.clear()
-        self.camera.frame.restore()
+        # self.metrics()
+        # self.clear()
+        # self.camera.frame.restore()
 
         # # reallife examples
         # # 2 min
-        self.outro()
-        self.clear()
-        self.camera.frame.restore()
+        # self.outro()
+        # self.clear()
+        # self.camera.frame.restore()
 
     def introduction(self):
         # 01 - todo list
@@ -236,12 +237,12 @@ class OS(CustomMovingCameraScene):
     def fcfs(self):
         # TODO an camera position anpassen
 
-        self.fcfs_animation()
-        self.fcfs_bullet_points()
-        self.play(self.move_camera_to_initial_position())
+        # self.fcfs_animation()
+        # self.fcfs_bullet_points()
+        # self.play(self.move_camera_to_initial_position())
         self.fcfs_flow()
-        self.play(self.move_one_slide(x=RIGHT * 2))
-        self.fcfs_pros_cons()
+        # self.play(self.move_one_slide(x=RIGHT * 2))
+        # self.fcfs_pros_cons()
 
     def fcfs_animation(self):
         title = AnimatedTitle("First-Come-First-Serve")
@@ -259,7 +260,7 @@ class OS(CustomMovingCameraScene):
         CPU_RIGHT = np.array(cpu.get_right() + RIGHT * factor)
 
         PROCESS_POLE_POSITION = (
-            Process()
+            ProcessAnimated()
             .move_to(CPU_RIGHT * X_AXIS + self.get_to_edge(DOWN, margin=1) * Y_AXIS)
             .get_center()
         )
@@ -273,7 +274,7 @@ class OS(CustomMovingCameraScene):
         # create processes and place them just outside the left edge
         for i, size in enumerate(PROCESS_SIZES_FCFS):
             process = (
-                Process(title=f"P{i+1}", size=size)
+                ProcessAnimated(title=f"P{i+1}", size=size)
                 .move_to(self.get_to_corner(DL, y_margin=1))
                 .shift(LEFT * 4)
             )
@@ -302,7 +303,7 @@ class OS(CustomMovingCameraScene):
             # Add a new process after the third quantum
             if enumeration == 3:
                 fcfs.add_process(
-                    Process(
+                    ProcessAnimated(
                         title=f"P{len(PROCESS_SIZES_FCFS)+1}",
                         size=ADDITIONAL_PROCESS_FCFS,
                         color=RED,
@@ -349,20 +350,14 @@ class OS(CustomMovingCameraScene):
         # TODO: Sind das die von euch @Jannik/Benedikt oder noch von mir?
         # Sind jetzt angepasst von Jannik
         # TODO 
-        steps = [
-            Process(id=i + 1, arrival_time=0, burst_time=PROCESS_SIZES_FCFS[i])
-            for i in enumerate(PROCESS_SIZES_FCFS)
+        processes = [
+            SequenceDiagrammProcess(id=idx + 1, arrival_time=0, burst_time=size)
+            for idx, size in enumerate(PROCESS_SIZES_FCFS)
         ]
-        steps.append(
-            {
-                "id": len(steps) + 1,
-                "start": sum(PROCESS_SIZES_FCFS),
-                "size": ADDITIONAL_PROCESS_FCFS,
-            }
-        )
+        processes.append(SequenceDiagrammProcess(id=len(processes) + 1, arrival_time=3, burst_time=ADDITIONAL_PROCESS_FCFS))
 
         fcfs = FirstComeFirstServe()
-        steps = schedule_processes(fcfs)
+        steps = schedule_processes(fcfs, )
 
         sequence_diagram = SequenceDiagram("FCFS", steps=steps)
         self.play(sequence_diagram.create_animations())
@@ -446,7 +441,7 @@ class OS(CustomMovingCameraScene):
 
         # save where the process to be executed next moves (right to the cpu at the bottom edge)
         PROCESS_POLE_POSITION = (
-            Process()
+            ProcessAnimated()
             .move_to(CPU_RIGHT * X_AXIS + self.get_to_edge(DOWN, margin=1) * Y_AXIS)
             .get_center()
         )
@@ -464,7 +459,7 @@ class OS(CustomMovingCameraScene):
         # create processes and place them just outside the left edge
         for i, size in enumerate(process_sizes):
             process = (
-                Process(title=f"P{i+1}", size=size)
+                ProcessAnimated(title=f"P{i+1}", size=size)
                 .move_to(self.get_to_corner(DL, y_margin=1))
                 .shift(LEFT * 4)
             )
@@ -490,7 +485,7 @@ class OS(CustomMovingCameraScene):
         while not rr.get_empty():
             if enumeration == 3:
                 new_process = (
-                    Process(title=f"P{len(process_sizes)+1}", size=2, color=RED)
+                    ProcessAnimated(title=f"P{len(process_sizes)+1}", size=2, color=RED)
                     .move_to(self.get_to_corner(DL, y_margin=1))
                     .shift(LEFT * 4)
                 )
@@ -550,7 +545,7 @@ class OS(CustomMovingCameraScene):
         self.play(FadeOut(clock))
         for i, size in enumerate(process_sizes):
             process = (
-                Process(title=f"P{i+1}", size=size)
+                ProcessAnimated(title=f"P{i+1}", size=size)
                 .move_to(self.get_to_corner(DL, y_margin=1))
                 .shift(LEFT * 4)
             )
@@ -594,13 +589,13 @@ class OS(CustomMovingCameraScene):
         #     {"id": 3, "start": 14, "size": 1},
         # ]
 # id: int, arrival_time: int, burst_time: int
-        processes = [Process(id =1, arrival_time=0, burst_time=2),
-                     Process(id =2, arrival_time=0, burst_time=3),
-                     Process(id =3, arrival_time=0, burst_time=5),
-                     Process(id =4, arrival_time=0, burst_time=1),
-                     Process(id =5, arrival_time=0, burst_time=1),
-                     Process(id =6, arrival_time=0, burst_time=2),
-                     Process(id =7, arrival_time=8, burst_time=2),
+        processes = [SequenceDiagrammProcess(id =1, arrival_time=0, burst_time=2),
+                     SequenceDiagrammProcess(id =2, arrival_time=0, burst_time=3),
+                     SequenceDiagrammProcess(id =3, arrival_time=0, burst_time=5),
+                     SequenceDiagrammProcess(id =4, arrival_time=0, burst_time=1),
+                     SequenceDiagrammProcess(id =5, arrival_time=0, burst_time=1),
+                     SequenceDiagrammProcess(id =6, arrival_time=0, burst_time=2),
+                     SequenceDiagrammProcess(id =7, arrival_time=8, burst_time=2),
 
         ]
         rr = RoundRobin(quantum=1)
@@ -662,7 +657,7 @@ class OS(CustomMovingCameraScene):
         # 02 - Processes
         process_sizes = [2, 1, 3, 3, 2, 1, 2]
         processes = [
-            Process(size=s, title=f"P{len(process_sizes)-i}")
+            ProcessAnimated(size=s, title=f"P{len(process_sizes)-i}")
             for i, s in enumerate(process_sizes)
         ]
         process_group = VGroup(*processes).arrange(RIGHT, buff=0.5)
@@ -793,7 +788,7 @@ class OS(CustomMovingCameraScene):
         # self.play(AnimationGroup(animation))
 
         # 08 - New process while execution
-        p8 = Process(size=2, title=f"P8")
+        p8 = ProcessAnimated(size=2, title=f"P8")
         p8.next_to(title, DOWN, aligned_edge=LEFT)
         p8.shift(LEFT * self.get_current_width())
         self.play(p8.animate.shift(RIGHT * self.get_current_width()), run_time=4)

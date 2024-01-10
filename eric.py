@@ -28,13 +28,13 @@ class FCFS(Scene):
         self.add(cpu)
 
         # Show processes
-        process_1 = Process(arrival_time=1, burst_time=5)
-        process_2 = Process(arrival_time=2, burst_time=3)
-        process_3 = Process(arrival_time=3, burst_time=3)
-        process_4 = Process(arrival_time=4, burst_time=1)
-        process_5 = Process(arrival_time=5, burst_time=4)
-        process_6 = Process(arrival_time=6, burst_time=1)
-        process_7 = Process(arrival_time=7, burst_time=4)
+        process_1 = ProcessAnimated(arrival_time=1, burst_time=5)
+        process_2 = ProcessAnimated(arrival_time=2, burst_time=3)
+        process_3 = ProcessAnimated(arrival_time=3, burst_time=3)
+        process_4 = ProcessAnimated(arrival_time=4, burst_time=1)
+        process_5 = ProcessAnimated(arrival_time=5, burst_time=4)
+        process_6 = ProcessAnimated(arrival_time=6, burst_time=1)
+        process_7 = ProcessAnimated(arrival_time=7, burst_time=4)
 
         # Group the processes and position them
         processes = VGroup(

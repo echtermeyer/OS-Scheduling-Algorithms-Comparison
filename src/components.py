@@ -8,7 +8,7 @@ from manim import *
 from typing import Tuple
 
 
-class Process(VGroup):
+class ProcessAnimated(VGroup):
     """Represents a process in a visual format.
 
     This class creates a graphical representation of a process, typically depicted as a rectangle whose length indicates the process's size. Optionally, a square representation can be used. The process can also display a title and its size.
@@ -732,7 +732,7 @@ class AlgorithmAnimation:
 
     def __init__(self, quantum: int, type: str) -> None:
         self.quantum = quantum
-        self.process_queue: List[Process] = []
+        self.process_queue: List[ProcessAnimated] = []
         if type not in ["rr", "fcfs"]:
             raise ValueError("Algorithm type must be either rr or fcfs")
         self.type = type
@@ -746,7 +746,7 @@ class AlgorithmAnimation:
     def get_empty(self) -> bool:
         return len(self.process_queue) == 0
 
-    def add_process(self, process: Process):
+    def add_process(self, process: ProcessAnimated):
         self.process_queue.append(process)
 
     def run(self) -> Tuple[bool, AnimationGroup | None]:
@@ -814,7 +814,7 @@ class AlgorithmAnimation:
         ):
             return None
 
-        previous_process = Process()
+        previous_process = ProcessAnimated()
         animations = []
         for i, process in enumerate(
             self.process_queue[1 if first_process_in_cpu else 0 :]
@@ -925,7 +925,7 @@ class SequenceDiagram(Mobject):
         lane_y_position = process_texts[process_lane - 1].get_center()[1]
 
         # y-axis positioning
-        process_bar = Process(color=ORANGE, size=size, show_size=False)
+        process_bar = ProcessAnimated(color=ORANGE, size=size, show_size=False)
         process_bar.move_to(lane_y_position * UP)
 
         # x-axis positioning

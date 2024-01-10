@@ -64,7 +64,7 @@ class RR(Scene):
         )
 
         # save where the process to be executed next moves (right to the cpu at the bottom edge)
-        PROCESS_POLE_POSITION = Process().move_to(CPU_RIGHT).to_edge(DOWN).get_center()
+        PROCESS_POLE_POSITION = ProcessAnimated().move_to(CPU_RIGHT).to_edge(DOWN).get_center()
 
         self.play(FadeIn(cpu))
         self.wait(2)
@@ -79,7 +79,7 @@ class RR(Scene):
         # create processes and place them just outside the left edge
         for i, size in enumerate(process_sizes):
             process = (
-                Process(title=f"P{i+1}", size=size)
+                ProcessAnimated(title=f"P{i+1}", size=size)
                 .to_edge(LEFT)
                 .to_edge(DOWN)
                 .shift(LEFT * 4)

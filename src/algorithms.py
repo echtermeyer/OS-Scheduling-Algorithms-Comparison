@@ -5,7 +5,7 @@ from typing import Tuple, List
 from abc import ABC, abstractmethod
 
 
-class Process:
+class SequenceDiagrammProcess:
     def __init__(
         self, id: int, arrival_time: int, burst_time: int, priority: str = "low"
     ) -> None:
@@ -222,12 +222,12 @@ class Scheduler:
         print()
 
 
-def create_test_processes() -> List[Process]:
+def create_test_processes() -> List[SequenceDiagrammProcess]:
     processes = [
-        Process(1, 0, 2, "low"),
-        Process(2, 2, 4, "high"),
-        Process(3, 2, 3, "low"),
-        Process(4, 10, 4, "high"),
+        SequenceDiagrammProcess(1, 0, 2, "low"),
+        SequenceDiagrammProcess(2, 2, 4, "high"),
+        SequenceDiagrammProcess(3, 2, 3, "low"),
+        SequenceDiagrammProcess(4, 10, 4, "high"),
     ]
     return processes
 
@@ -237,7 +237,7 @@ def create_processes(
     mean_burst_time: int = 3,
     std_dev_burst: float = np.sqrt(5),
     percentage_high_priority: float = 0.1,
-) -> List[Process]:
+) -> List[SequenceDiagrammProcess]:
     processes = []
 
     base_arrival_time = 0
@@ -248,7 +248,7 @@ def create_processes(
         priority = "high" if random.random() < percentage_high_priority else "low"
         arrival_time = max(0, int(base_arrival_time))
 
-        process = Process(
+        process = SequenceDiagrammProcess(
             id=i + 1,
             arrival_time=arrival_time,
             burst_time=burst_time,
