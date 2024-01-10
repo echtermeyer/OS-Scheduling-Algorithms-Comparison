@@ -633,17 +633,18 @@ class OS(CustomMovingCameraScene):
         )
         self.play(FadeIn(title))
         positive = [
-            "RR is designed to treat all processes equally by allocating each a fixed time slice.",
-            "RR can offer good response times and real time processing.",
-            "Similar to FCFS every process gets an equal chance to execute, and can't starve.",
-            "RR is preemptive which means that no single process can clogg the CPU.",
+            "Treats all processes equally with fixed time slice",
+            "Offers good response times + real time processing",
+            "Processes can't starve",
+            "Preemptive so no Process cloggs the CPU",
         ]
         neutral = [
-            "The efficiency of RR heavily depends on the appropriate choice of the time quantum. A balance betwen high average waiting time and few context switches must be found.",
+            "Efficiency depends on appropriate choice of quantum",
+            "Average waiting time vs. context switches",
         ]
         negative = [
-            "Processes that require more time than the average may suffer in terms of throughput",
-            "RR doesn't support priority scheduling.",
+            "Big processes get bad throughput",
+            "No priorities",
         ]
 
         animated_review = AnimatedReview(
