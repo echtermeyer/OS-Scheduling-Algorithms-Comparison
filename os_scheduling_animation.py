@@ -360,14 +360,20 @@ class OS(CustomMovingCameraScene):
         )
 
         fcfs = FirstComeFirstServe()
-        steps = schedule_processes(
-            fcfs,
-        )
+        steps = schedule_processes(fcfs, processes=processes)
 
         sequence_diagram = SequenceDiagram(
             "FCFS", steps=steps, upper_left_corner=self.get_to_corner(UL)
         )
-        self.play(sequence_diagram.create_animations(left_edge=self.get_to_edge(LEFT)))
+        self.play(
+            sequence_diagram.create_animations(
+                left_edge=self.get_to_edge(LEFT),
+                frame_height=self.get_current_height(),
+                frame_width=self.get_current_width(),
+                current_center=self.get_current_center(),
+                top_edge=self.get_to_edge(UP),
+            )
+        )
         self.wait(2)
 
     def fcfs_pros_cons(self):
@@ -611,7 +617,15 @@ class OS(CustomMovingCameraScene):
         sequence_diagram = SequenceDiagram(
             "Round Robin", steps=steps, upper_left_corner=self.get_to_corner(UL)
         )
-        self.play(sequence_diagram.create_animations())
+        self.play(
+            sequence_diagram.create_animations(
+                left_edge=self.get_to_edge(LEFT),
+                frame_height=self.get_current_height(),
+                frame_width=self.get_current_width(),
+                current_center=self.get_current_center(),
+                top_edge=self.get_to_edge(UP),
+            )
+        )
         self.wait(2)
         self.clear()
 
@@ -879,7 +893,15 @@ class OS(CustomMovingCameraScene):
         sequence_diagram = SequenceDiagram(
             "MLQ", steps=steps, upper_left_corner=self.get_to_corner(UL)
         )
-        self.play(sequence_diagram.create_animations())
+        self.play(
+            sequence_diagram.create_animations(
+                left_edge=self.get_to_edge(LEFT),
+                frame_height=self.get_current_height(),
+                frame_width=self.get_current_width(),
+                current_center=self.get_current_center(),
+                top_edge=self.get_to_edge(UP),
+            )
+        )
         self.wait(2)
         self.clear()
 

@@ -872,21 +872,37 @@ class SequenceDiagram(Mobject):
             size_sum[step["id"]] = size_sum.get(step["id"], 0) + step["size"]
         return size_sum
 
-    def __create_process_diagram(self, left_edge: np.ndarray):
+    def __create_process_diagram(
+        self,
+        left_edge: np.ndarray,
+        frame_width,
+        frame_height,
+        current_center: np.array,
+        top_edge: np.array,
+    ):
         # Displaying the labels for the processes
         process_texts = [Text(process, font_size=24) for process in self.processes]
         process_objects = VGroup(*process_texts)
 
-        total_vertical_space = config.frame_height - self.title.get_height() - 1
+        total_vertical_space = (
+            frame_height - (top_edge[1] - self.title.get_bottom()[1]) - 1
+        )
         space_per_process = total_vertical_space / len(self.processes)
         reduced_buff = (space_per_process - process_texts[0].get_height()) * 0.9
 
         process_objects.arrange(DOWN, aligned_edge=LEFT, buff=reduced_buff)
+        # process_objects.move_to(
+        #     current_center + (top_edge[1] - self.title.get_bottom()[1]) * DOWN / 2
+        # )
         process_objects.next_to(left_edge, RIGHT)
+        process_objects.move_to(
+            process_objects.get_center()
+            + (top_edge[1] - self.title.get_bottom()[1]) * DOWN
+        )
 
         # Displaying the separator lines
         separator_lines = VGroup()
-        line_length = config.frame_width - 2
+        line_length = frame_width - 2
         for i, process in enumerate(process_texts[:-1]):
             line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(
                 line_length
@@ -901,6 +917,7 @@ class SequenceDiagram(Mobject):
             separator_lines.add(line)
 
         # Calculate scaling factor for process bars so they match the full width
+
         rightmost_object_x_position = (
             separator_lines[-1].get_right()[0] - DEFAULT_MOBJECT_TO_MOBJECT_BUFFER
         )
@@ -944,8 +961,16 @@ class SequenceDiagram(Mobject):
 
         return process_bar
 
-    def create_animations(self, left_edge: np.ndarray) -> Succession:
-        process_diagram = self.__create_process_diagram(left_edge=left_edge)
+    def create_animations(
+        self, left_edge: np.ndarray, frame_height, frame_width, current_center, top_edge
+    ) -> Succession:
+        process_diagram = self.__create_process_diagram(
+            left_edge=left_edge,
+            frame_height=frame_height,
+            frame_width=frame_width,
+            current_center=current_center,
+            top_edge=top_edge,
+        )
         process_texts = process_diagram[0]
         separator_lines = process_diagram[1]
         process_bars = process_diagram[2:]
