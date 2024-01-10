@@ -2,6 +2,11 @@ from manim import *
 from src.components import *
 from src.algorithms import *
 
+PROCESS_SIZES_FCFS = [2, 3, 5, 1, 1, 2]
+ADDITIONAL_PROCESS_FCFS = 2
+PROCESS_SIZES_RR = PROCESS_SIZES_FCFS
+ADDITIONAL_PROCESS_RR = ADDITIONAL_PROCESS_FCFS
+
 
 class CustomMovingCameraScene(MovingCameraScene):
     """Custom Class used to extend the MovingCameraScene class from manimlib with a lot of methods to get the current camera position
@@ -134,10 +139,6 @@ class CustomMovingCameraScene(MovingCameraScene):
         return None
 
 
-PROCESS_SIZES_FCFS = [2, 3, 5, 1, 1, 2]
-ADDITIONAL_PROCESS_FCFS = 2
-PROCESS_SIZES_RR = PROCESS_SIZES_FCFS
-ADDITIONAL_PROCESS_RR = ADDITIONAL_PROCESS_FCFS
 
 
 class OS(CustomMovingCameraScene):
