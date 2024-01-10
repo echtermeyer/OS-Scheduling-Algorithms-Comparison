@@ -16,8 +16,7 @@ class CustomMovingCameraScene(MovingCameraScene):
     """
 
     def construct(self):
-        """Has to be called at the beginning of the construct method of the scene to initialize the camera position
-        """
+        """Has to be called at the beginning of the construct method of the scene to initialize the camera position"""
         self._initial_camera_width = self.camera.frame.get_width()
         self._initial_camera_center = self.camera.frame.get_center()
 
@@ -146,8 +145,6 @@ class CustomMovingCameraScene(MovingCameraScene):
         return None
 
 
-
-
 class OS(CustomMovingCameraScene):
     def construct(self):
         super().construct()
@@ -158,7 +155,7 @@ class OS(CustomMovingCameraScene):
         # self.clear()
         # self.camera.frame.restore()
         # # 2 min
-        self.play(self.move_one_slide(x=RIGHT*0.5))
+        self.play(self.move_one_slide(x=RIGHT * 0.5))
         self.fcfs()
         self.wait(1)
         # self.clear()
@@ -349,18 +346,28 @@ class OS(CustomMovingCameraScene):
     def fcfs_flow(self):
         # TODO: Sind das die von euch @Jannik/Benedikt oder noch von mir?
         # Sind jetzt angepasst von Jannik
-        # TODO 
+        # TODO
         processes = [
             SequenceDiagrammProcess(id=idx + 1, arrival_time=0, burst_time=size)
             for idx, size in enumerate(PROCESS_SIZES_FCFS)
         ]
-        processes.append(SequenceDiagrammProcess(id=len(processes) + 1, arrival_time=3, burst_time=ADDITIONAL_PROCESS_FCFS))
+        processes.append(
+            SequenceDiagrammProcess(
+                id=len(processes) + 1,
+                arrival_time=3,
+                burst_time=ADDITIONAL_PROCESS_FCFS,
+            )
+        )
 
         fcfs = FirstComeFirstServe()
-        steps = schedule_processes(fcfs, )
+        steps = schedule_processes(
+            fcfs,
+        )
 
-        sequence_diagram = SequenceDiagram("FCFS", steps=steps)
-        self.play(sequence_diagram.create_animations())
+        sequence_diagram = SequenceDiagram(
+            "FCFS", steps=steps, upper_left_corner=self.get_to_corner(UL)
+        )
+        self.play(sequence_diagram.create_animations(left_edge=self.get_to_edge(LEFT)))
         self.wait(2)
 
     def fcfs_pros_cons(self):
@@ -588,20 +595,22 @@ class OS(CustomMovingCameraScene):
         #     {"id": 3, "start": 13, "size": 1},
         #     {"id": 3, "start": 14, "size": 1},
         # ]
-# id: int, arrival_time: int, burst_time: int
-        processes = [SequenceDiagrammProcess(id =1, arrival_time=0, burst_time=2),
-                     SequenceDiagrammProcess(id =2, arrival_time=0, burst_time=3),
-                     SequenceDiagrammProcess(id =3, arrival_time=0, burst_time=5),
-                     SequenceDiagrammProcess(id =4, arrival_time=0, burst_time=1),
-                     SequenceDiagrammProcess(id =5, arrival_time=0, burst_time=1),
-                     SequenceDiagrammProcess(id =6, arrival_time=0, burst_time=2),
-                     SequenceDiagrammProcess(id =7, arrival_time=8, burst_time=2),
-
+        # id: int, arrival_time: int, burst_time: int
+        processes = [
+            SequenceDiagrammProcess(id=1, arrival_time=0, burst_time=2),
+            SequenceDiagrammProcess(id=2, arrival_time=0, burst_time=3),
+            SequenceDiagrammProcess(id=3, arrival_time=0, burst_time=5),
+            SequenceDiagrammProcess(id=4, arrival_time=0, burst_time=1),
+            SequenceDiagrammProcess(id=5, arrival_time=0, burst_time=1),
+            SequenceDiagrammProcess(id=6, arrival_time=0, burst_time=2),
+            SequenceDiagrammProcess(id=7, arrival_time=8, burst_time=2),
         ]
         rr = RoundRobin(quantum=1)
         steps = schedule_processes(rr, processes)
 
-        sequence_diagram = SequenceDiagram("Round Robin", steps=steps)
+        sequence_diagram = SequenceDiagram(
+            "Round Robin", steps=steps, upper_left_corner=self.get_to_corner(UL)
+        )
         self.play(sequence_diagram.create_animations())
         self.wait(2)
         self.clear()
@@ -867,7 +876,9 @@ class OS(CustomMovingCameraScene):
         mlq = MultiLevelQueue(quantum=1)
         steps = schedule_processes(mlq)
 
-        sequence_diagram = SequenceDiagram("MLQ", steps=steps)
+        sequence_diagram = SequenceDiagram(
+            "MLQ", steps=steps, upper_left_corner=self.get_to_corner(UL)
+        )
         self.play(sequence_diagram.create_animations())
         self.wait(2)
         self.clear()
@@ -894,7 +905,7 @@ class OS(CustomMovingCameraScene):
                 RoundRobin(quantum=1),
                 MultiLevelQueue(quantum=1),
             ],
-            stepsize=10
+            stepsize=10,
         )
         print(datasets)
         titles = ["FCFS", "RoundRobin", "MLQ"]

@@ -853,11 +853,14 @@ class SequenceDiagram(Mobject):
             self.play(sequence_diagram.create_animations())
     """
 
-    def __init__(self, algorithm: str, steps: List[Dict], **kwargs):
+    def __init__(
+        self, algorithm: str, steps: List[Dict], upper_left_corner: np.array, **kwargs
+    ):
         super().__init__(**kwargs)
 
-        self.title = Text(f"Sequence Diagram for {algorithm}", font_size=36)
-        self.title.to_corner(UL)
+        self.title = CustomTitle(
+            f"Sequence Diagram for {algorithm}", corner=upper_left_corner
+        )
         self.steps = steps
         self.processes = [
             f"P{id} - {size}s" for id, size in self.__calculate_process_sizes().items()
@@ -869,7 +872,7 @@ class SequenceDiagram(Mobject):
             size_sum[step["id"]] = size_sum.get(step["id"], 0) + step["size"]
         return size_sum
 
-    def __create_process_diagram(self):
+    def __create_process_diagram(self, left_edge: np.ndarray):
         # Displaying the labels for the processes
         process_texts = [Text(process, font_size=24) for process in self.processes]
         process_objects = VGroup(*process_texts)
@@ -879,7 +882,7 @@ class SequenceDiagram(Mobject):
         reduced_buff = (space_per_process - process_texts[0].get_height()) * 0.9
 
         process_objects.arrange(DOWN, aligned_edge=LEFT, buff=reduced_buff)
-        process_objects.to_edge(LEFT, buff=1)
+        process_objects.next_to(left_edge, RIGHT)
 
         # Displaying the separator lines
         separator_lines = VGroup()
@@ -941,14 +944,15 @@ class SequenceDiagram(Mobject):
 
         return process_bar
 
-    def create_animations(self):
-        process_diagram = self.__create_process_diagram()
+    def create_animations(self, left_edge: np.ndarray) -> Succession:
+        process_diagram = self.__create_process_diagram(left_edge=left_edge)
         process_texts = process_diagram[0]
         separator_lines = process_diagram[1]
         process_bars = process_diagram[2:]
 
         write_animations = [Write(text) for text in process_texts]
-        line_animations = [GrowFromEdge(line, LEFT) for line in separator_lines]
+
+        line_animations = [GrowFromPoint(line, left_edge) for line in separator_lines]
 
         bar_animations = []
         for bar in process_bars:
