@@ -16,10 +16,17 @@ class CustomMovingCameraScene(MovingCameraScene):
     """
 
     def construct(self):
+        """Has to be called at the beginning of the construct method of the scene to initialize the camera position
+        """
         self._initial_camera_width = self.camera.frame.get_width()
         self._initial_camera_center = self.camera.frame.get_center()
 
-    def move_camera_to_initial_position(self):
+    def move_camera_to_initial_position(self) -> Animation:
+        """Returns an animation that moves the camera back to the initial position.
+
+        Returns:
+            Animation: The movement and scaling of the camera back to the initial position
+        """
         return self.camera.frame.animate.move_to(self._initial_camera_center).set_width(
             self._initial_camera_width
         )
