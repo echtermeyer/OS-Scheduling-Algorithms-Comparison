@@ -399,6 +399,7 @@ class AnimatedReview(Mobject):
         negative: List[str],
         width=25,
         speed=0.05,
+        override_speed=False,
         center: np.array = None,
         left_edge: np.array = None,
         **kwargs,
@@ -407,6 +408,7 @@ class AnimatedReview(Mobject):
 
         # Calculate lengths for animation runtimes
         self.speed = speed
+        self.override_speed = override_speed
         self.lengths = [
             sum([len(item) for item in positive]) + len("Positive"),
             sum([len(item) for item in neutral]) + len("Neutral"),
@@ -464,6 +466,10 @@ class AnimatedReview(Mobject):
     def create_animation(self, return_list: bool = False):
         def proportional_write(idx: int, mobject: Mobject):
             run_time = self.speed * self.lengths[idx]
+
+            if self.override_speed:
+                run_time = 1
+
             return Write(mobject, run_time=run_time)
 
         animations = []
