@@ -368,10 +368,9 @@ class OS(CustomMovingCameraScene):
         self.play(
             sequence_diagram.create_animations(
                 left_edge=self.get_to_edge(LEFT),
+                top_edge=self.get_to_edge(UP),
                 frame_height=self.get_current_height(),
                 frame_width=self.get_current_width(),
-                current_center=self.get_current_center(),
-                top_edge=self.get_to_edge(UP),
             )
         )
         self.wait(2)
@@ -620,10 +619,9 @@ class OS(CustomMovingCameraScene):
         self.play(
             sequence_diagram.create_animations(
                 left_edge=self.get_to_edge(LEFT),
+                top_edge=self.get_to_edge(UP),
                 frame_height=self.get_current_height(),
                 frame_width=self.get_current_width(),
-                current_center=self.get_current_center(),
-                top_edge=self.get_to_edge(UP),
             )
         )
         self.wait(2)
@@ -896,10 +894,9 @@ class OS(CustomMovingCameraScene):
         self.play(
             sequence_diagram.create_animations(
                 left_edge=self.get_to_edge(LEFT),
+                top_edge=self.get_to_edge(UP),
                 frame_height=self.get_current_height(),
                 frame_width=self.get_current_width(),
-                current_center=self.get_current_center(),
-                top_edge=self.get_to_edge(UP),
             )
         )
         self.wait(2)

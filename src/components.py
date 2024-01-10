@@ -271,12 +271,12 @@ class CustomTitle(VGroup):
     self.play(FadeIn(title))
     """
 
-    def __init__(self, title_text: str, corner: np.array, **kwargs) -> Text:
+    def __init__(self, title_text: str, corner: np.ndarray, **kwargs) -> Text:
         """The init method that takes in the title_text and the corner of the screen where the title should be placed.
 
         Args:
             title_text (str): The string that should be displayed as the title.
-            corner (np.array): The left upper corner of the screen where the title should be placed.
+            corner (np.ndarray): The left upper corner of the screen where the title should be placed.
 
         Returns:
             Text: The title element ready to be Faded in.
@@ -400,8 +400,8 @@ class AnimatedReview(Mobject):
         width=25,
         speed=0.05,
         override_speed=False,
-        center: np.array = None,
-        left_edge: np.array = None,
+        center: np.ndarray = None,
+        left_edge: np.ndarray = None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -503,7 +503,7 @@ class AnimatedBulletpoints(Mobject):
         bullet_points: List[str],
         width=25,
         speed=0.05,
-        edge: np.array = None,
+        edge: np.ndarray = None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -854,7 +854,7 @@ class SequenceDiagram(Mobject):
     """
 
     def __init__(
-        self, algorithm: str, steps: List[Dict], upper_left_corner: np.array, **kwargs
+        self, algorithm: str, steps: List[Dict], upper_left_corner: np.ndarray, **kwargs
     ):
         super().__init__(**kwargs)
 
@@ -875,10 +875,9 @@ class SequenceDiagram(Mobject):
     def __create_process_diagram(
         self,
         left_edge: np.ndarray,
-        frame_width,
-        frame_height,
-        current_center: np.array,
-        top_edge: np.array,
+        top_edge: np.ndarray,
+        frame_width: float,
+        frame_height: float,
     ):
         # Displaying the labels for the processes
         process_texts = [Text(process, font_size=24) for process in self.processes]
@@ -891,10 +890,8 @@ class SequenceDiagram(Mobject):
         reduced_buff = (space_per_process - process_texts[0].get_height()) * 0.9
 
         process_objects.arrange(DOWN, aligned_edge=LEFT, buff=reduced_buff)
-        # process_objects.move_to(
-        #     current_center + (top_edge[1] - self.title.get_bottom()[1]) * DOWN / 2
-        # )
         process_objects.next_to(left_edge, RIGHT)
+        # Need to shift the Y_Axis center in order to prevent the diagram being positioned over the title
         process_objects.move_to(
             process_objects.get_center()
             + (top_edge[1] - self.title.get_bottom()[1]) * DOWN
@@ -962,14 +959,17 @@ class SequenceDiagram(Mobject):
         return process_bar
 
     def create_animations(
-        self, left_edge: np.ndarray, frame_height, frame_width, current_center, top_edge
+        self,
+        left_edge: np.ndarray,
+        top_edge: np.ndarray,
+        frame_width: float,
+        frame_height: float,
     ) -> Succession:
         process_diagram = self.__create_process_diagram(
             left_edge=left_edge,
-            frame_height=frame_height,
-            frame_width=frame_width,
-            current_center=current_center,
             top_edge=top_edge,
+            frame_width=frame_width,
+            frame_height=frame_height,
         )
         process_texts = process_diagram[0]
         separator_lines = process_diagram[1]
