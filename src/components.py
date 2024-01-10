@@ -149,6 +149,7 @@ class CPU(VGroup):
         size: float = 1,
         show_gear: bool = True,
         gear_pos=UR,
+        gear_color=RED,
         alignment: str = "center",
         center: np.ndarray = None,
         **kwargs,
@@ -156,6 +157,7 @@ class CPU(VGroup):
         super().__init__(**kwargs)
         self.title = title
         self.color = color
+        self.gear_color = gear_color
         self.size = size
         self.show_gear = show_gear
         self.gear_pos = gear_pos
@@ -173,7 +175,7 @@ class CPU(VGroup):
         self.add(self.cpu, self.title_object)
 
     def _add_gear(self) -> None:
-        self.gear = SVGMobject("img/gear.svg", fill_color=self.color).scale(
+        self.gear = SVGMobject("img/gear.svg", fill_color=self.gear_color).scale(
             0.25 * self.size
         )
         self.gear.next_to(self.cpu, self.gear_pos, buff=-0.4 * self.size)
