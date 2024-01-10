@@ -259,11 +259,30 @@ class Clock(Mobject):
 
 
 class CustomTitle(VGroup):
-    def __init__(self, title_text, corner, **kwargs):
+    """A Custom Title that already sets font_size and position. It can be used to create a title for a scene.
+    Example Usage:
+
+    title = CustomTitle(
+            title_text="Pros and Cons of FCFS", corner=self.get_to_corner(UL)
+    )
+
+    self.play(FadeIn(title))
+    """
+
+    def __init__(self, title_text: str, corner: np.array, **kwargs) -> Text:
+        """The init method that takes in the title_text and the corner of the screen where the title should be placed.
+
+        Args:
+            title_text (str): The string that should be displayed as the title.
+            corner (np.array): The left upper corner of the screen where the title should be placed.
+
+        Returns:
+            Text: The title element ready to be Faded in.
+        """
         super().__init__(**kwargs)
         self.title = Text(title_text, font_size=36)
-        self.add(self.title)  # Add the title to the group of submobjects
-        self.title.next_to(corner, DR)  # Position the title
+        self.add(self.title)
+        self.title.next_to(corner, DR)
 
 
 class AnimatedTitle(Mobject):
@@ -665,7 +684,7 @@ class MetricBarChart(VMobject):
 
         def round_up_to_nearest_five(n):
             return math.ceil(n / 5) * 5
-        
+
         adjusted_max_y_value = round_up_to_nearest_five(max_y_value)
         tick_interval = round_up_to_nearest_five(adjusted_max_y_value / 5)
 
