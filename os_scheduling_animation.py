@@ -929,21 +929,28 @@ class OS(CustomMovingCameraScene):
         # Your code: ...
 
         self.clear()
-
-        # TODO: Sind das die von euch @Jannik/Benedikt oder noch von mir?
-        # steps = [
-        #     {"id": 1, "start": 0, "size": 4},
-        #     {"id": 2, "start": 4, "size": 2},
-        #     {"id": 3, "start": 6, "size": 1},
-        #     {"id": 4, "start": 7, "size": 5},
-        #     {"id": 2, "start": 12, "size": 2},
-        #     {"id": 3, "start": 14, "size": 2},
-        #     {"id": 4, "start": 16, "size": 5},
-        #     {"id": 3, "start": 21, "size": 3},
+        
+        # TODO: Das hier sind deine Prozesse, die sind aber falsch definiert. Die IDs müssen unique sein und du musst die Priority angeben. Der Algorithmus scheduled das dann.
+        # Hier ein Beispiel:
+        # processes = [
+        #     SequenceDiagrammProcess(id=1, arrival_time=0, burst_time=10, priority="low"),
+        #     SequenceDiagrammProcess(id=2, arrival_time=3, burst_time=3, priority="high"),
+        #     SequenceDiagrammProcess(id=3, arrival_time=5, burst_time=3, priority="high"),
         # ]
+        processes = [
+            SequenceDiagrammProcess(id=1, arrival_time=0, burst_time=1),
+            SequenceDiagrammProcess(id=2, arrival_time=1, burst_time=1),
+            SequenceDiagrammProcess(id=3, arrival_time=2, burst_time=1),
+            SequenceDiagrammProcess(id=4, arrival_time=3, burst_time=1),
+            SequenceDiagrammProcess(id=5, arrival_time=4, burst_time=1),
+            SequenceDiagrammProcess(id=6, arrival_time=5, burst_time=1),
+            SequenceDiagrammProcess(id=7, arrival_time=6, burst_time=2),
+            SequenceDiagrammProcess(id=8, arrival_time=7, burst_time=5),
+            SequenceDiagrammProcess(id=9, arrival_time=8, burst_time=3),
+        ]
 
         mlq = MultiLevelQueue(quantum=1)
-        steps = schedule_processes(mlq)
+        steps = schedule_processes(mlq, processes)
 
         sequence_diagram = SequenceDiagram(
             "MLQ", steps=steps, upper_left_corner=self.get_to_corner(UL)

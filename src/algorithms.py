@@ -1,3 +1,4 @@
+import copy
 import random
 import numpy as np
 
@@ -51,20 +52,21 @@ class FirstComeFirstServe(Algorithm):
 
     def schedule(self, processes) -> Tuple[int, int, int]:
         current_time = 0
-        context_switches = 0
+        context_switches = 0  # Will be just the number of processes. First process is also counted as a context switch
         wait_times = []
 
         for process in processes:
+            context_switches += 1
+
+            # Only for edge case when the first process arrives after 0
             if current_time < process.arrival_time:
                 current_time = process.arrival_time
 
-            first_response_time = current_time - process.arrival_time
-            wait_times.append(first_response_time)
+            # Wait time is just the difference between the current time and the arrival time
+            wait_times.append(current_time - process.arrival_time)
             self.add_step(process.id, current_time, process.burst_time)
 
-            current_time += process.burst_time
-            if process != processes[0]:
-                context_switches += 1
+            current_time += process.burst_time  # Execution until the end
 
         return context_switches, current_time, wait_times
 
@@ -86,9 +88,9 @@ class RoundRobin(Algorithm):
         context_switches = 0
 
         wait_times = [0] * len(processes)
-        last_process_end_time = {process.id: process.arrival_time for process in processes}  # Letzte Bearbeitungszeit
+        last_end_times = {process.id: process.arrival_time for process in processes}
 
-        process_queue = processes.copy()
+        process_queue = copy.deepcopy(processes)
 
         last_process_id = -1
         while process_queue:
@@ -107,8 +109,10 @@ class RoundRobin(Algorithm):
             self.add_step(current_process.id, current_time, execution_time)
 
             # Update wait times
-            wait_times[current_process.id - 1] += current_time - last_process_end_time[current_process.id]
-            last_process_end_time[current_process.id] = current_time + execution_time
+            wait_times[current_process.id - 1] += (
+                current_time - last_end_times[current_process.id]
+            )
+            last_end_times[current_process.id] = current_time + execution_time
 
             # Update times
             current_process.burst_time -= execution_time
@@ -125,7 +129,6 @@ class RoundRobin(Algorithm):
                 if not inserted:
                     process_queue.append(current_process)
 
-        print(wait_times)
         return context_switches, current_time, wait_times
 
 
@@ -135,14 +138,17 @@ class MultiLevelQueue(Algorithm):
         self.quantum = quantum
 
     def schedule(self, processes) -> Tuple[int, int, int]:
-        high_priority = [p for p in processes if p.priority == "high"]
-        low_priority = [p for p in processes if p.priority == "low"]
+        _processes = copy.deepcopy(processes)
+
+        high_priority = [p for p in _processes if p.priority == "high"]
+        low_priority = [p for p in _processes if p.priority == "low"]
 
         current_time = 0
         context_switches = 0
-        wait_times = [0] * len(processes)
-        last_start_time = [0] * len(processes)
+        wait_times = [0] * len(_processes)
+        last_end_times = {process.id: process.arrival_time for process in _processes}
 
+        last_process_id = -1
         while high_priority or low_priority:
             next_process = None
             if high_priority and high_priority[0].arrival_time <= current_time:
@@ -151,40 +157,60 @@ class MultiLevelQueue(Algorithm):
                 next_process = low_priority.pop(0)
 
             if next_process:
+                # Use Round Robin for high priority processes
                 if next_process.priority == "high":
-                    execution_time = min(next_process.burst_time, self.quantum)
-                    next_process.burst_time -= execution_time
-                    self.add_step(next_process.id, current_time, execution_time)
-
-                    if current_time >= last_start_time[next_process.id - 1]:
-                        wait_times[next_process.id - 1] += (
-                            current_time - last_start_time[next_process.id - 1]
-                        )
-
-                    current_time += execution_time
-                    last_start_time[next_process.id - 1] = current_time
-
-                    if next_process.burst_time > 0:
-                        high_priority.append(next_process)
+                    # Only count context switches if the process is different
+                    if last_process_id != next_process.id:
+                        last_process_id = next_process.id
                         context_switches += 1
 
+                    # Get the minimum between the burst time and the quantum. Update the burst time
+                    execution_time = min(next_process.burst_time, self.quantum)
+                    next_process.burst_time -= execution_time
+
+                    # Update metrics
+                    self.add_step(next_process.id, current_time, execution_time)
+                    wait_times[next_process.id - 1] += (
+                        current_time - last_end_times[next_process.id]
+                    )
+                    last_end_times[next_process.id] = current_time + execution_time
+
+                    # Update times
+                    current_time += execution_time
+
+                    # Prepare for next iteration
+                    if next_process.burst_time > 0:
+                        inserted = False
+                        for i in range(len(high_priority)):
+                            if high_priority[i].arrival_time > current_time:
+                                high_priority.insert(i, next_process)
+                                inserted = True
+                                break
+                        if not inserted:
+                            high_priority.append(next_process)
+
+                # Use FCFS for low priority processes
                 elif next_process.priority == "low":
+                    # Only count context switches if the process is different
+                    if last_process_id != next_process.id:
+                        last_process_id = next_process.id
+                        context_switches += 1
+
+                    # Also use the minimum time unit. Reason for this is that we have to check if there will be a high-priority process arriving
                     execution_time = min(next_process.burst_time, 1)
                     next_process.burst_time -= execution_time
+
+                    # Update metrics
                     self.add_step(next_process.id, current_time, execution_time)
-
-                    if current_time >= last_start_time[next_process.id - 1]:
-                        wait_times[next_process.id - 1] += (
-                            current_time - last_start_time[next_process.id - 1]
-                        )
-
                     wait_times[next_process.id - 1] += (
-                        current_time - next_process.arrival_time
+                        current_time - last_end_times[next_process.id]
                     )
+                    last_end_times[next_process.id] = current_time + execution_time
 
+                    # Update times
                     current_time += execution_time
-                    last_start_time[next_process.id - 1] = current_time
 
+                    # Prepare for next iteration
                     if next_process.burst_time > 0:
                         low_priority.insert(0, next_process)
             else:
