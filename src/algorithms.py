@@ -5,6 +5,9 @@ import numpy as np
 from typing import Tuple, List
 from abc import ABC, abstractmethod
 
+np.random.seed(1)
+random.seed(1)
+
 
 class SequenceDiagrammProcess:
     def __init__(
@@ -240,6 +243,7 @@ class Scheduler:
         for process in self.processes:
             total_turnaround_time += wait_times[process.id - 1] + process.burst_time
 
+        # print(f"Wait times: {wait_times}, len: {len(self.processes)}")
         average_wait_time = sum(wait_times) / len(self.processes)
         average_turnaround_time = total_turnaround_time / len(self.processes)
         throughput = len(self.processes) / current_time
@@ -276,21 +280,30 @@ def create_test_processes() -> List[SequenceDiagrammProcess]:
     return processes
 
 
+# Think like all times are in milliseconds (ms)
 def create_processes(
     num_processes: int = 100,
-    mean_burst_time: int = 3,
-    std_dev_burst: float = np.sqrt(5),
-    percentage_high_priority: float = 0.1,
+    mean_burst_time: int = 250,
+    std_dev_burst: float = 600,
+    percentage_high_priority: float = 0.2,
+    arrival_time_variation: float = 100,  # Neue Variable für Ankunftszeitvariation
 ) -> List[SequenceDiagrammProcess]:
     processes = []
-
     base_arrival_time = 0
     for i in range(num_processes):
         burst_time = max(
             1, int(round(np.random.normal(mean_burst_time, std_dev_burst)))
         )
-        priority = "high" if random.random() < percentage_high_priority else "low"
-        arrival_time = max(0, int(base_arrival_time))
+        priority = "high" if np.random.random() < percentage_high_priority else "low"
+
+        # Anpassung der Ankunftszeit, um Clusterbildung zu simulieren
+        arrival_time = max(
+            0,
+            int(
+                base_arrival_time
+                + np.random.uniform(-arrival_time_variation, arrival_time_variation)
+            ),
+        )
 
         process = SequenceDiagrammProcess(
             id=i + 1,
@@ -300,7 +313,9 @@ def create_processes(
         )
         processes.append(process)
 
-        base_arrival_time += max(0, round(random.uniform(-2, 5)))
+        base_arrival_time += max(
+            0, round(np.random.uniform(0, 25 * arrival_time_variation))
+        )
 
     return processes
 
@@ -311,12 +326,15 @@ def create_linechart_metrics(
     stepsize: int = 1_000,
     metric: str = "average_turnaround_time",
 ) -> List[np.ndarray]:
+    total_processes_needed = steps * stepsize
+    all_processes = create_processes(num_processes=total_processes_needed)
+
     dataset = []
-    processes = []
     for algorithm in algorithms:
         stats = []
-        for _ in range(steps):
-            processes.extend(create_processes(num_processes=stepsize))
+        for step in range(steps):
+            # Select the subset of processes for the current step
+            processes = all_processes[: (step + 1) * stepsize]
             scheduler = Scheduler()
             scheduler.set_processes(processes)
             scheduler.run_algorithm(algorithm, display=False)

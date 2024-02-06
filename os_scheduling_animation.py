@@ -1,3 +1,5 @@
+import copy
+
 from manim import *
 from src.components import *
 from src.algorithms import *
@@ -168,14 +170,14 @@ class OS(CustomMovingCameraScene):
         # self.camera.frame.restore()
 
         # # 3 min
-        self.mqs()
-        self.clear()
+        # self.mqs()
+        # self.clear()
         # self.camera.frame.restore()
 
         # # 3 min
-        # self.metrics()
-        # self.clear()
-        # self.camera.frame.restore()
+        self.metrics()
+        self.clear()
+        self.camera.frame.restore()
 
         # # reallife examples
         # # 2 min
@@ -335,9 +337,9 @@ class OS(CustomMovingCameraScene):
 
     def fcfs_bullet_points(self):
         points = [
-            "Processes get queued up in the order they arrive.",
-            "The first process in the queue gets processed until it's finished.",
-            "The processes then get moved up in the queue and are processed until there is no process left.",
+            ("Processes get queued up in the order they arrive.", 1),
+            ("The first process in the queue gets processed until it's finished.", 1), 
+            ("The processes then get moved up in the queue and are processed until there is no process left.", 1),
         ]
 
         bulletpoints = AnimatedBulletpoints(points, edge=self.get_to_edge(RIGHT))
@@ -573,10 +575,10 @@ class OS(CustomMovingCameraScene):
 
     def rr_bullet_points(self):
         points = [
-            "CPU time gets divided into quantums.",
-            "Each process get's processed for the duration of a quantum.",
-            "After each quantum the current process is either finished or it's put back into the queue."
-            + "\n=> Preemptive Schedulung",
+            ("CPU time gets divided into quantums.", 1),
+            ("Each process get's processed for the duration of a quantum.", 1),
+            ("After each quantum the current process is either finished or it's put back into the queue."
+            + "\n=> Preemptive Schedulung", 1),
         ]
 
         bulletpoints = AnimatedBulletpoints(points, edge=self.get_to_edge(RIGHT))
@@ -910,9 +912,9 @@ class OS(CustomMovingCameraScene):
 
         # bullet points
         points = [
-            "Processes are distributed to different queues.",
-            "Queues use different scheduling algorithms.",
-            "Execution of queues determind by priority.",
+            ("Processes are distributed to different queues.", 1),
+            ("Queues use different scheduling algorithms.", 1),
+            ("Execution of queues determind by priority.", 1),
         ]
 
         bulletpoints = AnimatedBulletpoints(
@@ -929,7 +931,7 @@ class OS(CustomMovingCameraScene):
         # Your code: ...
 
         self.clear()
-        
+
         # TODO: Das hier sind deine Prozesse, die sind aber falsch definiert. Die IDs müssen unique sein und du musst die Priority angeben. Der Algorithmus scheduled das dann.
         # Hier ein Beispiel:
         # processes = [
@@ -1000,13 +1002,12 @@ class OS(CustomMovingCameraScene):
         self.play(title.animate.to_corner(UP + LEFT))
 
         # 2D LineChart metric
-        # TODO: Increase stepsize for final video
-        stepsize_linechart = 10
+        stepsize_linechart = 100
         datasets = create_linechart_metrics(
             algorithms=[
                 FirstComeFirstServe(),
-                RoundRobin(quantum=1),
-                MultiLevelQueue(quantum=1),
+                RoundRobin(quantum=5),
+                MultiLevelQueue(quantum=5),
             ],
             stepsize=stepsize_linechart,
         )
@@ -1019,9 +1020,15 @@ class OS(CustomMovingCameraScene):
 
         # 2D LineChart bullet points
         points = [
-            "FCFS has the worst average response time",
-            "Round Robin has the lowest average response time",
-            "MLQ combines FCFS and Round Robin resulting in a middle ground",
+            ("FCFS has the worst average turnaround time", 12),
+            (
+                "Round Robin and MLQ have similar average turnaround times, but Round Robin is slightly better",
+                4,
+            ),
+            (
+                "Configuration of the quantum and characteristics of the processes can have a big impact",
+                7,
+            ),
         ]
         bulletpoints = AnimatedBulletpoints(points, width=40)
         self.play(bulletpoints.create_animation())
@@ -1032,19 +1039,19 @@ class OS(CustomMovingCameraScene):
 
         fcfs_algo = FirstComeFirstServe()
         fcfs_scheduler = Scheduler()
-        fcfs_scheduler.set_processes(processes)
+        fcfs_scheduler.set_processes(copy.deepcopy(processes))
         fcfs_scheduler.run_algorithm(fcfs_algo, display=True)
         fcfs_metrics = fcfs_scheduler.get_metrics()
 
-        rr_algo = RoundRobin(quantum=1)
+        rr_algo = RoundRobin(quantum=5)
         rr_scheduler = Scheduler()
-        rr_scheduler.set_processes(processes)
+        rr_scheduler.set_processes(copy.deepcopy(processes))
         rr_scheduler.run_algorithm(rr_algo, display=True)
         rr_metrics = rr_scheduler.get_metrics()
 
-        mlq_algo = MultiLevelQueue(quantum=1)
+        mlq_algo = MultiLevelQueue(quantum=5)
         mlq_scheduler = Scheduler()
-        mlq_scheduler.set_processes(processes)
+        mlq_scheduler.set_processes(copy.deepcopy(processes))
         mlq_scheduler.run_algorithm(mlq_algo, display=True)
         mlq_metrics = mlq_scheduler.get_metrics()
 
@@ -1095,11 +1102,11 @@ class OS(CustomMovingCameraScene):
 
         # BarChart metrics
         points = [
-            "FCFS excels in average waiting time",
-            "FCFS has the worst average response time",
-            "Round Robin has the lowest average response time",
-            "MLQ has very low average waiting time",
-            "All algorithms have the same average turnaround time",
+            ("Round Robin has the best (lowest) fairness score", 1),
+            ("FCFS and MLQ have similar fairness scores", 1),
+            ("Context switches lead to overhead", 1),
+            ("Many context switches are needed for Round Robin", 1),
+            ("MLQ needs significantly less context switches compared to Round Robin", 1),
         ]
         bulletpoints = AnimatedBulletpoints(points, width=40)
         self.play(bulletpoints.create_animation())
