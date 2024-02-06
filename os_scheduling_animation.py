@@ -155,9 +155,9 @@ class OS(CustomMovingCameraScene):
         # self.clear()
         # self.camera.frame.restore()
         # # 2 min
-        self.play(self.move_one_slide(x=RIGHT * 0.5))
-        self.fcfs()
-        self.wait(1)
+        # self.play(self.move_one_slide(x=RIGHT * 0.5))
+        # self.fcfs()
+        # self.wait(1)
         # self.clear()
         # self.camera.frame.restore()
         # # In der Überleitung Preemptive verwenden und erklären was das bedeutet
@@ -168,8 +168,8 @@ class OS(CustomMovingCameraScene):
         # self.camera.frame.restore()
 
         # # 3 min
-        # self.mqs()
-        # self.clear()
+        self.mqs()
+        self.clear()
         # self.camera.frame.restore()
 
         # # 3 min
@@ -677,7 +677,7 @@ class OS(CustomMovingCameraScene):
         )
 
         # 02 - Processes
-        process_sizes = [2, 1, 3, 3, 2, 1, 2]
+        process_sizes = PROCESS_SIZES_FCFS#[2, 1, 3, 3, 2, 1, 2]
         processes = [
             ProcessAnimated(size=s, title=f"P{len(process_sizes)-i}")
             for i, s in enumerate(process_sizes)
@@ -686,9 +686,10 @@ class OS(CustomMovingCameraScene):
 
         process_group.next_to(title, DOWN, aligned_edge=LEFT)
         process_group.shift(LEFT * self.get_current_width())
-        self.play(
-            process_group.animate.shift(RIGHT * self.get_current_width()), run_time=4
-        )
+        for process in reversed(processes):
+            animation = process.animate.shift(RIGHT * self.get_current_width())
+            self.play(animation, run_time=1)
+            self.wait(0.5)
 
         # 03 - Queues
 
@@ -733,7 +734,7 @@ class OS(CustomMovingCameraScene):
 
         # 05 - Move Processes to Queues
         above_indexes = [0, 3, 5]
-        below_indexes = [1, 2, 4, 6]
+        below_indexes = [1, 2, 4]
         queue1_processes = VGroup()
         queue2_processes = VGroup()
 
@@ -799,36 +800,68 @@ class OS(CustomMovingCameraScene):
 
         # 06 - Simulation (1 Foreground)
         self.wait(4)
-        self.play(FadeOut(queue1_processes), run_time=2)
+        a1 = queue1_processes[2].adjust_size_with_animation()
+        self.play(AnimationGroup(a1, clock.rotate(), cpu.rotate_gear()))
+        self.wait(0.5)
+        a2 = queue1_processes[1].adjust_size_with_animation()
+        self.play(AnimationGroup(a2, clock.rotate(), cpu.rotate_gear()))
+        self.play(AnimationGroup(FadeOut(queue1_processes[1]), queue1_processes[1].animate.scale(0.1)))
+        a3 = queue1_processes[0].adjust_size_with_animation()
+        self.play(AnimationGroup(a3, clock.rotate(), cpu.rotate_gear()))
+        self.wait(0.5)
+        a4 = queue1_processes[2].adjust_size_with_animation()
+        self.play(AnimationGroup(a4, clock.rotate(), cpu.rotate_gear()))
+        self.play(AnimationGroup(FadeOut(queue1_processes[2]), queue1_processes[2].animate.scale(0.1)))
+        a5 = queue1_processes[0].adjust_size_with_animation()
+        self.play(AnimationGroup(a5, clock.rotate(), cpu.rotate_gear()))
+        self.play(AnimationGroup(FadeOut(queue1_processes[0]), queue1_processes[0].animate.scale(0.1)))
+
         self.wait(2)
-
+        
         # 07 - Simulation (2 Background Part 1)
-        self.play(FadeOut(queue2_processes[2:4]), run_time=2)
+        a1 = queue2_processes[2].adjust_size_with_animation()
+        self.play(AnimationGroup(a1, clock.rotate(), cpu.rotate_gear()))
+        self.play(AnimationGroup(FadeOut(queue2_processes[2]), queue2_processes[2].animate.scale(0.1)))
 
-        # TODO: proper animation of RR and FCFS
-        # animation = queue1_processes[0].adjust_size_with_animation(-1)
-        # self.play(AnimationGroup(animation))
 
         # 08 - New process while execution
-        p8 = ProcessAnimated(size=2, title=f"P8")
-        p8.next_to(title, DOWN, aligned_edge=LEFT)
-        p8.shift(LEFT * self.get_current_width())
-        self.play(p8.animate.shift(RIGHT * self.get_current_width()), run_time=4)
+        p7 = ProcessAnimated(size=ADDITIONAL_PROCESS_FCFS, title=f"P7")
+        p7.next_to(title, DOWN, aligned_edge=LEFT)
+        p7.shift(LEFT * self.get_current_width())
+        self.play(p7.animate.shift(RIGHT * self.get_current_width()), run_time=4)
 
         # 09 - Move new process to foreground
-        self.play(p8.animate.next_to(new_queue1_text, DOWN, aligned_edge=LEFT))
+        self.play(p7.animate.next_to(new_queue1_text, DOWN, aligned_edge=LEFT))
         self.wait(2)
         # 10 - Simulation (3 Foreground Part 2 (new process))
-        self.play(FadeOut(p8), run_time=2)
+        ax1 = p7.adjust_size_with_animation()
+        self.play(AnimationGroup(ax1, clock.rotate(), cpu.rotate_gear()))
+        self.wait(1)
+        ax2 = p7.adjust_size_with_animation()
+        self.play(AnimationGroup(ax2, clock.rotate(), cpu.rotate_gear()))
+        self.play(AnimationGroup(FadeOut(p7), p7.animate.scale(0.1)))
+        
+        # self.play(FadeOut(p7), run_time=2)
         self.wait(2)
-
+           
         # 11 - Simulation (4 Background Part 2)
-        self.play(FadeOut(queue2_processes[0:2]), run_time=2)
+        for _ in range(4):
+            a2 = queue2_processes[1].adjust_size_with_animation()
+            self.play(AnimationGroup(a2, clock.rotate(), cpu.rotate_gear()))
+            self.wait(0.5)
+        self.play(AnimationGroup(FadeOut(queue2_processes[1]), queue2_processes[1].animate.scale(0.1)))
+
+        for _ in range(2):
+            a3 = queue2_processes[0].adjust_size_with_animation()
+            self.play(AnimationGroup(a3, clock.rotate(), cpu.rotate_gear()))
+            self.wait(0.5)
+        self.play(AnimationGroup(FadeOut(queue2_processes[0]), queue2_processes[0].animate.scale(0.1)))
 
         # 12 -
         self.remove(queue1, new_queue1_text, line, new_queue2_text, queue2, cpu, clock)
 
     def mqs_bullet_points(self):
+
         # TODO: add title
         # several queues
         line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(7)
@@ -904,8 +937,30 @@ class OS(CustomMovingCameraScene):
         self.clear()
 
     def mqs_pros_cons(self):
-        # Code to analyze and present the advantages and disadvantages of MQS
-        pass
+        self.clear()
+        title = CustomTitle(
+            title_text="Pros and Cons of Multilevel Queue Scheduling", corner=self.get_to_corner(UL)
+        )
+        self.play(FadeIn(title))
+        positive = [
+            "Reduced response time.",
+            "Increased throughput.",
+            "Better unser experience.",
+        ]
+        neutral =[]
+        negative = [
+            "Increased complexity.",
+            "Risk of process starvation.",
+        ]
+
+        animated_review = AnimatedReview(
+            positive,
+            neutral,
+            negative,
+            width=90,
+            left_edge=self.get_to_edge(LEFT),
+        )
+        self.play(animated_review.create_animation())
 
     def metrics(self):
         # Title page
