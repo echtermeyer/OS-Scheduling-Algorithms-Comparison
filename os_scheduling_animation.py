@@ -168,8 +168,8 @@ class OS(CustomMovingCameraScene):
         # self.camera.frame.restore()
 
         # # 3 min
-        self.mqs()
-        self.clear()
+        # self.mqs()
+        # self.clear()
         # self.camera.frame.restore()
 
         # # 3 min
@@ -179,6 +179,7 @@ class OS(CustomMovingCameraScene):
 
         # # reallife examples
         # # 2 min
+        self.application()
         # self.outro()
         # self.clear()
         # self.camera.frame.restore()
@@ -242,7 +243,7 @@ class OS(CustomMovingCameraScene):
         # self.fcfs_pros_cons()
 
     def fcfs_animation(self):
-        title = AnimatedTitle("First-Come-First-Serve")
+        title = AnimatedTitle("First Come First Serve")
         self.play(
             title.create_animation(
                 center=self.get_current_center(),
@@ -1097,6 +1098,81 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
         self.wait(2)
         self.clear()
+
+    def application(self):
+        title = AnimatedTitle("Operating Systems")
+        self.play(
+            title.create_animation(
+                center=self.get_current_center(),
+                corner=self.get_to_corner(UL),
+            ),
+            runtime=1,
+        )
+        # self.wait(1)
+        win = (
+            CustomTitle("Windows", UL)
+            .move_to(self.get_current_center())
+            .next_to(title, DOWN)
+        )
+        win = CustomTitle("Windows", UL)
+        mac = CustomTitle("MacOS", UL)
+        lin = CustomTitle("Linux", UL)
+        titles = VGroup(win, mac, lin)
+
+        titles.arrange(
+            RIGHT,
+            aligned_edge=UP,
+            buff=(
+                self.get_current_width()
+                - DEFAULT_MOBJECT_TO_EDGE_BUFFER * 2
+                - win.width
+                - mac.width
+                - lin.width
+            )
+            / 2,
+        )
+        titles.next_to(
+            self.get_current_center() + title.get_bottom() * Y_AXIS,
+            DOWN,
+            buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2,
+        )
+        self.play(FadeIn(titles))
+        win_prios = [(32, 1), (23, 2), (16, 2), (5, 1)]
+        win_processes = [
+            ProcessAnimated(title=f"Prio {prio}", size=size, show_size=False)
+            for prio, size in win_prios
+        ]
+        win_processes_group = VGroup(*win_processes)
+        win_processes_group.arrange(DOWN, aligned_edge=LEFT)
+        win_processes_group.next_to(
+            titles.get_bottom() * Y_AXIS + title.get_left() * X_AXIS,
+            DOWN,
+            aligned_edge=LEFT,
+        )
+        self.play(FadeOut(lin))
+        self.play(FadeIn(win_processes_group))
+
+        mac_prios = ["User-interactive", "User-initiated", "Utility", "Background"]
+        mac_processes = [
+            ProcessAnimated(title=prio, show_size=False) for prio in mac_prios
+        ]
+        mac_processes_group = VGroup(*mac_processes)
+        mac_processes_group.arrange(DOWN, center=True)
+        mac_processes_group.next_to(
+            titles.get_bottom() * Y_AXIS + mac.get_left() * X_AXIS,
+            direction=DOWN,
+            aligned_edge=LEFT,
+        )
+        self.play(FadeIn(mac_processes_group))
+
+        self.wait(1)
+
+        self.play(FadeOut(mac_processes_group, win_processes_group))
+
+        m1 = ImageMobject("img/m1.jpg")
+        m1.move_to(self.get_current_center())
+        self.add(m1)
+        self.wait(1)
 
     def outro(self):
         # 01 - recap
