@@ -553,8 +553,16 @@ class AnimatedBulletpoints(Mobject):
 
 
 class MetricResponseTime(Mobject):
-    def __init__(self, datasets: List[np.ndarray], titles: List[str], **kwargs):
+    def __init__(
+        self,
+        datasets: List[np.ndarray],
+        titles: List[str],
+        x_stepsize: int = 1_000,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
+
+        self.x_stepsize = x_stepsize
 
         if len(datasets) > 5:
             raise ValueError("MetricResponseTimeMobject only supports up to 5 datasets")
@@ -562,29 +570,30 @@ class MetricResponseTime(Mobject):
             raise ValueError("Number of datasets must equal number of titles")
 
         colors = [BLUE, RED, GREEN, ORANGE, PURPLE]
-        max_y_value = max(dataset.max() for dataset in datasets)
+        max_y_value = int(max(dataset.max() for dataset in datasets))
+        y_stepsize = max_y_value // 5
 
-        # Initialize axes
+        # Initialize axes with exactly 5 y-axis ticks and corresponding labels
         ax = Axes(
-            x_range=[0, len(datasets[0]) + 1],
-            y_range=[0, max_y_value + 3],
-            x_axis_config={
-                "numbers_to_include": np.arange(0, len(datasets[0]) + 1, 2),
-            },
-            y_axis_config={
-                "numbers_to_include": np.arange(0, max_y_value + 1, 2),
-            },
+            x_range=[0, len(datasets[0]) * (self.x_stepsize + 1) - 5, self.x_stepsize],
+            y_range=[
+                0,
+                max_y_value + y_stepsize - 5,
+                y_stepsize,
+            ],
             tips=True,
+            axis_config={"include_numbers": True},
         )
 
         # Initialize labels
         x_label = Tex("Number of Processes").next_to(ax.x_axis, DOWN * 0.4).scale(0.7)
         y_label = (
-            Tex("Average Response Time")
+            Tex("Average Response Time (ms)")
             .next_to(ax.y_axis.get_left(), LEFT * 0)
             .rotate(90 * DEGREES)
             .scale(0.7)
         )
+        y_label.shift(LEFT * 0.25) 
 
         # Initialize legend
         legend_start = UP * 3
@@ -603,7 +612,7 @@ class MetricResponseTime(Mobject):
         for i, dataset in enumerate(datasets):
             color = colors[i]
             line_graph = VMobject(color=color)
-            first_point = ax.c2p(1, dataset[0])
+            first_point = ax.c2p(self.x_stepsize, dataset[0])
             line_graph.start_new_path(first_point)
 
             first_dot = Dot(first_point, color=color).scale(0.7)
@@ -631,7 +640,7 @@ class MetricResponseTime(Mobject):
         for x in range(2, len(self.datasets[0]) + 1):
             frame_animations = []
             for i, dataset in enumerate(self.datasets):
-                new_point = self.ax.c2p(x, dataset[x - 1])
+                new_point = self.ax.c2p(x * self.x_stepsize, dataset[x - 1])
                 dot = Dot(new_point, color=self.colors[i]).scale(0.7)
 
                 last_point = last_points[i]

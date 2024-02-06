@@ -677,7 +677,7 @@ class OS(CustomMovingCameraScene):
         )
 
         # 02 - Processes
-        process_sizes = PROCESS_SIZES_FCFS#[2, 1, 3, 3, 2, 1, 2]
+        process_sizes = PROCESS_SIZES_FCFS  # [2, 1, 3, 3, 2, 1, 2]
         processes = [
             ProcessAnimated(size=s, title=f"P{len(process_sizes)-i}")
             for i, s in enumerate(process_sizes)
@@ -805,24 +805,39 @@ class OS(CustomMovingCameraScene):
         self.wait(0.5)
         a2 = queue1_processes[1].adjust_size_with_animation()
         self.play(AnimationGroup(a2, clock.rotate(), cpu.rotate_gear()))
-        self.play(AnimationGroup(FadeOut(queue1_processes[1]), queue1_processes[1].animate.scale(0.1)))
+        self.play(
+            AnimationGroup(
+                FadeOut(queue1_processes[1]), queue1_processes[1].animate.scale(0.1)
+            )
+        )
         a3 = queue1_processes[0].adjust_size_with_animation()
         self.play(AnimationGroup(a3, clock.rotate(), cpu.rotate_gear()))
         self.wait(0.5)
         a4 = queue1_processes[2].adjust_size_with_animation()
         self.play(AnimationGroup(a4, clock.rotate(), cpu.rotate_gear()))
-        self.play(AnimationGroup(FadeOut(queue1_processes[2]), queue1_processes[2].animate.scale(0.1)))
+        self.play(
+            AnimationGroup(
+                FadeOut(queue1_processes[2]), queue1_processes[2].animate.scale(0.1)
+            )
+        )
         a5 = queue1_processes[0].adjust_size_with_animation()
         self.play(AnimationGroup(a5, clock.rotate(), cpu.rotate_gear()))
-        self.play(AnimationGroup(FadeOut(queue1_processes[0]), queue1_processes[0].animate.scale(0.1)))
+        self.play(
+            AnimationGroup(
+                FadeOut(queue1_processes[0]), queue1_processes[0].animate.scale(0.1)
+            )
+        )
 
         self.wait(2)
-        
+
         # 07 - Simulation (2 Background Part 1)
         a1 = queue2_processes[2].adjust_size_with_animation()
         self.play(AnimationGroup(a1, clock.rotate(), cpu.rotate_gear()))
-        self.play(AnimationGroup(FadeOut(queue2_processes[2]), queue2_processes[2].animate.scale(0.1)))
-
+        self.play(
+            AnimationGroup(
+                FadeOut(queue2_processes[2]), queue2_processes[2].animate.scale(0.1)
+            )
+        )
 
         # 08 - New process while execution
         p7 = ProcessAnimated(size=ADDITIONAL_PROCESS_FCFS, title=f"P7")
@@ -840,28 +855,35 @@ class OS(CustomMovingCameraScene):
         ax2 = p7.adjust_size_with_animation()
         self.play(AnimationGroup(ax2, clock.rotate(), cpu.rotate_gear()))
         self.play(AnimationGroup(FadeOut(p7), p7.animate.scale(0.1)))
-        
+
         # self.play(FadeOut(p7), run_time=2)
         self.wait(2)
-           
+
         # 11 - Simulation (4 Background Part 2)
         for _ in range(4):
             a2 = queue2_processes[1].adjust_size_with_animation()
             self.play(AnimationGroup(a2, clock.rotate(), cpu.rotate_gear()))
             self.wait(0.5)
-        self.play(AnimationGroup(FadeOut(queue2_processes[1]), queue2_processes[1].animate.scale(0.1)))
+        self.play(
+            AnimationGroup(
+                FadeOut(queue2_processes[1]), queue2_processes[1].animate.scale(0.1)
+            )
+        )
 
         for _ in range(2):
             a3 = queue2_processes[0].adjust_size_with_animation()
             self.play(AnimationGroup(a3, clock.rotate(), cpu.rotate_gear()))
             self.wait(0.5)
-        self.play(AnimationGroup(FadeOut(queue2_processes[0]), queue2_processes[0].animate.scale(0.1)))
+        self.play(
+            AnimationGroup(
+                FadeOut(queue2_processes[0]), queue2_processes[0].animate.scale(0.1)
+            )
+        )
 
         # 12 -
         self.remove(queue1, new_queue1_text, line, new_queue2_text, queue2, cpu, clock)
 
     def mqs_bullet_points(self):
-
         # TODO: add title
         # several queues
         line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(7)
@@ -939,7 +961,8 @@ class OS(CustomMovingCameraScene):
     def mqs_pros_cons(self):
         self.clear()
         title = CustomTitle(
-            title_text="Pros and Cons of Multilevel Queue Scheduling", corner=self.get_to_corner(UL)
+            title_text="Pros and Cons of Multilevel Queue Scheduling",
+            corner=self.get_to_corner(UL),
         )
         self.play(FadeIn(title))
         positive = [
@@ -947,7 +970,7 @@ class OS(CustomMovingCameraScene):
             "Increased throughput.",
             "Better unser experience.",
         ]
-        neutral =[]
+        neutral = []
         negative = [
             "Increased complexity.",
             "Risk of process starvation.",
@@ -969,22 +992,20 @@ class OS(CustomMovingCameraScene):
         self.play(title.animate.to_corner(UP + LEFT))
 
         # 2D LineChart metric
-        datasets = [
-            np.array([10, 12, 13, 7, 9, 10]),
-            np.array([11, 12, 5, 15, 14, 12]),
-            np.array([12, 13, 12, 10, 11, 13]),
-        ]
+        # TODO: Increase stepsize for final video
+        stepsize_linechart = 10
         datasets = create_linechart_metrics(
             algorithms=[
                 FirstComeFirstServe(),
                 RoundRobin(quantum=1),
                 MultiLevelQueue(quantum=1),
             ],
-            stepsize=10,
+            stepsize=stepsize_linechart,
         )
-        print(datasets)
         titles = ["FCFS", "RoundRobin", "MLQ"]
-        metric_response_time = MetricResponseTime(datasets, titles).scale(0.9)
+        metric_response_time = MetricResponseTime(
+            datasets, titles, x_stepsize=stepsize_linechart
+        ).scale(0.9)
         self.play(metric_response_time.create_animation())
         self.play(metric_response_time.animate.scale(0.6).to_edge(LEFT))
 
