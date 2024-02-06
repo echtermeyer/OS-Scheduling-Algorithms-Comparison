@@ -583,6 +583,7 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
 
     def rr_flow(self):
+        # TODO: Ist doch falsch oder? @Jannik/Benedikt. id7 sollte erst nach 3 und 6 kommen, da queue
         # steps = [
         #     {"id": 1, "start": 0, "size": 1},
         #     {"id": 2, "start": 1, "size": 1},

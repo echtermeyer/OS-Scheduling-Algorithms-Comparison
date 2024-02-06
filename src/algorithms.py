@@ -79,35 +79,53 @@ class RoundRobin(Algorithm):
 
         self.quantum = quantum
 
-    def schedule(self, processes) -> Tuple[int, int, int]:
+    def schedule(
+        self, processes: List[SequenceDiagrammProcess]
+    ) -> Tuple[int, int, int]:
         current_time = 0
         context_switches = 0
-        process_queue = processes.copy()
+
         wait_times = [0] * len(processes)
-        last_start_time = [0] * len(processes)
+        last_process_end_time = {process.id: process.arrival_time for process in processes}  # Letzte Bearbeitungszeit
 
+        process_queue = processes.copy()
+
+        last_process_id = -1
         while process_queue:
-            _process = process_queue.pop(0)
+            current_process = process_queue.pop(0)
 
-            if current_time < _process.arrival_time:
-                current_time = _process.arrival_time
-
-            if current_time >= last_start_time[_process.id - 1]:
-                wait_times[_process.id - 1] += (
-                    current_time - last_start_time[_process.id - 1]
-                )
-
-            execution_time = min(_process.burst_time, self.quantum)
-            _process.burst_time -= execution_time
-            self.add_step(_process.id, current_time, execution_time)
-
-            current_time += execution_time
-            last_start_time[_process.id - 1] = current_time
-
-            if _process.burst_time > 0:
-                process_queue.append(_process)
+            # Only count context switches if the process is different
+            if last_process_id != current_process.id:
+                last_process_id = current_process.id
                 context_switches += 1
 
+            # Only for edge case when the first process arrives after 0
+            if current_time < current_process.arrival_time:
+                current_time = current_process.arrival_time
+
+            execution_time = min(current_process.burst_time, self.quantum)
+            self.add_step(current_process.id, current_time, execution_time)
+
+            # Update wait times
+            wait_times[current_process.id - 1] += current_time - last_process_end_time[current_process.id]
+            last_process_end_time[current_process.id] = current_time + execution_time
+
+            # Update times
+            current_process.burst_time -= execution_time
+            current_time += execution_time
+
+            # Prepare for next iteration
+            if current_process.burst_time > 0:
+                inserted = False
+                for i in range(len(process_queue)):
+                    if process_queue[i].arrival_time > current_time:
+                        process_queue.insert(i, current_process)
+                        inserted = True
+                        break
+                if not inserted:
+                    process_queue.append(current_process)
+
+        print(wait_times)
         return context_switches, current_time, wait_times
 
 
