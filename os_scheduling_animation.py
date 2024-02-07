@@ -153,7 +153,9 @@ class OS(CustomMovingCameraScene):
         # creative introduction
         # 2 min
         self.camera.frame.save_state()
+        self.intro_0()
         # self.introduction()
+
         # self.clear()
         # self.camera.frame.restore()
         # # 2 min
@@ -170,7 +172,7 @@ class OS(CustomMovingCameraScene):
         self.camera.frame.restore()
 
         # # 3 min
-        self.mqs()
+        # self.mqs()
         # self.clear()
         # self.camera.frame.restore()
 
@@ -184,6 +186,22 @@ class OS(CustomMovingCameraScene):
         # self.outro()
         # self.clear()
         # self.camera.frame.restore()
+
+    def intro_0(self):
+        title = Text("OS Scheduling Algorithms", font_size=36, color=BLUE).move_to(UP * 0.5)
+        
+        # Create the subtitle text, making it smaller than the title
+        subtitle = Text("By Benedikt, Eric and Jannik", font_size=24).next_to(title, DOWN)
+
+        # Fade in the title and subtitle
+        self.play(FadeIn(title), FadeIn(subtitle), run_time=3)
+        
+        # Wait for a moment with the title and subtitle visible
+        self.wait(2)
+
+        # Fade out the title and subtitle
+        self.play(FadeOut(title), FadeOut(subtitle), run_time=3)
+
 
     def introduction(self):
         # 01 - todo list
@@ -1035,7 +1053,7 @@ class OS(CustomMovingCameraScene):
 
     def metrics(self):
         # Title page
-        title = AnimatedTitle("Comparing FCFS, Round Robin & MLQ")
+        title = AnimatedTitle("Comparing Algorithms")
         self.play(title.create_animation())
         self.play(title.animate.to_corner(UP + LEFT))
 
