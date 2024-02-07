@@ -887,7 +887,9 @@ class SequenceDiagram(Mobject):
         size_sum = {}
         for step in self.steps:
             size_sum[step["id"]] = size_sum.get(step["id"], 0) + step["size"]
-        return size_sum
+
+        sorted_size_sum = dict(sorted(size_sum.items()))
+        return sorted_size_sum
 
     def __create_process_diagram(
         self,

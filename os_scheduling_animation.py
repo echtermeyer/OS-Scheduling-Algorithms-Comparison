@@ -662,9 +662,9 @@ class OS(CustomMovingCameraScene):
     def mqs(self):
         self.wait(1)
         self.play(self.move_one_slide(x=RIGHT))
-        self.mqs_animation()
+        # self.mqs_animation()
 
-        self.mqs_bullet_points()
+        # self.mqs_bullet_points()
         self.mqs_flow()
         self.mqs_pros_cons()
 
@@ -939,17 +939,13 @@ class OS(CustomMovingCameraScene):
         #     SequenceDiagrammProcess(id=2, arrival_time=3, burst_time=3, priority="high"),
         #     SequenceDiagrammProcess(id=3, arrival_time=5, burst_time=3, priority="high"),
         # ]
-        processes = [
-            SequenceDiagrammProcess(id=1, arrival_time=0, burst_time=1),
-            SequenceDiagrammProcess(id=2, arrival_time=1, burst_time=1),
-            SequenceDiagrammProcess(id=3, arrival_time=2, burst_time=1),
-            SequenceDiagrammProcess(id=4, arrival_time=3, burst_time=1),
-            SequenceDiagrammProcess(id=5, arrival_time=4, burst_time=1),
-            SequenceDiagrammProcess(id=6, arrival_time=5, burst_time=1),
-            SequenceDiagrammProcess(id=7, arrival_time=6, burst_time=2),
-            SequenceDiagrammProcess(id=8, arrival_time=7, burst_time=5),
-            SequenceDiagrammProcess(id=9, arrival_time=8, burst_time=3),
-        ]
+        processes = [   SequenceDiagrammProcess(id=1, arrival_time=0, burst_time=2, priority="high"),
+                        SequenceDiagrammProcess(id=3, arrival_time=0, burst_time=1, priority="high"), 
+                        SequenceDiagrammProcess(id=6, arrival_time=0, burst_time=2, priority="high"),     
+                        SequenceDiagrammProcess(id=2, arrival_time=0, burst_time=1, priority="low"),     
+                        SequenceDiagrammProcess(id=4, arrival_time=0, burst_time=5, priority="low"),     
+                        SequenceDiagrammProcess(id=5, arrival_time=0, burst_time=3, priority="low"),     
+                        SequenceDiagrammProcess(id=7, arrival_time=6, burst_time=2, priority="high"), ]
 
         mlq = MultiLevelQueue(quantum=1)
         steps = schedule_processes(mlq, processes)
@@ -971,10 +967,14 @@ class OS(CustomMovingCameraScene):
     def mqs_pros_cons(self):
         self.clear()
         title = CustomTitle(
-            title_text="Pros and Cons of Multilevel Queue Scheduling",
+            title_text="Pros and Cons of MLQ",
             corner=self.get_to_corner(UL),
         )
-        self.play(FadeIn(title))
+
+        cpu = CPU(size=1.75)
+        cpu.move_to(self.get_current_center() + self.get_current_width() / 4 * RIGHT - 0.5)
+
+        self.play(FadeIn(title, cpu))
         positive = [
             "Reduced response time.",
             "Increased throughput.",
@@ -983,7 +983,7 @@ class OS(CustomMovingCameraScene):
         neutral = []
         negative = [
             "Increased complexity.",
-            "Risk of process starvation.",
+            "Risk of process starvation."
         ]
 
         animated_review = AnimatedReview(
@@ -992,8 +992,10 @@ class OS(CustomMovingCameraScene):
             negative,
             width=90,
             left_edge=self.get_to_edge(LEFT),
+            override_speed=True
         )
         self.play(animated_review.create_animation())
+        self.wait(5)
 
     def metrics(self):
         # Title page
