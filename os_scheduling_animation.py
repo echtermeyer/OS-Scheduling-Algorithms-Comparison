@@ -1,3 +1,4 @@
+from typing_extensions import runtime
 from manim import *
 from src.components import *
 from src.algorithms import *
@@ -1108,35 +1109,41 @@ class OS(CustomMovingCameraScene):
             ),
             runtime=1,
         )
-        # self.wait(1)
-        win = (
-            CustomTitle("Windows", UL)
-            .move_to(self.get_current_center())
-            .next_to(title, DOWN)
-        )
+
         win = CustomTitle("Windows", UL)
         mac = CustomTitle("MacOS", UL)
         lin = CustomTitle("Linux", UL)
-        titles = VGroup(win, mac, lin)
 
-        titles.arrange(
-            RIGHT,
-            aligned_edge=UP,
-            buff=(
-                self.get_current_width()
-                - DEFAULT_MOBJECT_TO_EDGE_BUFFER * 2
-                - win.width
-                - mac.width
-                - lin.width
-            )
-            / 2,
-        )
-        titles.next_to(
+        mac.next_to(
             self.get_current_center() + title.get_bottom() * Y_AXIS,
             DOWN,
             buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2,
         )
-        self.play(FadeIn(titles))
+        win.next_to(
+            mac,
+            LEFT,
+            aligned_edge=UP,
+            buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2,
+        )
+        lin.next_to(
+            mac,
+            RIGHT,
+            aligned_edge=UP,
+            buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2,
+        )
+        titles_succession = Succession(FadeIn(win), FadeIn(mac), FadeIn(lin))
+        self.play(titles_succession)
+        self.wait(1)
+        self.play(FadeOut(lin, run_time=0.5))
+        self.play(
+            win.animate.move_to(
+                win.get_center() * Y_AXIS + self.get_current_center() * X_AXIS
+            ).shift(LEFT * 3),
+            mac.animate.move_to(
+                mac.get_center() * Y_AXIS + self.get_current_center() * X_AXIS
+            ).shift(RIGHT * 3),
+        )
+        # Prozesse
         win_prios = [(32, 1), (23, 2), (16, 2), (5, 1)]
         win_processes = [
             ProcessAnimated(title=f"Prio {prio}", size=size, show_size=False)
@@ -1144,34 +1151,44 @@ class OS(CustomMovingCameraScene):
         ]
         win_processes_group = VGroup(*win_processes)
         win_processes_group.arrange(DOWN, aligned_edge=LEFT)
-        win_processes_group.next_to(
-            titles.get_bottom() * Y_AXIS + title.get_left() * X_AXIS,
-            DOWN,
-            aligned_edge=LEFT,
-        )
-        self.play(FadeOut(lin))
-        self.play(FadeIn(win_processes_group))
+        win_processes_group.next_to(win, DOWN)
 
-        mac_prios = ["User-interactive", "User-initiated", "Utility", "Background"]
+        #
+        mac_prios = [
+            ("User-interactive", 2),
+            ("User-initiated", 1),
+            ("Utility", 3),
+            ("Background", 1),
+        ]
         mac_processes = [
-            ProcessAnimated(title=prio, show_size=False) for prio in mac_prios
+            ProcessAnimated(title=prio, size=size, show_size=False)
+            for prio, size in mac_prios
         ]
         mac_processes_group = VGroup(*mac_processes)
         mac_processes_group.arrange(DOWN, center=True)
-        mac_processes_group.next_to(
-            titles.get_bottom() * Y_AXIS + mac.get_left() * X_AXIS,
-            direction=DOWN,
-            aligned_edge=LEFT,
+        mac_processes_group.next_to(mac, direction=DOWN)
+        self.play(
+            Succession(
+                *[FadeIn(x, runtime=0.25) for x in win_processes_group],
+                *[FadeIn(x, runtime=0.25) for x in mac_processes_group],
+            )
         )
-        self.play(FadeIn(mac_processes_group))
 
         self.wait(1)
 
         self.play(FadeOut(mac_processes_group, win_processes_group))
 
         m1 = ImageMobject("img/m1.jpg")
-        m1.move_to(self.get_current_center())
-        self.add(m1)
+        i9 = ImageMobject("img/i9.jpg")
+        m1.move_to(
+            self.get_current_center() * Y_AXIS + mac.get_center() * X_AXIS
+        ).shift(DOWN)
+        i9.move_to(
+            self.get_current_center() * Y_AXIS + win.get_center() * X_AXIS
+        ).shift(DOWN)
+
+        self.play(FadeIn(i9))
+        self.play(FadeIn(m1))
         self.wait(1)
 
     def outro(self):
