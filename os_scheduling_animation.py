@@ -9,6 +9,10 @@ ADDITIONAL_PROCESS_FCFS = 2
 PROCESS_SIZES_RR = PROCESS_SIZES_FCFS
 ADDITIONAL_PROCESS_RR = ADDITIONAL_PROCESS_FCFS
 
+PROCESS_COLOR = BLUE
+LATEPROCESS_COLOR = ORANGE
+CPU_GEAR_COLOR = RED
+
 
 class CustomMovingCameraScene(MovingCameraScene):
     """Custom Class used to extend the MovingCameraScene class from manimlib with a lot of methods to get the current camera position
@@ -157,8 +161,8 @@ class OS(CustomMovingCameraScene):
         # self.clear()
         # self.camera.frame.restore()
         # # 2 min
-        # self.play(self.move_one_slide(x=RIGHT * 0.5))
-        # self.fcfs()
+        self.play(self.move_one_slide(x=RIGHT))
+        self.fcfs()
         # self.wait(1)
         # self.clear()
         # self.camera.frame.restore()
@@ -175,13 +179,13 @@ class OS(CustomMovingCameraScene):
         # self.camera.frame.restore()
 
         # # 3 min
-        self.metrics()
-        self.clear()
-        self.camera.frame.restore()
+        # self.metrics()
+        # self.clear()
+        # self.camera.frame.restore()
 
         # # reallife examples
         # # 2 min
-        self.application()
+        # self.application()
         # self.outro()
         # self.clear()
         # self.camera.frame.restore()
@@ -237,11 +241,12 @@ class OS(CustomMovingCameraScene):
     def fcfs(self):
         # TODO an camera position anpassen
 
-        # self.fcfs_animation()
+        self.fcfs_animation()
         # self.fcfs_bullet_points()
         # self.play(self.move_camera_to_initial_position())
-        self.fcfs_flow()
-        # self.play(self.move_one_slide(x=RIGHT * 2))
+        # self.play(self.move_one_slide(x=RIGHT))
+        # self.fcfs_flow()
+        # self.play(self.move_one_slide(x=RIGHT))
         # self.fcfs_pros_cons()
 
     def fcfs_animation(self):
@@ -274,7 +279,7 @@ class OS(CustomMovingCameraScene):
         # create processes and place them just outside the left edge
         for i, size in enumerate(PROCESS_SIZES_FCFS):
             process = (
-                ProcessAnimated(title=f"P{i+1}", size=size)
+                ProcessAnimated(color=PROCESS_COLOR, title=f"P{i+1}", size=size)
                 .move_to(self.get_to_corner(DL, y_margin=1))
                 .shift(LEFT * 4)
             )
@@ -306,7 +311,7 @@ class OS(CustomMovingCameraScene):
                     ProcessAnimated(
                         title=f"P{len(PROCESS_SIZES_FCFS)+1}",
                         size=ADDITIONAL_PROCESS_FCFS,
-                        color=RED,
+                        color=LATEPROCESS_COLOR,
                     )
                     .move_to(self.get_to_corner(DL, y_margin=1))
                     .shift(LEFT * 4)
@@ -1147,7 +1152,7 @@ class OS(CustomMovingCameraScene):
                 corner=self.get_to_corner(UL),
             ),
             runtime=1,
-        )
+        )  # 1
 
         win = CustomTitle("Windows", UL)
         mac = CustomTitle("MacOS", UL)
@@ -1170,10 +1175,12 @@ class OS(CustomMovingCameraScene):
             aligned_edge=UP,
             buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2,
         )
-        titles_succession = Succession(FadeIn(win), FadeIn(mac), FadeIn(lin))
+        titles_succession = Succession(FadeIn(win), FadeIn(mac), FadeIn(lin))  # 4
         self.play(titles_succession)
-        self.wait(1)
-        self.play(FadeOut(lin, run_time=0.5))
+        # 4 Seconds
+
+        self.wait(8)  # 12
+        self.play(FadeOut(lin, run_time=1))  # 13
         self.play(
             win.animate.move_to(
                 win.get_center() * Y_AXIS + self.get_current_center() * X_AXIS
@@ -1181,11 +1188,13 @@ class OS(CustomMovingCameraScene):
             mac.animate.move_to(
                 mac.get_center() * Y_AXIS + self.get_current_center() * X_AXIS
             ).shift(RIGHT * 3),
-        )
+        )  # 14
         # Prozesse
         win_prios = [(32, 1), (23, 2), (16, 2), (5, 1)]
         win_processes = [
-            ProcessAnimated(title=f"Prio {prio}", size=size, show_size=False)
+            ProcessAnimated(
+                color=PROCESS_COLOR, title=f"Prio {prio}", size=size, show_size=False
+            )
             for prio, size in win_prios
         ]
         win_processes_group = VGroup(*win_processes)
@@ -1200,22 +1209,37 @@ class OS(CustomMovingCameraScene):
             ("Background", 1),
         ]
         mac_processes = [
-            ProcessAnimated(title=prio, size=size, show_size=False)
+            ProcessAnimated(color=PROCESS_COLOR, title=prio, size=size, show_size=False)
             for prio, size in mac_prios
         ]
         mac_processes_group = VGroup(*mac_processes)
         mac_processes_group.arrange(DOWN, center=True)
         mac_processes_group.next_to(mac, direction=DOWN)
+        # 15 Seconds
         self.play(
-            Succession(
-                *[FadeIn(x, runtime=0.25) for x in win_processes_group],
-                *[FadeIn(x, runtime=0.25) for x in mac_processes_group],
-            )
-        )
+            Succession(*[FadeIn(x, runtime=1) for x in win_processes_group])
+        )  # 18
+        # 29 Seconds
+        self.wait(11)  # 29
+        self.play(
+            Succession(*[FadeIn(x, runtime=1) for x in mac_processes_group])
+        )  # 33
 
-        self.wait(1)
+        self.wait(3)  # 36
 
-        self.play(FadeOut(mac_processes_group, win_processes_group))
+        self.play(FadeOut(mac_processes_group, win_processes_group))  # 37
+        # 37 Seconds
+        cpu = CPU(show_gear=False).move_to(self.get_current_center())
+        self.play(FadeIn(cpu))  # 38
+        bf = 0.01
+        size = 0.5
+        core1 = Square(side_length=size).next_to(self.get_current_center(), UL, buff=bf)
+        core2 = Square(side_length=size).next_to(self.get_current_center(), UR, buff=bf)
+        core3 = Square(side_length=size).next_to(self.get_current_center(), DL, buff=bf)
+        core4 = Square(side_length=size).next_to(self.get_current_center(), DR, buff=bf)
+        self.play(
+            Succession(FadeIn(core1), FadeIn(core2), FadeIn(core3), FadeIn(core4))
+        )  # 42
 
         m1 = ImageMobject("img/m1.jpg")
         i9 = ImageMobject("img/i9.jpg")
@@ -1225,10 +1249,13 @@ class OS(CustomMovingCameraScene):
         i9.move_to(
             self.get_current_center() * Y_AXIS + win.get_center() * X_AXIS
         ).shift(DOWN)
-
-        self.play(FadeIn(i9))
-        self.play(FadeIn(m1))
-        self.wait(1)
+        self.wait(2)  # 44
+        # 44 Seconds
+        self.play(FadeOut(cpu, core1, core2, core3, core4))  # 45
+        self.play(FadeIn(i9))  # 46
+        self.play(FadeIn(m1))  # 47
+        self.wait(15)
+        # 62
 
     def outro(self):
         # 01 - recap

@@ -205,7 +205,7 @@ class Clock(Mobject):
         Mobject (_type_): Inherits from manim Mobject and can therefore be treated like any other object in manim. e.g. set_color()
     """
 
-    def __init__(self, radius: float = 1.0, **kwargs) -> None:
+    def __init__(self, radius: float = 1.0, color=WHITE, **kwargs) -> None:
         """The init method creates a clock object. It creates a circle, a line with a tip and a dot.
         It groups them and adds them to the object in order to use the clock as like a normal manim object.
 
@@ -214,14 +214,15 @@ class Clock(Mobject):
             stroke_width (float, optional): stroke_width sets the stroke_width for all elements.
             The tip of the clock hand also uses this with a scaling factor. Defaults to 10.0.
         """
-        stroke_width = radius * 5
         super().__init__(**kwargs)
-        self.circle = Circle(radius=radius, stroke_width=stroke_width)
+        stroke_width = radius * 5
+        self.circle = Circle(radius=radius, stroke_width=stroke_width, color=color)
 
         self.line = Line(
             start=self.circle.get_center(),
             end=UP * radius * 0.9,
             stroke_width=stroke_width,
+            color=color,
         )
         factor = 35
 
@@ -232,7 +233,10 @@ class Clock(Mobject):
         )
 
         self.dot = Dot(
-            self.circle.get_center(), stroke_width=stroke_width, radius=radius / 20
+            self.circle.get_center(),
+            stroke_width=stroke_width,
+            radius=radius / 20,
+            color=color,
         )
 
         self.clock = VGroup(self.circle, self.line, self.dot)
@@ -493,7 +497,7 @@ class AnimatedBulletpoints(Mobject):
     class ExampleScene(Scene):
         def construct(self):
             points = [
-                ("This is the first point", 1), 
+                ("This is the first point", 1),
                 ("Here is the second, longer point which might need wrapping", 2),
                 ("Third point", 1)
             ]
@@ -600,7 +604,7 @@ class MetricResponseTime(Mobject):
             .rotate(90 * DEGREES)
             .scale(0.7)
         )
-        y_label.shift(LEFT * 0.25) 
+        y_label.shift(LEFT * 0.25)
 
         # Initialize legend
         legend_start = UP * 3
@@ -662,7 +666,9 @@ class MetricResponseTime(Mobject):
                 frame_animations.append(Create(new_line))
                 frame_animations.append(FadeIn(dot, scale=0.7))
 
-            line_graph_animations.append(AnimationGroup(*frame_animations, run_time=0.5))
+            line_graph_animations.append(
+                AnimationGroup(*frame_animations, run_time=0.5)
+            )
             line_graph_animations.append(Wait(0.15))
 
         return line_graph_animations
@@ -678,7 +684,7 @@ class MetricResponseTime(Mobject):
             Write(self.x_label, run_time=2),
             Wait(1),
             FadeIn(self.legend_group, run_time=2),
-            Wait(2)
+            Wait(2),
         ]
 
         # Create a group animation for all first dots
