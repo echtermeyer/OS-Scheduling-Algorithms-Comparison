@@ -486,13 +486,16 @@ class AnimatedReview(Mobject):
 class AnimatedBulletpoints(Mobject):
     """
     How it works:
+    (1) Create a list of tuples with the text and the wait time for each bullet point.
+    (2) Create an instance of AnimatedBulletpointsWait with the list of tuples.
+    (3) Call create_animation() to get the animation object.
 
     class ExampleScene(Scene):
         def construct(self):
             points = [
-                "This is the first point",
-                "Here is the second, longer point which might need wrapping",
-                "Third point",
+                ("This is the first point", 1), 
+                ("Here is the second, longer point which might need wrapping", 2),
+                ("Third point", 1)
             ]
             bulletpoints = AnimatedBulletpoints(points)
             self.play(bulletpoints.create_animation())
@@ -500,7 +503,7 @@ class AnimatedBulletpoints(Mobject):
 
     def __init__(
         self,
-        bullet_points: List[str],
+        bullet_points: List[Tuple[str, float]],
         width=25,
         speed=0.05,
         edge: np.ndarray = None,
@@ -510,6 +513,7 @@ class AnimatedBulletpoints(Mobject):
 
         self.speed = speed
         self.length = sum(len(item) for item in bullet_points)
+        self.wait_times = [waittime for item, waittime in bullet_points]
 
         # Function to split text if it is too long
         def wrap_text(text, width):
@@ -527,7 +531,7 @@ class AnimatedBulletpoints(Mobject):
 
         # Create bullet points
         self.bullets = VGroup()
-        for item in bullet_points:
+        for item, waittime in bullet_points:
             wrapped_item = wrap_text(f"• {item}", width)
             bullet_text = Text(wrapped_item, color=WHITE).scale(0.5)
             self.bullets.add(bullet_text)
@@ -541,10 +545,10 @@ class AnimatedBulletpoints(Mobject):
 
     def create_animation(self, return_list: bool = False):
         animations = []
-        for bullet in self.bullets:
+        for idx, bullet in enumerate(self.bullets):
             run_time = self.speed * len(str(bullet.text))
             animations.append(Write(bullet, run_time=run_time))
-            animations.append(Wait(1))
+            animations.append(Wait(self.wait_times[idx]))
 
         if return_list:
             return animations
@@ -571,14 +575,17 @@ class MetricResponseTime(Mobject):
 
         colors = [BLUE, RED, GREEN, ORANGE, PURPLE]
         max_y_value = int(max(dataset.max() for dataset in datasets))
-        y_stepsize = max_y_value // 5
+        min_y_value = int(min(dataset.min() for dataset in datasets))
+        scaled_max_y_value = max_y_value * 1.05
+        scaled_min_y_value = min_y_value * 0.95
+        y_stepsize = (int(scaled_max_y_value - scaled_min_y_value)) // 6
 
         # Initialize axes with exactly 5 y-axis ticks and corresponding labels
         ax = Axes(
-            x_range=[0, len(datasets[0]) * (self.x_stepsize + 1) - 5, self.x_stepsize],
+            x_range=[0, len(datasets[0]) * (self.x_stepsize + 1), self.x_stepsize],
             y_range=[
-                0,
-                max_y_value + y_stepsize - 5,
+                scaled_min_y_value + 5,
+                scaled_max_y_value - 5,
                 y_stepsize,
             ],
             tips=True,
@@ -588,7 +595,7 @@ class MetricResponseTime(Mobject):
         # Initialize labels
         x_label = Tex("Number of Processes").next_to(ax.x_axis, DOWN * 0.4).scale(0.7)
         y_label = (
-            Tex("Average Response Time (ms)")
+            Tex("Average Turnaround Time (ms)")
             .next_to(ax.y_axis.get_left(), LEFT * 0)
             .rotate(90 * DEGREES)
             .scale(0.7)
@@ -655,22 +662,23 @@ class MetricResponseTime(Mobject):
                 frame_animations.append(Create(new_line))
                 frame_animations.append(FadeIn(dot, scale=0.7))
 
-            line_graph_animations.append(AnimationGroup(*frame_animations, run_time=1))
-            line_graph_animations.append(Wait(0.25))
+            line_graph_animations.append(AnimationGroup(*frame_animations, run_time=0.5))
+            line_graph_animations.append(Wait(0.15))
 
         return line_graph_animations
 
     def create_animation(self):
         setup_animations = [
-            Create(self.ax.x_axis, run_time=2),
-            Wait(1),
             Create(self.ax.y_axis, run_time=2),
             Wait(1),
-            Write(self.x_label, run_time=2),
+            Create(self.ax.x_axis, run_time=2),
             Wait(1),
             Write(self.y_label, run_time=2),
             Wait(1),
+            Write(self.x_label, run_time=2),
+            Wait(1),
             FadeIn(self.legend_group, run_time=2),
+            Wait(2)
         ]
 
         # Create a group animation for all first dots
