@@ -1,6 +1,7 @@
 import copy
 import random
 import numpy as np
+import manim
 
 from typing import Tuple, List
 from abc import ABC, abstractmethod

@@ -967,12 +967,17 @@ class SequenceDiagram(Mobject):
         return VGroup(process_objects, separator_lines, *bars)
 
     def create_processes(
-        self, process_lane: int, size: int, process_texts, previous_process
+        self,
+        process_lane: int,
+        size: int,
+        process_texts,
+        previous_process,
+        process_color=ORANGE,
     ):
         lane_y_position = process_texts[process_lane - 1].get_center()[1]
 
         # y-axis positioning
-        process_bar = ProcessAnimated(color=ORANGE, size=size, show_size=False)
+        process_bar = ProcessAnimated(color=process_color, size=size, show_size=False)
         process_bar.move_to(lane_y_position * UP)
 
         # x-axis positioning

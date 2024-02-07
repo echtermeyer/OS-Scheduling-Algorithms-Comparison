@@ -26,12 +26,22 @@ class CustomMovingCameraScene(MovingCameraScene):
         self._initial_camera_width = self.camera.frame.get_width()
         self._initial_camera_center = self.camera.frame.get_center()
 
-    def move_camera_to_initial_position(self) -> Animation:
+    def move_camera_to_initial_position(self, only_x=False, only_y=False) -> Animation:
         """Returns an animation that moves the camera back to the initial position.
 
         Returns:
             Animation: The movement and scaling of the camera back to the initial position
         """
+        if only_x:
+            return self.camera.frame.animate.move_to(
+                self._initial_camera_center * X_AXIS
+                + self.get_current_center() * Y_AXIS
+            ).set_width(self._initial_camera_width)
+        if only_y:
+            return self.camera.frame.animate.move_to(
+                self._initial_camera_center * Y_AXIS
+                + self.get_current_center() * X_AXIS
+            ).set_width(self._initial_camera_width)
         return self.camera.frame.animate.move_to(self._initial_camera_center).set_width(
             self._initial_camera_width
         )
@@ -154,59 +164,91 @@ class CustomMovingCameraScene(MovingCameraScene):
 class OS(CustomMovingCameraScene):
     def construct(self):
         super().construct()
+        
         # creative introduction
         # 2 min
-        self.camera.frame.save_state()
-        self.intro_0()
-        # self.introduction()
+        if True:
+            # R0 C0
+            # CHECK
+            self.wait(1)
+            self.title_slide()
+            self.play(self.move_camera_to_initial_position(only_x=True), runtime=2)
+            self.play(self.move_one_slide(y=DOWN), runtime=2)
 
-        # self.clear()
-        # self.camera.frame.restore()
-        # # 2 min
-        # self.play(self.move_one_slide(x=RIGHT))
-        # self.fcfs()
-        # self.wait(1)
-        # self.clear()
-        # self.camera.frame.restore()
-        # # In der Überleitung Preemptive verwenden und erklären was das bedeutet
-        # # 3 min
+            # R1 C0
+            # CHECK
+            self.wait(1)
+            self.introduction()
+            self.play(self.move_camera_to_initial_position(only_x=True), runtime=2)
+            self.play(self.move_one_slide(y=DOWN), runtime=2)
 
-        self.rr()
-        # self.clear()
-        self.camera.frame.restore()
+            # 2 min
+            # R2 C0
+            # CHECK
+            self.wait(1)
+            self.fcfs()
+            self.play(self.move_camera_to_initial_position(only_x=True), runtime=2)
+            self.play(self.move_one_slide(y=DOWN), runtime=2)
 
-        # # 3 min
-        # self.mqs()
-        # self.clear()
-        # self.camera.frame.restore()
+            # In der Überleitung Preemptive verwenden und erklären was das bedeutet
+            # 3 min
+            # R3 C0
+            # CHECK
+            self.wait(1)
+            self.rr()
+            self.play(self.move_camera_to_initial_position(only_x=True), runtime=2)
+            self.play(self.move_one_slide(y=DOWN), runtime=2)
 
-        # # 3 min
-        # self.metrics()
-        # self.clear()
-        # self.camera.frame.restore()
+            # 3 min
+            # R4 C0
+            # CHECK siehe Anmerkungen
+            self.wait(1)
+            self.mqs()
+            self.play(self.move_camera_to_initial_position(only_x=True), runtime=2)
+            self.play(self.move_one_slide(y=DOWN), runtime=2)
 
-        # # reallife examples
-        # # 2 min
-        # self.application()
-        # self.outro()
-        # self.clear()
-        # self.camera.frame.restore()
+            # 3 min
+            # R5 C0
+            self.wait(1)
+            self.metrics()
+            self.play(self.move_camera_to_initial_position(only_x=True), runtime=2)
+            self.play(self.move_one_slide(y=DOWN), runtime=2)
 
-    def intro_0(self):
-        title = Text("OS Scheduling Algorithms", font_size=36, color=BLUE).move_to(UP * 0.5)
-        
+            #  reallife examples
+            # 2 min
+            # R6 C0
+        else:
+            self.play(self.move_one_slide(y=DOWN), runtime=2)
+
+        self.wait(1)
+        self.application()
+        self.play(self.move_camera_to_initial_position(only_x=True), runtime=2)
+        self.play(self.move_one_slide(y=DOWN), runtime=2)
+
+        # R7 C0
+        self.wait(1)
+        self.outro()
+        self.wait(1)
+
+    def title_slide(self):
+        title = Text("OS Scheduling Algorithms", font_size=36, color=BLUE).move_to(
+            self.get_current_center() + UP * 0.5
+        )
+
         # Create the subtitle text, making it smaller than the title
-        subtitle = Text("By Benedikt, Eric and Jannik", font_size=24).next_to(title, DOWN)
+        subtitle = Text("By Benedikt, Eric and Jannik", font_size=24).next_to(
+            title, DOWN
+        )
 
         # Fade in the title and subtitle
         self.play(FadeIn(title), FadeIn(subtitle), run_time=3)
-        
+
         # Wait for a moment with the title and subtitle visible
         self.wait(2)
 
         # Fade out the title and subtitle
-        self.play(FadeOut(title), FadeOut(subtitle), run_time=3)
-
+        # TODO
+        # self.play(FadeOut(title), FadeOut(subtitle), run_time=3)
 
     def introduction(self):
         # 01 - todo list
@@ -376,9 +418,6 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
 
     def fcfs_flow(self):
-        # TODO: Sind das die von euch @Jannik/Benedikt oder noch von mir?
-        # Sind jetzt angepasst von Jannik
-        # TODO
         processes = [
             SequenceDiagrammProcess(id=idx + 1, arrival_time=0, burst_time=size)
             for idx, size in enumerate(PROCESS_SIZES_FCFS)
@@ -441,12 +480,11 @@ class OS(CustomMovingCameraScene):
         self.rr_animation()
         self.rr_bullet_points()
 
-        self.play(self.move_one_slide(x=RIGHT))
+        self.play(self.move_one_slide(x=RIGHT), run_time=1)
         self.rr_flow()
 
-        self.play(self.move_one_slide(x=RIGHT))
+        self.play(self.move_one_slide(x=RIGHT), run_time=1)
         self.rr_pros_cons()
-        
 
     def rr_animation(self):
         # create and animate title for RoundRobin
@@ -586,21 +624,21 @@ class OS(CustomMovingCameraScene):
             enumeration += 1
 
         self.play(FadeOut(clock))
-        for i, size in enumerate(process_sizes):
-            process = (
-                ProcessAnimated(title=f"P{i+1}", size=size)
-                .move_to(self.get_to_corner(DL, y_margin=1))
-                .shift(LEFT * 4)
-            )
-            rr.add_process(process)
+        # for i, size in enumerate(process_sizes):
+        #     process = (
+        #         ProcessAnimated(title=f"P{i+1}", size=size)
+        #         .move_to(self.get_to_corner(DL, y_margin=1))
+        #         .shift(LEFT * 4)
+        #     )
+        #     rr.add_process(process)
 
-        self.play(
-            rr.move_queue(
-                pole_position=PROCESS_POLE_POSITION,
-                first_process_in_cpu=False,
-                duration=5,
-            )
-        )
+        # self.play(
+        #     rr.move_queue(
+        #         pole_position=PROCESS_POLE_POSITION,
+        #         first_process_in_cpu=False,
+        #         duration=5,
+        #     )
+        # )
 
     def rr_bullet_points(self):
         points = [
@@ -608,7 +646,7 @@ class OS(CustomMovingCameraScene):
             ("Each process get's processed for the duration of a quantum.", 1),
             (
                 "After each quantum the current process is either finished or it's put back into the queue."
-                + "\n=> Preemptive Schedulung",
+                + "\n=> Preemptive Scheduling",
                 1,
             ),
         ]
@@ -617,25 +655,6 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
 
     def rr_flow(self):
-        # TODO: Ist doch falsch oder? @Jannik/Benedikt. id7 sollte erst nach 3 und 6 kommen, da queue
-        # steps = [
-        #     {"id": 1, "start": 0, "size": 1},
-        #     {"id": 2, "start": 1, "size": 1},
-        #     {"id": 3, "start": 2, "size": 1},
-        #     {"id": 4, "start": 3, "size": 1},
-        #     {"id": 5, "start": 4, "size": 1},
-        #     {"id": 6, "start": 5, "size": 1},
-        #     {"id": 1, "start": 6, "size": 1},
-        #     {"id": 2, "start": 7, "size": 1},
-        #     {"id": 7, "start": 8, "size": 1},
-        #     {"id": 3, "start": 9, "size": 1},
-        #     {"id": 6, "start": 10, "size": 1},
-        #     {"id": 2, "start": 11, "size": 1},
-        #     {"id": 3, "start": 12, "size": 1},
-        #     {"id": 3, "start": 13, "size": 1},
-        #     {"id": 3, "start": 14, "size": 1},
-        # ]
-        # id: int, arrival_time: int, burst_time: int
         processes = [
             SequenceDiagrammProcess(id=1, arrival_time=0, burst_time=2),
             SequenceDiagrammProcess(id=2, arrival_time=0, burst_time=3),
@@ -643,7 +662,7 @@ class OS(CustomMovingCameraScene):
             SequenceDiagrammProcess(id=4, arrival_time=0, burst_time=1),
             SequenceDiagrammProcess(id=5, arrival_time=0, burst_time=1),
             SequenceDiagrammProcess(id=6, arrival_time=0, burst_time=2),
-            SequenceDiagrammProcess(id=7, arrival_time=3, burst_time=2),
+            SequenceDiagrammProcess(id=7, arrival_time=4, burst_time=2),
         ]
         rr = RoundRobin(quantum=1)
         steps = schedule_processes(rr, processes)
@@ -660,7 +679,6 @@ class OS(CustomMovingCameraScene):
             )
         )
         self.wait(2)
-        self.clear()
 
     def rr_pros_cons(self):
         title = CustomTitle(
@@ -686,18 +704,22 @@ class OS(CustomMovingCameraScene):
             positive,
             neutral,
             negative,
-            width=90,
-            left_edge=self.get_to_edge(LEFT),
+            width=25,
+            horizontal=True,
+            center=self.get_current_center(),
         )
         self.play(animated_review.create_animation())
 
     def mqs(self):
-        self.play(self.move_one_slide(x=RIGHT))
+
         self.mqs_animation()
         self.mqs_bullet_points()
-        self.mqs_flow()
-        self.mqs_pros_cons()
 
+        self.play(self.move_one_slide(x=RIGHT), run_time=1)
+        self.mqs_flow()
+
+        self.play(self.move_one_slide(x=RIGHT), run_time=1)
+        self.mqs_pros_cons()
 
     def mqs_animation(self):
         # 01 - Title
@@ -711,7 +733,9 @@ class OS(CustomMovingCameraScene):
         # 02 - Processes
         process_sizes = PROCESS_SIZES_FCFS  # [2, 1, 3, 3, 2, 1, 2]
         processes = [
-            ProcessAnimated(size=s, title=f"P{len(process_sizes)-i}")
+            ProcessAnimated(
+                color=PROCESS_COLOR, size=s, title=f"P{len(process_sizes)-i}"
+            )
             for i, s in enumerate(process_sizes)
         ]
         process_group = VGroup(*processes).arrange(RIGHT, buff=0.5)
@@ -752,7 +776,6 @@ class OS(CustomMovingCameraScene):
 
         self.wait(3)
 
-        
         # 04 - Queues Examples
         self.wait(13)
         new_queue1_text = Text("Foreground - Round Robin", font_size=24).next_to(
@@ -769,7 +792,7 @@ class OS(CustomMovingCameraScene):
         self.play(FadeOut(queue2))
         self.play(FadeIn(new_queue2_text))
         self.wait(4)
-        
+
         # 05 - Move Processes to Queues
         self.wait(7)
         above_indexes = [0, 3, 5]
@@ -822,7 +845,7 @@ class OS(CustomMovingCameraScene):
                 last_process_position = proc.get_right()
                 queue2_processes.add(proc)
         self.wait(12)
-        
+
         cpu = CPU(size=0.5)
         clock = Clock(radius=0.5)
         clock.move_to(
@@ -868,7 +891,7 @@ class OS(CustomMovingCameraScene):
 
         ###
         self.wait(4)
-        
+
         # 07 - Simulation (2 Background Part 1)
         a1 = queue2_processes[2].adjust_size_with_animation()
         self.play(AnimationGroup(a1, clock.rotate(), cpu.rotate_gear()))
@@ -879,31 +902,34 @@ class OS(CustomMovingCameraScene):
         )
 
         # 08 - New process while execution
-        p7 = ProcessAnimated(size=ADDITIONAL_PROCESS_FCFS, title=f"P7")
+        p7 = ProcessAnimated(
+            color=LATEPROCESS_COLOR, size=ADDITIONAL_PROCESS_FCFS, title=f"P7"
+        )
         p7.next_to(title, DOWN, aligned_edge=LEFT)
         p7.shift(LEFT * self.get_current_width())
         self.play(p7.animate.shift(RIGHT * self.get_current_width()), run_time=4)
         self.wait(2)
 
         # 09 - Move new process to foreground
-        self.play(p7.animate.next_to(new_queue1_text, DOWN, aligned_edge=LEFT), run_time=4)
+        self.play(
+            p7.animate.next_to(new_queue1_text, DOWN, aligned_edge=LEFT), run_time=4
+        )
 
         self.wait(6)
-        
 
         # 10 - Simulation (3 Foreground Part 2 (new process))
         ax1 = p7.adjust_size_with_animation()
         self.play(AnimationGroup(ax1, clock.rotate(), cpu.rotate_gear()))
-        
+
         self.wait(1)
-        
+
         ax2 = p7.adjust_size_with_animation()
         self.play(AnimationGroup(ax2, clock.rotate(), cpu.rotate_gear()))
         self.play(AnimationGroup(FadeOut(p7), p7.animate.scale(0.1)))
         self.wait(2)
         # self.play(FadeOut(p7), run_time=2)
         # self.wait(1)
-        
+
         # 11 - Simulation (4 Background Part 2)
         for _ in range(4):
             a2 = queue2_processes[1].adjust_size_with_animation()
@@ -927,7 +953,6 @@ class OS(CustomMovingCameraScene):
         self.wait(2)
         # 12 -
         self.remove(queue1, new_queue1_text, line, new_queue2_text, queue2, cpu, clock)
-        
 
     def mqs_bullet_points(self):
         # TODO: add title
@@ -952,7 +977,7 @@ class OS(CustomMovingCameraScene):
         lines.shift(LEFT * 3)
 
         self.wait(1)
-        self.play(FadeIn(lines),run_time=4)
+        self.play(FadeIn(lines), run_time=4)
         self.wait(7)
 
         # bullet points
@@ -975,8 +1000,6 @@ class OS(CustomMovingCameraScene):
     def mqs_flow(self):
         # Code to demonstrate the flow of processes in MQS
         # Your code: ...
-
-        self.clear()
 
         # TODO: Das hier sind deine Prozesse, die sind aber falsch definiert. Die IDs müssen unique sein und du musst die Priority angeben. Der Algorithmus scheduled das dann.
         # Hier ein Beispiel:
@@ -1018,14 +1041,13 @@ class OS(CustomMovingCameraScene):
             )
         )
         self.wait(12)
-        self.clear()
 
     def mqs_pros_cons(self):
         # 6 s opening
         # 11s pos
         # 26 neg und rest
         # 43 total
-        self.clear()
+
         title = CustomTitle(
             title_text="Pros and Cons of MLQ",
             corner=self.get_to_corner(UL),
@@ -1062,8 +1084,22 @@ class OS(CustomMovingCameraScene):
     def metrics(self):
         # Title page
         title = AnimatedTitle("Comparing Algorithms")
-        self.play(title.create_animation())
-        self.play(title.animate.to_corner(UP + LEFT))
+        self.play(
+            title.create_animation(self.get_current_center(), self.get_to_corner(UL))
+        )
+
+        height_without_title = (
+            (title.get_bottom() - self.get_current_center())
+            + self.get_current_height() / 2
+        ) * Y_AXIS
+        print("height_under_title:", height_without_title)
+        middle_without_title = (
+            self.get_to_edge(DOWN, margin=0) + height_without_title / 2
+        ) * Y_AXIS
+        print("current_top", self.get_to_edge(UP, margin=0))
+        print("current_center", self.get_current_center())
+        print("middle_under_title:", middle_without_title)
+        # self.play(title.animate.to_corner(UP + LEFT))
 
         # 2D LineChart metric
         stepsize_linechart = 100
@@ -1078,9 +1114,13 @@ class OS(CustomMovingCameraScene):
         titles = ["FCFS", "RoundRobin", "MLQ"]
         metric_response_time = MetricResponseTime(
             datasets, titles, x_stepsize=stepsize_linechart
-        ).scale(0.9)
+        ).scale(0.9, about_edge=LEFT)
+        metric_response_time.next_to(
+            middle_without_title + self.get_to_edge(LEFT) * X_AXIS,
+            direction=RIGHT,
+        )
         self.play(metric_response_time.create_animation())
-        self.play(metric_response_time.animate.scale(0.6).to_edge(LEFT))
+        self.play(metric_response_time.animate.scale(0.5, about_edge=LEFT))
 
         # 2D LineChart bullet points
         points = [
@@ -1094,7 +1134,11 @@ class OS(CustomMovingCameraScene):
                 7,
             ),
         ]
-        bulletpoints = AnimatedBulletpoints(points, width=40)
+        bulletpoints = AnimatedBulletpoints(
+            points,
+            width=40,
+            edge=self.get_to_edge(RIGHT) * X_AXIS + middle_without_title * Y_AXIS,
+        )
         self.play(bulletpoints.create_animation())
         self.play(FadeOut(bulletpoints))
 
@@ -1129,13 +1173,7 @@ class OS(CustomMovingCameraScene):
             titles=["FCFS", "RR", "MLQ"],
             y_text="Unfairness Score",
         )
-        first_bar_chart.scale(0.5).to_corner(
-            UP + RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER
-        )
-        self.wait(7)
-        self.add(first_bar_chart)
-        bar_grow_sequence = first_bar_chart.animate_bars(5)
-        self.play(bar_grow_sequence)
+        first_bar_chart.scale(0.5)
 
         # 2nd BarChart metric
         second_bar_chart = MetricBarChart(
@@ -1147,10 +1185,19 @@ class OS(CustomMovingCameraScene):
             titles=["FCFS", "RR", "MLQ"],
             y_text="Context Switches",
         )
-        second_bar_chart.scale(0.5).to_corner(
-            DOWN + RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER
-        )
+        second_bar_chart.scale(0.5)
 
+        bar_charts_group = VGroup(first_bar_chart, second_bar_chart)
+        bar_charts_group.arrange(DOWN, aligned_edge=LEFT)
+        bar_charts_group.next_to(self.get_to_edge(RIGHT), LEFT)
+
+        # Animate 1st BarChart
+        self.wait(7)
+        self.add(first_bar_chart)
+        bar_grow_sequence = first_bar_chart.animate_bars(5)
+        self.play(bar_grow_sequence)
+
+        # Animate 2nd BarChart
         self.wait(10)
         self.add(second_bar_chart)
         bar_grow_sequence = second_bar_chart.animate_bars(2)
@@ -1161,10 +1208,12 @@ class OS(CustomMovingCameraScene):
         self.play(FadeOut(metric_response_time))
 
         # Move BarCharts to the left
-        bar_charts_group = VGroup(first_bar_chart, second_bar_chart)
+
         self.play(
-            bar_charts_group.animate.scale(0.8).to_edge(
-                LEFT, buff=3 * DEFAULT_MOBJECT_TO_EDGE_BUFFER
+            bar_charts_group.animate.scale(0.8).next_to(
+                self.get_to_edge(LEFT) * X_AXIS + middle_without_title * Y_AXIS,
+                RIGHT,
+                buff=3 * DEFAULT_MOBJECT_TO_EDGE_BUFFER,
             )
         )
         self.wait(2)
@@ -1180,10 +1229,11 @@ class OS(CustomMovingCameraScene):
                 11,
             ),
         ]
-        bulletpoints = AnimatedBulletpoints(points, width=40)
+        bulletpoints = AnimatedBulletpoints(
+            points, width=40, edge=self.get_to_edge(RIGHT)*X_AXIS + middle_without_title*Y_AXIS
+        )
         self.play(bulletpoints.create_animation())
         self.wait(2)
-        self.clear()
 
     def application(self):
         title = AnimatedTitle("Operating Systems")
@@ -1200,7 +1250,7 @@ class OS(CustomMovingCameraScene):
         lin = CustomTitle("Linux", UL)
 
         mac.next_to(
-            self.get_current_center() + title.get_bottom() * Y_AXIS,
+            self.get_current_center() *X_AXIS + title.get_bottom() * Y_AXIS,
             DOWN,
             buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER * 2,
         )
@@ -1309,18 +1359,22 @@ class OS(CustomMovingCameraScene):
         summary3 = Text("Multi Level Queue", font_size=28)
 
         # Group all texts together with the new text at the top
-        summary = VGroup(title_text, summary1, summary2, summary3).arrange(DOWN, aligned_edge=LEFT).to_edge(LEFT, buff=1)
-        
+        summary = (
+            VGroup(title_text, summary1, summary2, summary3)
+            .arrange(DOWN, aligned_edge=LEFT)
+            .next_to(self.get_to_edge(LEFT), buff=1)
+        )
+
         # Write the title text and then each summary text individually with pauses in between
         self.play(Write(title_text), run_time=2)
         self.wait(3)  # Pause after writing the title
-        
+
         self.play(Write(summary1), run_time=2)
         self.wait(3)  # Pause after the first summary
-        
+
         self.play(Write(summary2), run_time=2)
         self.wait(4)  # Pause after the second summary
-        
+
         self.play(Write(summary3), run_time=2)
         self.wait(4)  # Pause after the third summary
 
@@ -1335,7 +1389,7 @@ class OS(CustomMovingCameraScene):
         todo_group = (
             VGroup(todo, todo1, todo2, todo3, todo4)
             .arrange(DOWN, aligned_edge=LEFT)
-            .to_edge(RIGHT, buff=3)
+            .next_to(self.get_to_edge(RIGHT), buff=3)
         )
         self.play(Write(todo_group), run_time=4)
 
