@@ -161,15 +161,15 @@ class OS(CustomMovingCameraScene):
         # self.clear()
         # self.camera.frame.restore()
         # # 2 min
-        self.play(self.move_one_slide(x=RIGHT))
-        self.fcfs()
+        # self.play(self.move_one_slide(x=RIGHT))
+        # self.fcfs()
         # self.wait(1)
         # self.clear()
         # self.camera.frame.restore()
         # # In der Überleitung Preemptive verwenden und erklären was das bedeutet
         # # 3 min
 
-        # self.rr()
+        self.rr()
         # self.clear()
         # self.camera.frame.restore()
 
@@ -242,12 +242,15 @@ class OS(CustomMovingCameraScene):
         # TODO an camera position anpassen
 
         self.fcfs_animation()
-        # self.fcfs_bullet_points()
-        # self.play(self.move_camera_to_initial_position())
-        # self.play(self.move_one_slide(x=RIGHT))
-        # self.fcfs_flow()
-        # self.play(self.move_one_slide(x=RIGHT))
-        # self.fcfs_pros_cons()
+        # 54 Seconds
+        self.fcfs_bullet_points()
+
+        self.play(self.move_one_slide(x=RIGHT))
+        # 71 Seconds
+        self.fcfs_flow()
+        # 108 Seconds
+        self.play(self.move_one_slide(x=RIGHT))
+        self.fcfs_pros_cons()
 
     def fcfs_animation(self):
         title = AnimatedTitle("First Come First Serve")
@@ -392,17 +395,17 @@ class OS(CustomMovingCameraScene):
         )
         self.play(FadeIn(title))
         positive = [
-            "Due to it's simplicity FCFS is easy to implement and understand.",
-            "It treats all processes equally, which is fair.",
-            "It also doesn't starve processes as high priority processes don't delay the processing of lower prio processes.",
+            "Simplicity",
+            "Fairness",
+            "No starvation",
         ]
         neutral = [
-            "It's application is limited systems without the need of prioritization or real time processing.",
+            "Limited application",
         ]
         negative = [
-            "FCFS can lead to long waiting times, especially for tasks that arrive just after a long task.",
-            "It cannot prioritize important or urgent tasks.",
-            "Once a task starts executing, it runs to completion (Non-preemptive). This can cause issues if a high-priority task arrives after a long-running task has already started",
+            "Long waiting times",
+            "No prioritization",
+            "Non-Preemptive",
         ]
 
         animated_review = AnimatedReview(
@@ -410,27 +413,22 @@ class OS(CustomMovingCameraScene):
             neutral,
             negative,
             width=90,
-            left_edge=self.get_to_edge(LEFT),
+            center=self.get_current_center(),
+            horizontal=True,
         )
         self.play(animated_review.create_animation())
 
     def rr(self):
-        self.play(self.move_one_slide(x=RIGHT))
+
         self.rr_animation()
-        self.wait(1)
-
-        # self.play(self.move_one_slide(x=RIGHT))
         self.rr_bullet_points()
-        self.wait(1)
 
-        # self.play(self.move_one_slide(y=DOWN))
-        self.move_camera_to_initial_position()
+        self.play(self.move_one_slide(x=RIGHT))
         self.rr_flow()
-        self.wait(1)
 
-        self.play(self.move_one_slide(x=RIGHT * 2))
+        self.play(self.move_one_slide(x=RIGHT))
         self.rr_pros_cons()
-        self.wait(2)
+        
 
     def rr_animation(self):
         # create and animate title for RoundRobin
@@ -482,7 +480,7 @@ class OS(CustomMovingCameraScene):
         # create processes and place them just outside the left edge
         for i, size in enumerate(process_sizes):
             process = (
-                ProcessAnimated(title=f"P{i+1}", size=size)
+                ProcessAnimated(color=PROCESS_COLOR, title=f"P{i+1}", size=size)
                 .move_to(self.get_to_corner(DL, y_margin=1))
                 .shift(LEFT * 4)
             )
@@ -508,7 +506,11 @@ class OS(CustomMovingCameraScene):
         while not rr.get_empty():
             if enumeration == 3:
                 new_process = (
-                    ProcessAnimated(title=f"P{len(process_sizes)+1}", size=2, color=RED)
+                    ProcessAnimated(
+                        color=LATEPROCESS_COLOR,
+                        title=f"P{len(process_sizes)+1}",
+                        size=2,
+                    )
                     .move_to(self.get_to_corner(DL, y_margin=1))
                     .shift(LEFT * 4)
                 )
@@ -623,7 +625,7 @@ class OS(CustomMovingCameraScene):
             SequenceDiagrammProcess(id=4, arrival_time=0, burst_time=1),
             SequenceDiagrammProcess(id=5, arrival_time=0, burst_time=1),
             SequenceDiagrammProcess(id=6, arrival_time=0, burst_time=2),
-            SequenceDiagrammProcess(id=7, arrival_time=8, burst_time=2),
+            SequenceDiagrammProcess(id=7, arrival_time=3, burst_time=2),
         ]
         rr = RoundRobin(quantum=1)
         steps = schedule_processes(rr, processes)
@@ -648,17 +650,17 @@ class OS(CustomMovingCameraScene):
         )
         self.play(FadeIn(title))
         positive = [
-            "Treats all processes equally with fixed time slice",
-            "Offers good response times + real time processing",
-            "Processes can't starve",
-            "Preemptive so no Process cloggs the CPU",
+            "Fixed time slice",
+            "Good response times & real time processing",
+            "No Starvation",
+            "Preemptive",
         ]
         neutral = [
-            "Efficiency depends on appropriate choice of quantum",
-            "Average waiting time vs. context switches",
+            "Efficiency dependent on quantum",
+            "Waiting time vs. context switches",
         ]
         negative = [
-            "Big processes get bad throughput",
+            "Low throughput for long processes",
             "No priorities",
         ]
 

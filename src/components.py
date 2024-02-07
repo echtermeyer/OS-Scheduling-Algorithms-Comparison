@@ -406,6 +406,7 @@ class AnimatedReview(Mobject):
         override_speed=False,
         center: np.ndarray = None,
         left_edge: np.ndarray = None,
+        horizontal: bool = False,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -458,7 +459,11 @@ class AnimatedReview(Mobject):
             None, [self.positive_section, self.neutral_section, self.negative_section]
         )
         self.add(*sections)
-        self.arrange(DOWN, aligned_edge=LEFT, buff=MED_LARGE_BUFF)
+        # Allow for horizontal or vertical arrangement
+        if horizontal:
+            self.arrange(RIGHT, aligned_edge=UP, buff=MED_LARGE_BUFF)
+        else:
+            self.arrange(DOWN, aligned_edge=LEFT, buff=MED_LARGE_BUFF)
 
         if center is not None:
             self.move_to(center)
