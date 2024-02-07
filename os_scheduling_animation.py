@@ -157,7 +157,9 @@ class OS(CustomMovingCameraScene):
         # creative introduction
         # 2 min
         self.camera.frame.save_state()
+        self.intro_0()
         # self.introduction()
+
         # self.clear()
         # self.camera.frame.restore()
         # # 2 min
@@ -171,7 +173,7 @@ class OS(CustomMovingCameraScene):
 
         self.rr()
         # self.clear()
-        # self.camera.frame.restore()
+        self.camera.frame.restore()
 
         # # 3 min
         # self.mqs()
@@ -190,9 +192,25 @@ class OS(CustomMovingCameraScene):
         # self.clear()
         # self.camera.frame.restore()
 
+    def intro_0(self):
+        title = Text("OS Scheduling Algorithms", font_size=36, color=BLUE).move_to(UP * 0.5)
+        
+        # Create the subtitle text, making it smaller than the title
+        subtitle = Text("By Benedikt, Eric and Jannik", font_size=24).next_to(title, DOWN)
+
+        # Fade in the title and subtitle
+        self.play(FadeIn(title), FadeIn(subtitle), run_time=3)
+        
+        # Wait for a moment with the title and subtitle visible
+        self.wait(2)
+
+        # Fade out the title and subtitle
+        self.play(FadeOut(title), FadeOut(subtitle), run_time=3)
+
+
     def introduction(self):
         # 01 - todo list
-        todo = Text("My TODO List:", font_size=24)
+        todo = Text("My to-do list:", font_size=24)
         todo1 = Text("- Buy groceries.", font_size=24)
         todo2 = Text("- Annoy Lasse.", font_size=24)
         todo3 = Text("- Take out the trash.", font_size=24)
@@ -202,8 +220,8 @@ class OS(CustomMovingCameraScene):
             DOWN, aligned_edge=LEFT
         )
         todo_group.move_to(self.get_to_edge(LEFT, object_width=todo_group.get_width()))
-        self.play(Write(todo_group), run_time=4)
-
+        self.play(Write(todo_group), run_time=5)
+        self.wait(4)
         # 02 - symbols
         icon1 = SVGMobject("img/intro_outro/double_arrow.svg", fill_color=WHITE).scale(
             0.5
@@ -218,22 +236,22 @@ class OS(CustomMovingCameraScene):
 
         icons = VGroup(icon1, icon2, icon3).arrange(DOWN, buff=1)
         icons.move_to(self.get_current_center())
-        self.play(ShowIncreasingSubsets(icons, run_time=3))
-
+        self.play(ShowIncreasingSubsets(icons, run_time=6))
+        self.wait(3)
         # 03 - question mark
         question = SVGMobject("img/intro_outro/question", fill_color=WHITE).scale(1.2)
         question.move_to(
             self.get_to_edge(RIGHT, margin=1.75, object_width=question.get_width())
         )
         self.play(FadeIn(question), run_time=2)
-        self.wait(4)
+        self.wait(12)
         self.play(FadeOut(question), run_time=2)
 
         # 04 - cpu
         cpu = CPU(size=1)
         cpu.move_to(self.get_to_edge(RIGHT, margin=1.75, object_width=cpu.get_width()))
         self.play(FadeIn(cpu), run_time=2)
-        self.wait(4)
+        self.wait(11)
 
         # 05 - evlt. processes hinzufügen
         # fadout mit question mark. und fade in von prozessen mit cpu
@@ -674,15 +692,12 @@ class OS(CustomMovingCameraScene):
         self.play(animated_review.create_animation())
 
     def mqs(self):
-        self.wait(1)
         self.play(self.move_one_slide(x=RIGHT))
-        # self.mqs_animation()
-
-        # self.mqs_bullet_points()
+        self.mqs_animation()
+        self.mqs_bullet_points()
         self.mqs_flow()
         self.mqs_pros_cons()
 
-        self.wait(1)
 
     def mqs_animation(self):
         # 01 - Title
@@ -692,7 +707,7 @@ class OS(CustomMovingCameraScene):
                 center=self.get_current_center(), corner=self.get_to_corner(UL)
             )
         )
-
+        self.wait(6)
         # 02 - Processes
         process_sizes = PROCESS_SIZES_FCFS  # [2, 1, 3, 3, 2, 1, 2]
         processes = [
@@ -707,6 +722,8 @@ class OS(CustomMovingCameraScene):
             animation = process.animate.shift(RIGHT * self.get_current_width())
             self.play(animation, run_time=1)
             self.wait(0.5)
+
+        self.wait(1)
 
         # 03 - Queues
 
@@ -733,23 +750,28 @@ class OS(CustomMovingCameraScene):
         # self.add(queue2)
         self.play(FadeIn(queue2))
 
-        self.wait(2)
+        self.wait(3)
+
+        
         # 04 - Queues Examples
+        self.wait(13)
         new_queue1_text = Text("Foreground - Round Robin", font_size=24).next_to(
             process_group, DOWN, aligned_edge=LEFT
         )
         new_queue1_text.shift(DOWN * 0.1)
         self.play(FadeOut(queue1))
         self.play(FadeIn(new_queue1_text))
-
+        self.wait(8)
         new_queue2_text = Text(
             "Background - First Come, First Serve", font_size=24
         ).next_to(line, DOWN, aligned_edge=LEFT)
         new_queue2_text.shift(DOWN * 0.1)
         self.play(FadeOut(queue2))
         self.play(FadeIn(new_queue2_text))
-
+        self.wait(4)
+        
         # 05 - Move Processes to Queues
+        self.wait(7)
         above_indexes = [0, 3, 5]
         below_indexes = [1, 2, 4]
         queue1_processes = VGroup()
@@ -799,8 +821,8 @@ class OS(CustomMovingCameraScene):
                 )
                 last_process_position = proc.get_right()
                 queue2_processes.add(proc)
-        self.wait(2)
-
+        self.wait(12)
+        
         cpu = CPU(size=0.5)
         clock = Clock(radius=0.5)
         clock.move_to(
@@ -813,10 +835,9 @@ class OS(CustomMovingCameraScene):
             )
         )
         cpu.next_to(clock, LEFT, buff=0.25)
-        self.add(cpu, clock)
-
+        self.play(FadeIn(cpu))
+        self.play(FadeIn(clock))
         # 06 - Simulation (1 Foreground)
-        self.wait(4)
         a1 = queue1_processes[2].adjust_size_with_animation()
         self.play(AnimationGroup(a1, clock.rotate(), cpu.rotate_gear()))
         self.wait(0.5)
@@ -845,8 +866,9 @@ class OS(CustomMovingCameraScene):
             )
         )
 
-        self.wait(2)
-
+        ###
+        self.wait(4)
+        
         # 07 - Simulation (2 Background Part 1)
         a1 = queue2_processes[2].adjust_size_with_animation()
         self.play(AnimationGroup(a1, clock.rotate(), cpu.rotate_gear()))
@@ -861,21 +883,27 @@ class OS(CustomMovingCameraScene):
         p7.next_to(title, DOWN, aligned_edge=LEFT)
         p7.shift(LEFT * self.get_current_width())
         self.play(p7.animate.shift(RIGHT * self.get_current_width()), run_time=4)
+        self.wait(2)
 
         # 09 - Move new process to foreground
-        self.play(p7.animate.next_to(new_queue1_text, DOWN, aligned_edge=LEFT))
-        self.wait(2)
+        self.play(p7.animate.next_to(new_queue1_text, DOWN, aligned_edge=LEFT), run_time=4)
+
+        self.wait(6)
+        
+
         # 10 - Simulation (3 Foreground Part 2 (new process))
         ax1 = p7.adjust_size_with_animation()
         self.play(AnimationGroup(ax1, clock.rotate(), cpu.rotate_gear()))
+        
         self.wait(1)
+        
         ax2 = p7.adjust_size_with_animation()
         self.play(AnimationGroup(ax2, clock.rotate(), cpu.rotate_gear()))
         self.play(AnimationGroup(FadeOut(p7), p7.animate.scale(0.1)))
-
-        # self.play(FadeOut(p7), run_time=2)
         self.wait(2)
-
+        # self.play(FadeOut(p7), run_time=2)
+        # self.wait(1)
+        
         # 11 - Simulation (4 Background Part 2)
         for _ in range(4):
             a2 = queue2_processes[1].adjust_size_with_animation()
@@ -896,9 +924,10 @@ class OS(CustomMovingCameraScene):
                 FadeOut(queue2_processes[0]), queue2_processes[0].animate.scale(0.1)
             )
         )
-
+        self.wait(2)
         # 12 -
         self.remove(queue1, new_queue1_text, line, new_queue2_text, queue2, cpu, clock)
+        
 
     def mqs_bullet_points(self):
         # TODO: add title
@@ -921,21 +950,24 @@ class OS(CustomMovingCameraScene):
 
         lines.move_to(self.get_current_center())
         lines.shift(LEFT * 3)
-        self.play(FadeIn(lines))
-        self.wait(5)
+
+        self.wait(1)
+        self.play(FadeIn(lines),run_time=4)
+        self.wait(7)
 
         # bullet points
+        self.wait(2)
         points = [
-            ("Processes are distributed to different queues.", 1),
-            ("Queues use different scheduling algorithms.", 1),
-            ("Execution of queues determind by priority.", 1),
+            ("Processes are distributed to different queues.", 3),
+            ("Queues use different scheduling algorithms.", 3),
+            ("Execution of queues determind by priority.", 0),
         ]
 
         bulletpoints = AnimatedBulletpoints(
             points, edge=self.get_to_edge(RIGHT), width=40
         )
         self.play(bulletpoints.create_animation())
-        self.wait(5)
+        self.wait(2)
 
         # review = AnimatedReview(["some positive things about this..., and some more"],["this is ok..."], ["these things are very very bad..."]).to_edge(RIGHT)
         # self.play(review.create_animation())
@@ -985,10 +1017,14 @@ class OS(CustomMovingCameraScene):
                 frame_width=self.get_current_width(),
             )
         )
-        self.wait(2)
+        self.wait(12)
         self.clear()
 
     def mqs_pros_cons(self):
+        # 6 s opening
+        # 11s pos
+        # 26 neg und rest
+        # 43 total
         self.clear()
         title = CustomTitle(
             title_text="Pros and Cons of MLQ",
@@ -1000,11 +1036,13 @@ class OS(CustomMovingCameraScene):
             self.get_current_center() + self.get_current_width() / 4 * RIGHT - 0.5
         )
 
-        self.play(FadeIn(title, cpu))
+        self.play(FadeIn(title, cpu), run_time=2)
+        self.wait(4)
+
         positive = [
             "Reduced response time.",
             "Increased throughput.",
-            "Better unser experience.",
+            "Better user experience.",
         ]
         neutral = []
         negative = ["Increased complexity.", "Risk of process starvation."]
@@ -1016,13 +1054,14 @@ class OS(CustomMovingCameraScene):
             width=90,
             left_edge=self.get_to_edge(LEFT),
             override_speed=True,
+            speed=0.01,
         )
-        self.play(animated_review.create_animation())
-        self.wait(5)
+        self.play(animated_review.create_animation(), run_time=20)
+        self.wait(16)
 
     def metrics(self):
         # Title page
-        title = AnimatedTitle("Comparing FCFS, Round Robin & MLQ")
+        title = AnimatedTitle("Comparing Algorithms")
         self.play(title.create_animation())
         self.play(title.animate.to_corner(UP + LEFT))
 
@@ -1261,17 +1300,29 @@ class OS(CustomMovingCameraScene):
 
     def outro(self):
         # 01 - recap
+        # Define the new text to add at the top
+        title_text = Text("OS Scheduling Algorithms", font_size=28, color=BLUE)
+
+        # Define the existing texts
         summary1 = Text("First Come First Serve", font_size=28)
         summary2 = Text("Round Robin", font_size=28)
         summary3 = Text("Multi Level Queue", font_size=28)
 
-        summary = (
-            VGroup(summary1, summary2, summary3)
-            .arrange(DOWN, aligned_edge=LEFT)
-            .to_edge(LEFT, buff=1)
-        )
-        self.play(Write(summary), run_time=4)
-        self.wait(2)
+        # Group all texts together with the new text at the top
+        summary = VGroup(title_text, summary1, summary2, summary3).arrange(DOWN, aligned_edge=LEFT).to_edge(LEFT, buff=1)
+        
+        # Write the title text and then each summary text individually with pauses in between
+        self.play(Write(title_text), run_time=2)
+        self.wait(3)  # Pause after writing the title
+        
+        self.play(Write(summary1), run_time=2)
+        self.wait(3)  # Pause after the first summary
+        
+        self.play(Write(summary2), run_time=2)
+        self.wait(4)  # Pause after the second summary
+        
+        self.play(Write(summary3), run_time=2)
+        self.wait(4)  # Pause after the third summary
 
         # todo list
         # 01 - todo list
@@ -1287,7 +1338,6 @@ class OS(CustomMovingCameraScene):
             .to_edge(RIGHT, buff=3)
         )
         self.play(Write(todo_group), run_time=4)
-        self.wait(2)
 
         # icons
         check = SVGMobject("img/intro_outro/check.svg", fill_color=WHITE).scale(0.15)
