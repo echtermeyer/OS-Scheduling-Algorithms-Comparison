@@ -1,4 +1,5 @@
-from typing_extensions import runtime
+import copy
+
 from manim import *
 from src.components import *
 from src.algorithms import *
@@ -174,9 +175,9 @@ class OS(CustomMovingCameraScene):
         # self.camera.frame.restore()
 
         # # 3 min
-        # self.metrics()
-        # self.clear()
-        # self.camera.frame.restore()
+        self.metrics()
+        self.clear()
+        self.camera.frame.restore()
 
         # # reallife examples
         # # 2 min
@@ -337,9 +338,12 @@ class OS(CustomMovingCameraScene):
 
     def fcfs_bullet_points(self):
         points = [
-            "Processes get queued up in the order they arrive.",
-            "The first process in the queue gets processed until it's finished.",
-            "The processes then get moved up in the queue and are processed until there is no process left.",
+            ("Processes get queued up in the order they arrive.", 1),
+            ("The first process in the queue gets processed until it's finished.", 1),
+            (
+                "The processes then get moved up in the queue and are processed until there is no process left.",
+                1,
+            ),
         ]
 
         bulletpoints = AnimatedBulletpoints(points, edge=self.get_to_edge(RIGHT))
@@ -575,16 +579,20 @@ class OS(CustomMovingCameraScene):
 
     def rr_bullet_points(self):
         points = [
-            "CPU time gets divided into quantums.",
-            "Each process get's processed for the duration of a quantum.",
-            "After each quantum the current process is either finished or it's put back into the queue."
-            + "\n=> Preemptive Schedulung",
+            ("CPU time gets divided into quantums.", 1),
+            ("Each process get's processed for the duration of a quantum.", 1),
+            (
+                "After each quantum the current process is either finished or it's put back into the queue."
+                + "\n=> Preemptive Schedulung",
+                1,
+            ),
         ]
 
         bulletpoints = AnimatedBulletpoints(points, edge=self.get_to_edge(RIGHT))
         self.play(bulletpoints.create_animation())
 
     def rr_flow(self):
+        # TODO: Ist doch falsch oder? @Jannik/Benedikt. id7 sollte erst nach 3 und 6 kommen, da queue
         # steps = [
         #     {"id": 1, "start": 0, "size": 1},
         #     {"id": 2, "start": 1, "size": 1},
@@ -661,9 +669,9 @@ class OS(CustomMovingCameraScene):
     def mqs(self):
         self.wait(1)
         self.play(self.move_one_slide(x=RIGHT))
-        self.mqs_animation()
+        # self.mqs_animation()
 
-        self.mqs_bullet_points()
+        # self.mqs_bullet_points()
         self.mqs_flow()
         self.mqs_pros_cons()
 
@@ -911,9 +919,9 @@ class OS(CustomMovingCameraScene):
 
         # bullet points
         points = [
-            "Processes are distributed to different queues.",
-            "Queues use different scheduling algorithms.",
-            "Execution of queues determind by priority.",
+            ("Processes are distributed to different queues.", 1),
+            ("Queues use different scheduling algorithms.", 1),
+            ("Execution of queues determind by priority.", 1),
         ]
 
         bulletpoints = AnimatedBulletpoints(
@@ -931,20 +939,33 @@ class OS(CustomMovingCameraScene):
 
         self.clear()
 
-        # TODO: Sind das die von euch @Jannik/Benedikt oder noch von mir?
-        # steps = [
-        #     {"id": 1, "start": 0, "size": 4},
-        #     {"id": 2, "start": 4, "size": 2},
-        #     {"id": 3, "start": 6, "size": 1},
-        #     {"id": 4, "start": 7, "size": 5},
-        #     {"id": 2, "start": 12, "size": 2},
-        #     {"id": 3, "start": 14, "size": 2},
-        #     {"id": 4, "start": 16, "size": 5},
-        #     {"id": 3, "start": 21, "size": 3},
+        # TODO: Das hier sind deine Prozesse, die sind aber falsch definiert. Die IDs müssen unique sein und du musst die Priority angeben. Der Algorithmus scheduled das dann.
+        # Hier ein Beispiel:
+        # processes = [
+        #     SequenceDiagrammProcess(id=1, arrival_time=0, burst_time=10, priority="low"),
+        #     SequenceDiagrammProcess(id=2, arrival_time=3, burst_time=3, priority="high"),
+        #     SequenceDiagrammProcess(id=3, arrival_time=5, burst_time=3, priority="high"),
         # ]
+        processes = [
+            SequenceDiagrammProcess(
+                id=1, arrival_time=0, burst_time=2, priority="high"
+            ),
+            SequenceDiagrammProcess(
+                id=3, arrival_time=0, burst_time=1, priority="high"
+            ),
+            SequenceDiagrammProcess(
+                id=6, arrival_time=0, burst_time=2, priority="high"
+            ),
+            SequenceDiagrammProcess(id=2, arrival_time=0, burst_time=1, priority="low"),
+            SequenceDiagrammProcess(id=4, arrival_time=0, burst_time=5, priority="low"),
+            SequenceDiagrammProcess(id=5, arrival_time=0, burst_time=3, priority="low"),
+            SequenceDiagrammProcess(
+                id=7, arrival_time=6, burst_time=2, priority="high"
+            ),
+        ]
 
         mlq = MultiLevelQueue(quantum=1)
-        steps = schedule_processes(mlq)
+        steps = schedule_processes(mlq, processes)
 
         sequence_diagram = SequenceDiagram(
             "MLQ", steps=steps, upper_left_corner=self.get_to_corner(UL)
@@ -963,20 +984,23 @@ class OS(CustomMovingCameraScene):
     def mqs_pros_cons(self):
         self.clear()
         title = CustomTitle(
-            title_text="Pros and Cons of Multilevel Queue Scheduling",
+            title_text="Pros and Cons of MLQ",
             corner=self.get_to_corner(UL),
         )
-        self.play(FadeIn(title))
+
+        cpu = CPU(size=1.75)
+        cpu.move_to(
+            self.get_current_center() + self.get_current_width() / 4 * RIGHT - 0.5
+        )
+
+        self.play(FadeIn(title, cpu))
         positive = [
             "Reduced response time.",
             "Increased throughput.",
             "Better unser experience.",
         ]
         neutral = []
-        negative = [
-            "Increased complexity.",
-            "Risk of process starvation.",
-        ]
+        negative = ["Increased complexity.", "Risk of process starvation."]
 
         animated_review = AnimatedReview(
             positive,
@@ -984,23 +1008,24 @@ class OS(CustomMovingCameraScene):
             negative,
             width=90,
             left_edge=self.get_to_edge(LEFT),
+            override_speed=True,
         )
         self.play(animated_review.create_animation())
+        self.wait(5)
 
     def metrics(self):
         # Title page
-        title = AnimatedTitle("Comparing Scheduling Algorithms")
+        title = AnimatedTitle("Comparing FCFS, Round Robin & MLQ")
         self.play(title.create_animation())
         self.play(title.animate.to_corner(UP + LEFT))
 
         # 2D LineChart metric
-        # TODO: Increase stepsize for final video
-        stepsize_linechart = 10
+        stepsize_linechart = 100
         datasets = create_linechart_metrics(
             algorithms=[
                 FirstComeFirstServe(),
-                RoundRobin(quantum=1),
-                MultiLevelQueue(quantum=1),
+                RoundRobin(quantum=5),
+                MultiLevelQueue(quantum=5),
             ],
             stepsize=stepsize_linechart,
         )
@@ -1013,9 +1038,15 @@ class OS(CustomMovingCameraScene):
 
         # 2D LineChart bullet points
         points = [
-            "FCFS has the worst average response time",
-            "Round Robin has the lowest average response time",
-            "MLQ combines FCFS and Round Robin resulting in a middle ground",
+            ("FCFS has the worst average turnaround time", 12),
+            (
+                "Round Robin and MLQ have similar average turnaround times, but Round Robin is slightly better",
+                4,
+            ),
+            (
+                "Observations can vary based on the quantum and the characteristics of the processes",
+                7,
+            ),
         ]
         bulletpoints = AnimatedBulletpoints(points, width=40)
         self.play(bulletpoints.create_animation())
@@ -1026,19 +1057,19 @@ class OS(CustomMovingCameraScene):
 
         fcfs_algo = FirstComeFirstServe()
         fcfs_scheduler = Scheduler()
-        fcfs_scheduler.set_processes(processes)
+        fcfs_scheduler.set_processes(copy.deepcopy(processes))
         fcfs_scheduler.run_algorithm(fcfs_algo, display=True)
         fcfs_metrics = fcfs_scheduler.get_metrics()
 
-        rr_algo = RoundRobin(quantum=1)
+        rr_algo = RoundRobin(quantum=5)
         rr_scheduler = Scheduler()
-        rr_scheduler.set_processes(processes)
+        rr_scheduler.set_processes(copy.deepcopy(processes))
         rr_scheduler.run_algorithm(rr_algo, display=True)
         rr_metrics = rr_scheduler.get_metrics()
 
-        mlq_algo = MultiLevelQueue(quantum=1)
+        mlq_algo = MultiLevelQueue(quantum=5)
         mlq_scheduler = Scheduler()
-        mlq_scheduler.set_processes(processes)
+        mlq_scheduler.set_processes(copy.deepcopy(processes))
         mlq_scheduler.run_algorithm(mlq_algo, display=True)
         mlq_metrics = mlq_scheduler.get_metrics()
 
@@ -1050,13 +1081,14 @@ class OS(CustomMovingCameraScene):
                 mlq_metrics["fairness_index"],
             ],
             titles=["FCFS", "RR", "MLQ"],
-            y_text="Fairness Index",
+            y_text="Unfairness Score",
         )
         first_bar_chart.scale(0.5).to_corner(
             UP + RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER
         )
+        self.wait(7)
         self.add(first_bar_chart)
-        bar_grow_sequence = first_bar_chart.animate_bars()
+        bar_grow_sequence = first_bar_chart.animate_bars(5)
         self.play(bar_grow_sequence)
 
         # 2nd BarChart metric
@@ -1072,9 +1104,12 @@ class OS(CustomMovingCameraScene):
         second_bar_chart.scale(0.5).to_corner(
             DOWN + RIGHT, buff=DEFAULT_MOBJECT_TO_EDGE_BUFFER
         )
+
+        self.wait(10)
         self.add(second_bar_chart)
-        bar_grow_sequence = second_bar_chart.animate_bars()
+        bar_grow_sequence = second_bar_chart.animate_bars(2)
         self.play(bar_grow_sequence)
+        self.wait(7)
 
         # Fade out the MetricResponseTime
         self.play(FadeOut(metric_response_time))
@@ -1086,14 +1121,18 @@ class OS(CustomMovingCameraScene):
                 LEFT, buff=3 * DEFAULT_MOBJECT_TO_EDGE_BUFFER
             )
         )
+        self.wait(2)
 
         # BarChart metrics
         points = [
-            "FCFS excels in average waiting time",
-            "FCFS has the worst average response time",
-            "Round Robin has the lowest average response time",
-            "MLQ has very low average waiting time",
-            "All algorithms have the same average turnaround time",
+            ("Round Robin has the lowest (best) unfairness score", 4),
+            ("FCFS and MLQ have similar scores", 5),
+            ("Context switches create overhead", 2),
+            ("Round Robin requires a lot of context switches", 5),
+            (
+                "MLQ is more efficient in this area, needing significantly fewer context switches",
+                11,
+            ),
         ]
         bulletpoints = AnimatedBulletpoints(points, width=40)
         self.play(bulletpoints.create_animation())

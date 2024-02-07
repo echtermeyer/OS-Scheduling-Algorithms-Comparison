@@ -1,8 +1,12 @@
+import copy
 import random
 import numpy as np
 
 from typing import Tuple, List
 from abc import ABC, abstractmethod
+
+np.random.seed(1)
+random.seed(1)
 
 
 class SequenceDiagrammProcess:
@@ -51,20 +55,21 @@ class FirstComeFirstServe(Algorithm):
 
     def schedule(self, processes) -> Tuple[int, int, int]:
         current_time = 0
-        context_switches = 0
+        context_switches = 0  # Will be just the number of processes. First process is also counted as a context switch
         wait_times = []
 
         for process in processes:
+            context_switches += 1
+
+            # Only for edge case when the first process arrives after 0
             if current_time < process.arrival_time:
                 current_time = process.arrival_time
 
-            first_response_time = current_time - process.arrival_time
-            wait_times.append(first_response_time)
+            # Wait time is just the difference between the current time and the arrival time
+            wait_times.append(current_time - process.arrival_time)
             self.add_step(process.id, current_time, process.burst_time)
 
-            current_time += process.burst_time
-            if process != processes[0]:
-                context_switches += 1
+            current_time += process.burst_time  # Execution until the end
 
         return context_switches, current_time, wait_times
 
@@ -79,34 +84,53 @@ class RoundRobin(Algorithm):
 
         self.quantum = quantum
 
-    def schedule(self, processes) -> Tuple[int, int, int]:
+    def schedule(
+        self, processes: List[SequenceDiagrammProcess]
+    ) -> Tuple[int, int, int]:
         current_time = 0
         context_switches = 0
-        process_queue = processes.copy()
+
         wait_times = [0] * len(processes)
-        last_start_time = [0] * len(processes)
+        last_end_times = {process.id: process.arrival_time for process in processes}
 
+        process_queue = copy.deepcopy(processes)
+
+        last_process_id = -1
         while process_queue:
-            _process = process_queue.pop(0)
+            current_process = process_queue.pop(0)
 
-            if current_time < _process.arrival_time:
-                current_time = _process.arrival_time
-
-            if current_time >= last_start_time[_process.id - 1]:
-                wait_times[_process.id - 1] += (
-                    current_time - last_start_time[_process.id - 1]
-                )
-
-            execution_time = min(_process.burst_time, self.quantum)
-            _process.burst_time -= execution_time
-            self.add_step(_process.id, current_time, execution_time)
-
-            current_time += execution_time
-            last_start_time[_process.id - 1] = current_time
-
-            if _process.burst_time > 0:
-                process_queue.append(_process)
+            # Only count context switches if the process is different
+            if last_process_id != current_process.id:
+                last_process_id = current_process.id
                 context_switches += 1
+
+            # Only for edge case when the first process arrives after 0
+            if current_time < current_process.arrival_time:
+                current_time = current_process.arrival_time
+
+            execution_time = min(current_process.burst_time, self.quantum)
+            self.add_step(current_process.id, current_time, execution_time)
+
+            # Update wait times
+            wait_times[current_process.id - 1] += (
+                current_time - last_end_times[current_process.id]
+            )
+            last_end_times[current_process.id] = current_time + execution_time
+
+            # Update times
+            current_process.burst_time -= execution_time
+            current_time += execution_time
+
+            # Prepare for next iteration
+            if current_process.burst_time > 0:
+                inserted = False
+                for i in range(len(process_queue)):
+                    if process_queue[i].arrival_time > current_time:
+                        process_queue.insert(i, current_process)
+                        inserted = True
+                        break
+                if not inserted:
+                    process_queue.append(current_process)
 
         return context_switches, current_time, wait_times
 
@@ -117,14 +141,17 @@ class MultiLevelQueue(Algorithm):
         self.quantum = quantum
 
     def schedule(self, processes) -> Tuple[int, int, int]:
-        high_priority = [p for p in processes if p.priority == "high"]
-        low_priority = [p for p in processes if p.priority == "low"]
+        _processes = copy.deepcopy(processes)
+
+        high_priority = [p for p in _processes if p.priority == "high"]
+        low_priority = [p for p in _processes if p.priority == "low"]
 
         current_time = 0
         context_switches = 0
-        wait_times = [0] * len(processes)
-        last_start_time = [0] * len(processes)
+        wait_times = [0] * len(_processes)
+        last_end_times = {process.id: process.arrival_time for process in _processes}
 
+        last_process_id = -1
         while high_priority or low_priority:
             next_process = None
             if high_priority and high_priority[0].arrival_time <= current_time:
@@ -133,40 +160,60 @@ class MultiLevelQueue(Algorithm):
                 next_process = low_priority.pop(0)
 
             if next_process:
+                # Use Round Robin for high priority processes
                 if next_process.priority == "high":
-                    execution_time = min(next_process.burst_time, self.quantum)
-                    next_process.burst_time -= execution_time
-                    self.add_step(next_process.id, current_time, execution_time)
-
-                    if current_time >= last_start_time[next_process.id - 1]:
-                        wait_times[next_process.id - 1] += (
-                            current_time - last_start_time[next_process.id - 1]
-                        )
-
-                    current_time += execution_time
-                    last_start_time[next_process.id - 1] = current_time
-
-                    if next_process.burst_time > 0:
-                        high_priority.append(next_process)
+                    # Only count context switches if the process is different
+                    if last_process_id != next_process.id:
+                        last_process_id = next_process.id
                         context_switches += 1
 
+                    # Get the minimum between the burst time and the quantum. Update the burst time
+                    execution_time = min(next_process.burst_time, self.quantum)
+                    next_process.burst_time -= execution_time
+
+                    # Update metrics
+                    self.add_step(next_process.id, current_time, execution_time)
+                    wait_times[next_process.id - 1] += (
+                        current_time - last_end_times[next_process.id]
+                    )
+                    last_end_times[next_process.id] = current_time + execution_time
+
+                    # Update times
+                    current_time += execution_time
+
+                    # Prepare for next iteration
+                    if next_process.burst_time > 0:
+                        inserted = False
+                        for i in range(len(high_priority)):
+                            if high_priority[i].arrival_time > current_time:
+                                high_priority.insert(i, next_process)
+                                inserted = True
+                                break
+                        if not inserted:
+                            high_priority.append(next_process)
+
+                # Use FCFS for low priority processes
                 elif next_process.priority == "low":
+                    # Only count context switches if the process is different
+                    if last_process_id != next_process.id:
+                        last_process_id = next_process.id
+                        context_switches += 1
+
+                    # Also use the minimum time unit. Reason for this is that we have to check if there will be a high-priority process arriving
                     execution_time = min(next_process.burst_time, 1)
                     next_process.burst_time -= execution_time
+
+                    # Update metrics
                     self.add_step(next_process.id, current_time, execution_time)
-
-                    if current_time >= last_start_time[next_process.id - 1]:
-                        wait_times[next_process.id - 1] += (
-                            current_time - last_start_time[next_process.id - 1]
-                        )
-
                     wait_times[next_process.id - 1] += (
-                        current_time - next_process.arrival_time
+                        current_time - last_end_times[next_process.id]
                     )
+                    last_end_times[next_process.id] = current_time + execution_time
 
+                    # Update times
                     current_time += execution_time
-                    last_start_time[next_process.id - 1] = current_time
 
+                    # Prepare for next iteration
                     if next_process.burst_time > 0:
                         low_priority.insert(0, next_process)
             else:
@@ -196,6 +243,7 @@ class Scheduler:
         for process in self.processes:
             total_turnaround_time += wait_times[process.id - 1] + process.burst_time
 
+        # print(f"Wait times: {wait_times}, len: {len(self.processes)}")
         average_wait_time = sum(wait_times) / len(self.processes)
         average_turnaround_time = total_turnaround_time / len(self.processes)
         throughput = len(self.processes) / current_time
@@ -232,21 +280,30 @@ def create_test_processes() -> List[SequenceDiagrammProcess]:
     return processes
 
 
+# Think like all times are in milliseconds (ms)
 def create_processes(
     num_processes: int = 100,
-    mean_burst_time: int = 3,
-    std_dev_burst: float = np.sqrt(5),
-    percentage_high_priority: float = 0.1,
+    mean_burst_time: int = 250,
+    std_dev_burst: float = 600,
+    percentage_high_priority: float = 0.2,
+    arrival_time_variation: float = 100,  # Neue Variable für Ankunftszeitvariation
 ) -> List[SequenceDiagrammProcess]:
     processes = []
-
     base_arrival_time = 0
     for i in range(num_processes):
         burst_time = max(
             1, int(round(np.random.normal(mean_burst_time, std_dev_burst)))
         )
-        priority = "high" if random.random() < percentage_high_priority else "low"
-        arrival_time = max(0, int(base_arrival_time))
+        priority = "high" if np.random.random() < percentage_high_priority else "low"
+
+        # Anpassung der Ankunftszeit, um Clusterbildung zu simulieren
+        arrival_time = max(
+            0,
+            int(
+                base_arrival_time
+                + np.random.uniform(-arrival_time_variation, arrival_time_variation)
+            ),
+        )
 
         process = SequenceDiagrammProcess(
             id=i + 1,
@@ -256,7 +313,9 @@ def create_processes(
         )
         processes.append(process)
 
-        base_arrival_time += max(0, round(random.uniform(-2, 5)))
+        base_arrival_time += max(
+            0, round(np.random.uniform(0, 25 * arrival_time_variation))
+        )
 
     return processes
 
@@ -267,12 +326,15 @@ def create_linechart_metrics(
     stepsize: int = 1_000,
     metric: str = "average_turnaround_time",
 ) -> List[np.ndarray]:
+    total_processes_needed = steps * stepsize
+    all_processes = create_processes(num_processes=total_processes_needed)
+
     dataset = []
-    processes = []
     for algorithm in algorithms:
         stats = []
-        for _ in range(steps):
-            processes.extend(create_processes(num_processes=stepsize))
+        for step in range(steps):
+            # Select the subset of processes for the current step
+            processes = all_processes[: (step + 1) * stepsize]
             scheduler = Scheduler()
             scheduler.set_processes(processes)
             scheduler.run_algorithm(algorithm, display=False)
