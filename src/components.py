@@ -729,9 +729,9 @@ class MetricBarChart(VMobject):
 
         self.add(self.chart, y_label)
 
-    def animate_bars(self):
+    def animate_bars(self, wait_time: float = 1):
         initial_heights = [bar.height for bar in self.chart.bars]
-        animations = []
+        animations = [Wait(wait_time)]
 
         for bar, init_height in zip(self.chart.bars, initial_heights):
             bar.stretch_to_fit_height(0.01, about_edge=DOWN)
