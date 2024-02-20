@@ -1,36 +1,55 @@
 % !TEX root =  master.tex
 
 \section{Multilevel Queue Scheduling}
-Die Prozesse, welche ein modernes Betriebssystem verarbeitet kann in unterschiedliche Kategorien unterteilt werden. So gibt es beispielsweise interaktive Prozesse, bei welchen eine schnelle Antwortzeit essentiell ist, und Hintergrundprozesse, welche nicht direkt abgearbeitet werden müssen. Für gewöhnlich haben interaktive Prozesse daher eine höhere Priorität und müssen daher schneller \ac{CPU}-Zeit zugeteilt bekommen. \ac{MLQ} Scheduling ist ein fortgeschrittener Scheduling-Algorithmus, welcher versucht diese Prozesse mit unterschiedlichen Prozessen effizient zu verwalten. Bei \ac{MLQ} wird die Prozesswarteschlange in mehrere separate Warteschlangen aufgeteilt, wobei jede Warteschlange eine eigene Prioritätsebene besitzt. Eingehende Prozesse werden nun basierend auf ihrer Priorität in die jeweilig zuständige Warteschlange eingeteilt. Jede dieser Warteschlangen hat nun einen eigenen Scheduling-Algorithmus, um eine differenzierte Behandlung der Prozesse zu ermöglichen. % Silberschatz, Galvin und Gagne (2018)
-Bei der Verarbeitung der Prozesse wird nun stets die Warteschlange mit der höheren Priorität zuerst abgearbeitet, bis diese vollständig entleert wurde. Anschließend fängt die Verarbeitung der nächst-geringeren Prioritätsstufe an. Sofern ein Prozess mit höherer Priorität nun eintreffen sollte, wird die Verarbeitung der Warteschlange mit geringerer Priorität pausiert. 
+Aufbauen auf anderen Prozess-Schedulern, wie bspw. dem zuvor beschriebenen First Come First Serve oder Round-Robin Prinzip gibt es weitere Verfahren, welche durch eine erweiterte Komplexität beabsichtigen, zuvor dargelegte Prinzipien und Stärken zu vereinen und Schwächen zu überwinden. Eines dieser Verfahren ist das Multilevel Queue Scheduling. Es handelt sich hierbei um einen Algorithmus, bei welchem Prozesse abhängig ihrer Eigenschaften in verschiedene Kategorien eingeteilt und anschließend entsprechend mit unterschiedlicher Priorität bearbeitet werden. Es soll somit durch das Priorisieren von zeitkritischen Aufgaben und der dynamischen Ressourcenzuweisung dem Ziel einer gerechten und effizienten Prozessverwaltung weiter nähergekommen werden.
+Beim Multilevel Queue Scheduling Verfahren werden zunächst die aktuell offenen, zu bearbeitenden Prozesse unterschiedlichen Warteschlangen dauerhaft zugewiesen. Diese Einteilung kann auf Grundlage unterschiedlicher Kriterien geschehen und ausschlaggebend können beispielsweise Speichergröße, Prozesspriorität oder der Prozesstyp sein. Eine einfache Aufteilung ist die Zuordnung in Vordergrundaktivitäten und Hintergrundaktivitäten, sodass die eine Gruppe interaktive Prozesse umfasst, welche zeitnah abgearbeitet werden müssen und die andere Gruppe eher statische Prozesse, die ggf. auch länger für die Bearbeitung benötigen. Jede der so geformten Warteschlagen kann unabhängig, auf unterschiedliche Art und Weise bearbeitet werden und verfügt über einen eigenen Scheduling-Algorithmus. So ist es üblich, die Warteschlange für Vordergrundaktivitäten nach dem Round Robin Prinzip abgearbeitet wird, während bei der anderen Warteschlange mit Hintergrundaktivitäten das First Come First Serve Prinzip Anwendung findet. %Ggf. hier noch eine Begründung geben
+Neben den unterschiedlichen Verfahren, die innerhalb der Wartschlangen stattfinden, gibt es ein einfaches Scheduling-Verfahren zur Verwaltung der Warteschlangen untereinander. Dieses ist für gewöhnlich mit einer festen Priorisierung und präemptiv implementiert. Das bedeutet, dass Warteschlangen absolute Prioritäten über anderen haben und eine höher priorisierte Wartschlange zunächst vollständig abgearbeitet wird, gleichzeitig die Bearbeitung einer niedrig priorisierten Warteschlange aber zugunsten neuer Prozesse in einer anderen Schlange unterbrochen werden kann \cite[S.214 f.]{Silberschatz.2019}.
 
 \begin{algorithm}
-	\caption{Multilevel Queue Scheduling Algorithmus mit \ac{FCFS} and Round Robin}
-	\label{alg:mlq}
+	\caption{Multilevel-Queue-Scheduling} \label{algo:mlq}
 	\begin{algorithmic}[1]
-		\Procedure{MLQ}{$queues$, $processes$, $quantum$}
-		\State Assign each process to a queue based on its priority or category
-		\For{each $queue$ in $queues$}
-		\If{queue is for interactive tasks}
-		\State Apply Round Robin Scheduling (Refer to Round Robin Algorithm) with quantum $quantum$
-		\State Execute interactive tasks in $queue$ using RR
-		\ElsIf{queue is for background tasks}
-		\State Apply First-Come, First-Served Scheduling (Refer to FCFS Algorithm)
-		\State Execute background tasks in $queue$ using FCFS
+		
+		\State \textbf{Initialize:} $n$ Warteschlangen $Q_1, Q_2, \ldots, Q_n$, jede mit ihrem eigenen Scheduling-Algorithmus $S_1, S_2, \ldots, S_n$
+		\State Zuweisung von jedem Prozess, basierend auf seinem Typ oder seiner Priorität, in eine Warteschlange
+		
+		\While{es noch zu abzuarbeitende Prozesse gibt}
+		\For{jede Warteschlange $Q_i$ in Prioritätsreihenfolge}
+		\If{$Q_i$ nicht leer ist}
+		\State Wähle einen Prozess $P$ aus $Q_i$ mithilfe des Scheduling-Algorithmus $S_i$
+		\State Führe Prozess $P$ aus
+		\If{Prozess $P$ abgeschlossen ist}
+		\State Entferne $P$ aus $Q_i$
+		\ElsIf{ein Prozess mit höherer Priorität eintrifft}
+		\State Unterbreche $P$ und füge ihn zurück in $Q_i$ ein
+		\EndIf
 		\EndIf
 		\EndFor
-		\State \textbf{return} scheduling results for each process
-		\EndProcedure
+		\EndWhile
+		
 	\end{algorithmic}
 \end{algorithm}
 
-Der Pseudocode aus Abbildung \ref{alg:mlq} beschreibt, wie bei \ac{MLQ} verschiedene Warteschlangen für interaktive und Hintergrundtasks verwendet werden, wobei für interaktive Tasks der Round Robin und für Hintergrundtasks der \ac{FCFS} angewendet wird.
+Der Algorithmus in \ref{algo:mlq} stellt dar, wie das \ac{MLQ}-Verfahren im Allgemeinen mit einer beliebigen Anzahl an Warteschlangen abläuft.
+In einem vereinfachen Beispiel mit zwei Warteschlangen würden zunächst die Vordergrundaktivitäten nach dem Round Robin Verfahren abgearbeitet und sobald diese Wartschlange leer ist, die Hintergrundaktivitäten mittels First Come First Serve erledigt werden. Tritt während der Bearbeitung der Hintergrundaktivitäten ein Vordergrundprozess auf, wird diese Bearbeitung solange unterbrochen, bis wieder alle Vordergrundaktivitäten abgearbeitet sind.
+Das Verfahren ist hierbei nicht wie in diesem Beispiel auf zwei Warteschlangen beschränkt, sondern kann um eine Vielzahl an Schlangen für verschiedene Prozesseigenschaften erweitert werden, wie in Abbildung \ref{fig:mlq_queues} dargestellt.
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=\linewidth]{img/mlq.pdf}
+	\caption{Darstellung des \ac{MLQ}-Schedulings mit mehreren Warteschlangen \cite[S.215]{Silberschatz.2019}} 
+	\label{fig:mlq_queues} 
+\end{figure}
 
-Der zentrale Vorteil von \ac{MLQ} liegt in dessen Flexibilität und Effizienz bei der Behandlung verschiedener Prozesstypen. Beispielsweise können Systemprozesse, interaktive Prozesse und Batch-Prozesse in verschiedenen Warteschlangen mit entsprechenden Prioritäten und Scheduling-Strategien verwaltet werden. Hierdurch wird eine bessere Anpassung an die Anforderungen spezifischer Prozesstypen erreicht, was zu einer verbesserten Gesamtleistung des Systems führt. % Tanenbaum und Bos (2014) 
+Das Multilevel Queue Scheduling Verfahren bietet aufgrund seiner erweiterten Komplexität gegenüber herkömmlichen deutlich einfacheren Verfahren einige Vorteile, aber auch Nachteile. So ist positiv zu bemerken, dass die Reaktionszeit des Systems durch die effizientere Ressourcenallokation reduziert werden kann und die Nutzererfahrung durch die schnellere Abarbeitung von interaktiven Prozessen verbessert wird. Des Weiterem kann mit diesem Verfahren unter den richtigen Umständen der Durchsatz gesteigert werden und das System ggf. auch Prozesse unterschiedlicher Schlangen gleichzeitig ausführen, welches zu der Effizienz des Systems beiträgt. Negativ zu betrachten sind hingegen die erhöhte Komplexität beim Design eines effizienten Systems sowie der zusätzliche Arbeitsaufwand zur Verwaltung der mehreren Warteschlangen untereinander, welcher die Performance des Systems wiederum lindern kann. Ein weiteres Problem ist das „Verhungern“ von Prozessen in einer Warteschlange mit niedrigerer Priorität, welches auftreten kann, wenn zu viele, große Prozesse in anderen Schlangen zuerst abgearbeitet werden müssen.
+Um diesem Nachteilen des „Verhungerns“ von Prozessen entgegenzuwirken, gibt es Weiterentwicklungen der einfachen Multilevel Queue wie beispielsweise das heute verbreitete Multilevel Feedback Queue Verfahren. Hier sind die Prozesse nicht komplett fest einer Warteschlange zugeordnet, sondern können auch zu einem späteren Zeitpunkt noch in eine andere Schlange verschoben werden. Dies hilft dabei, dass das System besser auf die Bearbeitungszeiten der Prozesse reagieren kann und keine Prozesse vernachlässigt werden.
+%könnte man ggf. noch im Detail ausführen, falls wir mehr Text brauchen
 
-Ein Nachteil von \ac{MLQ} liegt allerdings in seiner Komplexität, sowohl in der Implementierung als auch im Management. Die korrekte Einordnung von Prozessen in Warteschlangen und die Auswahl geeigneter Scheduling-Algorithmen für jede Warteschlange erfordern sorgfältige Planung und ständige Anpassung. Eine nachteilige Auswahl und Konfiguration dieser Algorithmen kann zu einem erhöhten Overhead führen und die Systemeffizienz negativ beeinträchtigen. % Stallings (2012)
 
-Trotz dieser Herausforderungen ist \ac{MLQ} ein beliebter Scheduling Algorithmus in Betriebssystemen, insbesondere dort, wo eine Vielzahl unterschiedlicher Prozesse und Anforderungen effizient verwaltet werden muss.
+%%%%
+%Der zentrale Vorteil von \ac{MLQ} liegt in dessen Flexibilität und Effizienz bei der Behandlung verschiedener Prozesstypen. Beispielsweise können Systemprozesse, interaktive Prozesse und Batch-Prozesse in verschiedenen Warteschlangen mit entsprechenden Prioritäten und Scheduling-Strategien verwaltet werden. Hierdurch wird eine bessere Anpassung an die Anforderungen spezifischer Prozesstypen erreicht, was zu einer verbesserten Gesamtleistung des Systems führt. % Tanenbaum und Bos (2014) 
+
+%Ein Nachteil von \ac{MLQ} liegt allerdings in seiner Komplexität, sowohl in der Implementierung als auch im Management. Die korrekte Einordnung von Prozessen in Warteschlangen und die Auswahl geeigneter Scheduling-Algorithmen für jede Warteschlange erfordern sorgfältige Planung und ständige Anpassung. Eine nachteilige Auswahl und Konfiguration dieser Algorithmen kann zu einem erhöhten Overhead führen und die Systemeffizienz negativ beeinträchtigen. % Stallings (2012)
+
+%Trotz dieser Herausforderungen ist \ac{MLQ} ein beliebter Scheduling Algorithmus in Betriebssystemen, insbesondere dort, wo eine Vielzahl unterschiedlicher Prozesse und Anforderungen effizient verwaltet werden muss.
 
 %\textit{Referenzen:}
 %\begin{itemize}
@@ -38,18 +57,5 @@ Trotz dieser Herausforderungen ist \ac{MLQ} ein beliebter Scheduling Algorithmus
 %	\item Tanenbaum, A. S., \& Bos, H. (2014). Modern Operating Systems. Pearson.
 %	\item Stallings, W. (2012). Operating Systems: Internals and Design Principles. Prentice Hall.
 %\end{itemize}
-
-% MLQ Text Benedikt eine erste Version (kann ggf. mit dem oberen zusammengeführt werden)
-Aufbauen auf anderen Prozess-Schedulern, wie bspw. den zuvor beschriebenen First Come First Serve oder Round-Robin Prinzip gibt es weitere Verfahren, welche durch eine erweiterte Komplexität beabsichtigen zuvor entwickelte Prinzipien und Stärken zu vereinen und Schwächen zu umgehen. Eines dieser Verfahren ist das Multilevel Queue Scheduling. Es handelt sich hierbei um einen Algorithmus, bei welchem Prozess abhängig ihrer Eigenschaften in verschiedene Kategorien eingeteilt und anschließend entsprechend mit unterschiedlicher Priorität bearbeitet werden. Es soll somit, durch das Priorisieren von zeitkritischen Aufgaben und der dynamischen Ressourcenzuweisung, dem Ziel einer gerechten und effizienten Prozessverwaltung weiter nähergekommen werden.
-Beim Multilevel Queue Scheduling Verfahren werden zunächst die aktuell offenen, zu bearbeitenden Prozesse unterschiedlichen Warteschlangen dauerhaft zugewiesen. Diese Einteilung kann auf Grundlage unterschiedlicher Kriterien geschehen und ausschlaggebend können Speichergröße, Prozesspriorität oder der Prozesstyp sein. Eine einfache Aufteilung ist beispielweise die Zuordnung in Vordergrundaktivitäten und Hintergrundaktivitäten sodass die erstere Gruppe interaktive Prozess umfasst welche zeitnah abgearbeitet werden müssen und die zweitere Gruppe eher statische Prozesse die ggf. auch länger für die Bearbeitung benötigen. Jede der so geformten Warteschlagen kann unabhängig, auf unterschiedliche Art und Weise bearbeitet werden und verfügt über einen eigenen Scheduling-Algorithmus. So ist es bspw. üblich die Warteschlange für Vordergrundaktivitäten nach dem Round Robin Prinzip abgearbeitet werden, währen bei der zweiten Warteschlange der Hintergrundaktivitäten das First Come First Serve Prinzip Anwendung findet. Dies hat den Hintergrund, dass ? %TODO: Eigenschaften RR, FCFS nochmal angucken und erlärung beenden 
-Neben der unterschiedlichen Verfahren die innerhalb der Wartschlangen stattfinden gibt es ein einfaches Scheduling-Verfahren zur Verwaltung der Warteschlangen untereinander. Dieses ist für gewöhnlich mit einer festen Priorisierung und Präemptiv implementiert. Das bedeutet, dass Warteschlangen absolute Prioritäten über anderen haben und eine höher priorisierte Wartschlange zunächst vollständig abgearbeitet wird, gleichzeitig die Bearbeitung einer niedrig priorisieren Warteschlange aber zugunsten neuer Prozesse in einer anderen Schlange unterbrochen werden kann. 
-In dem einfachen Beispiel mit zwei Warteschlangen würden daher zunächst die Vordergrundaktivitäten nach dem Round Robin Verfahren abgearbeitet und sobald diese Wartschlange leer ist die Hintergrundaktivitäten mittels First Come First Serve erledigt werden. Tritt während der Bearbeitung der Hintergrundaktivitäten ein Vordergrundprozess auf wird diese Bearbeitung solange unterbrochen, bis wieder alle Vordergrundaktivitäten abgearbeitet sind.
-Das Verfahren ist hierbei nicht wie in diesem Beispiel auf zwei Warteschlangen beschränkt, sondern kann um eine Vielzahl an Schlangen für verschiedene Prozesseigenschaften erweitert werden, wie in Abbildung X dargestellt.
-%TODO: ggf. Abbildung nachbauen.
-Das Multilevel Queue Scheduling Verfahren bietet aufgrund seiner erweiterten Komplexität gegenüber herkömmlichen deutlich einfacheren Verfahren einige Vorteile aber auch Nachteile. So ist positiv zu bemerken, dass die Reaktionszeit des Systems durch die effizientere Ressourcenallokation reduziert werden kann und die Nutzererfahrung durch die schnellere Abarbeitung von interaktiven Prozessen verbessert wird. Desweiterem kann mit diesem Verfahren der Durchsatz gesteigert werden und das System ggf. auch Prozesse unterschiedlicher Schlangen gleichzeitig ausführen, welches zu der Effizienz des Systems beiträgt. Negativ zu betrachten ist hingegen die erhöhte Komplexität beim Design eines effizienten Systems, sowie der zusätzliche Arbeitsaufwand zur Verwaltung der mehreren Warteschlangen untereinander, welches die Performance des Systems wiederum lindern kann. Ein weiteres Problem ist das „Verhungern“ von Prozess in einer Warteschlange mit niedrigere Priorität, welches auftreten kann wenn zu viele, große Prozesse in anderen Schlangen zuerst abgearbeitet werden müssen.
-Um diesem Nachteilen des „Verhungerns“ von Prozessen entgegenzuwirken gibt es Weiterentwicklungen der einfachen Multilevel Queue wie beispielsweise das heute verbreiterte Multilevel Feedback Queue Verfahren.
-%TODO: ggf. MLFQ kurz erklären
-
-% Hauptquelle: https://drive.uqu.edu.sa/_/mskhayat/files/MySubjects/2017SS%20Operating%20Systems/Abraham%20Silberschatz-Operating%20System%20Concepts%20(9th,2012_12).pdf S275
 
 
