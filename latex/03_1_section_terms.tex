@@ -1,12 +1,12 @@
 % !TEX root =  master.tex
 
 \section{Metriken}
-Um unterschiedliche Scheduling Algorithmen wie \ac{FCFS}, Round Robin oder \ac{MLQ} bezüglich ihrer Performance und somit ihrer Eignung für Anwendungsgebiete vergleichen zu können, ist es möglich zahlreiche diverse Metriken zu verwenden. Die Auswahl ist abhängig vom jeweiligen Anwendungsgebiet, beispielsweise wird in interaktiven Systemen eine geringe Antwortzeit priorisiert, während bei Batch-Processing-Systemen eine niedrige Ausführungszeit von höherer Relevanz ist \autocite{thombare_efficient_2016}. Im Folgenden werden häufig genutzte Metriken erklärt, welche im Anschluss für den quantitativen Vergleich verwendet werden.
+Um unterschiedliche Scheduling Algorithmen wie \ac{FCFS}, Round Robin oder \ac{MLQ} bezüglich ihrer Performance und somit ihrer Eignung für Anwendungsgebiete vergleichen zu können, ist es möglich diverse Metriken zu verwenden. Die Auswahl ist abhängig vom jeweiligen Anwendungsgebiet, beispielsweise wird in interaktiven Systemen eine geringe Antwortzeit priorisiert, während bei Batch-Processing-Systemen eine niedrige Ausführungszeit von höherer Relevanz ist \autocite{thombare_efficient_2016}. Im Folgenden werden häufig genutzte Metriken erklärt, welche im Anschluss für den quantitativen Vergleich verwendet werden.
 
 
 \textbf{\ac{CPU}-Auslastung (\ac{CPU} Utilization)}: Diese Metrik gibt an, wie effektiv die \ac{CPU} genutzt wird. Eine hohe \ac{CPU}-Auslastung bedeutet, dass die \ac{CPU} aktiv an Prozessen arbeitet, was ein Indikator auf eine effiziente Nutzung der Ressourcen ist \autocite{pemasinghe_comparison_2022}. Die folgende Formel \ref{met:cpu} berechnet den prozentualen Wert der \ac{CPU}-Auslastung, zu welcher die \ac{CPU} Prozesse bearbeitet, bezogen auf die gesamte Beobachtungszeit.
 \begin{equation}
-	\textit{CPU-Auslastung} = \frac{\textit{Gesamtaktive Zeit}}{\textit{Gesamtbeobachtungszeit}} \times 100\%
+	\textit{CPU-Auslastung} = \frac{\textit{Gesamtaktive Zeit}}{\textit{Gesamtbeobachtungszeit}} \times 100
 	\label{met:cpu}
 \end{equation}
 
@@ -18,28 +18,28 @@ Um unterschiedliche Scheduling Algorithmen wie \ac{FCFS}, Round Robin oder \ac{M
 \end{equation}
 
 
-\textbf{Antwortzeit (Response Time)}: Die Antwortzeit berechnet die Zeit vom Beginn eines Prozesses bis zur ersten Antwort. Diese Metrik ist besonders wichtig in interaktiven Systemen, wo eine schnelle Reaktion auf Benutzereingaben erforderlich ist  \autocite{pemasinghe_comparison_2022}. In Formel \ref{met:responsetime} wird die Berechnung der Wartezeit dargestellt, welche die durchschnittliche Antwortzeit über alle \( n \) Prozesse ist.
+\textbf{Durchschnittliche Antwortzeit (Response Time)}: Die Antwortzeit berechnet die Zeit vom Beginn eines Prozesses bis zur ersten Antwort. Diese Metrik ist besonders wichtig in interaktiven Systemen, wo eine schnelle Reaktion auf Benutzereingaben erforderlich ist  \autocite{pemasinghe_comparison_2022}. In Formel \ref{met:responsetime} wird die Berechnung der Wartezeit dargestellt, welche die durchschnittliche Antwortzeit über alle \( n \) Prozesse ist.
 \begin{equation}
-	\textit{Antwortzeit} = \frac{\sum_{i=1}^{n} \textit{Antwortzeit Prozess}_{i}}{n}
+	\textit{Durchschnittliche Antwortzeit} = \frac{\sum_{i=1}^{n} (\textit{Startzeit}_{i} - \textit{Ankunftszeit}_{i})}{n}
 	\label{met:responsetime}
 \end{equation}
 
 
-\textbf{Wartezeit (Waiting Time)}: Die Wartezeit eines Prozesses ist die Gesamtzeit, welche dieser in der Warteschlange verbringt, bevor er Zugang zur \ac{CPU} erhält  \autocite{pemasinghe_comparison_2022}. Niedrigere Wartezeiten sind meist erstrebenswert, da es sich hierdurch für gewöhnlich um ein reaktionsfähigeres System handelt. In folgender Formel \ref{met:waitingtime} ist \( n \) die Anzahl der Prozesse, und die Wartezeit wird als Durchschnitt der Zeit berechnet, die jeder Prozess vom Ankunftszeitpunkt bis zum Start der Ausführung wartet.
+\textbf{Durchschnittliche Wartezeit (Waiting Time)}: Die Wartezeit eines Prozesses ist die Gesamtzeit, welche dieser in der Warteschlange verbringt, bevor er Zugang zur \ac{CPU} erhält  \autocite{pemasinghe_comparison_2022}. Niedrigere Wartezeiten sind meist erstrebenswert, da es sich hierdurch für gewöhnlich um ein reaktionsfähigeres System handelt. In folgender Formel \ref{met:waitingtime} ist \( n \) die Anzahl der Prozesse, und die Wartezeit wird als Durchschnitt der Zeit berechnet, die jeder Prozess vom Ankunftszeitpunkt bis zum Start der Ausführung wartet.
 \begin{equation}
-\textit{Wartezeit} = \frac{\sum_{i=1}^{n} \textit{Wartezeit Prozess}_{i}}{n}
-\label{met:waitingtime}
+	\textit{Durchschnittliche Wartezeit} = \frac{\sum_{i=1}^{n} ((\textit{Abschlusszeit}_{i} - \textit{Ankunftszeit}_{i}) - \textit{Bearbeitungszeit}_{i})}{n}
+	\label{met:waitingtime}
 \end{equation}
 
 
-\textbf{Ausführungszeit (Turnaround Time)}: Bei der Ausführungszeit handelt es sich um die gesamte Dauer vom Start eines Prozesses bis zu dessen Abschluss \autocite{pemasinghe_comparison_2022}. Es wird somit sowohl die Wartezeit, als auch die Bearbeitungszeit berücksichtigt, weshalb ein umfassenderer Vergleich bezüglich der Effizienz von Scheduling Algorithmen möglich ist. Die Ausführungszeit wird als durchschnittliche Gesamtzeit berechnet, die ein Prozess vom Ankunftszeitpunkt bis zum Abschluss benötigt.
+\textbf{Durchschnittliche Umlaufzeit (Turnaround Time)}: Bei der Umlaufzeit handelt es sich um die gesamte Dauer vom Start eines Prozesses bis zu dessen Abschluss \autocite{pemasinghe_comparison_2022}. Es wird somit sowohl die Wartezeit, als auch die Bearbeitungszeit berücksichtigt, weshalb ein umfassenderer Vergleich bezüglich der Effizienz von Scheduling Algorithmen möglich ist. Die Ausführungszeit wird als durchschnittliche Gesamtzeit berechnet, die ein Prozess vom Ankunftszeitpunkt bis zum Abschluss benötigt.
 \begin{equation}
-	\textit{Ausführungszeit} = \frac{\sum_{i=1}^{n} \textit{Ausführungszeit Prozess}_{i}}{n}
+	\textit{Durchschnittliche Umlaufzeit} = \frac{\sum_{i=1}^{n} (\textit{Abschlusszeit}_{i} - \textit{Ankunftszeit}_{i})}{n}
 	\label{met:turnaroundtime}
 \end{equation}
 
 
-\textbf{Fairness}: Die Metrik der Fairness misst, wie gleichmäßig die \ac{CPU}-Zeit zwischen den verschiedenen Prozessen aufgeteilt wird. Ein fairer Scheduling-Algorithmus stellt sicher, dass kein Prozess übermäßig bevorzugt oder benachteiligt wird \autocite{haldar_fairness_1991}. Es handelt sich hierbei um eine qualitative Metrik, weshalb es in der Literatur keine festgelegte Berechnung hierfür gibt. Stattdessen wird die Fairness oft durch die Analyse der Verteilung von den Wartezeiten über die verschiedenen Prozesse hinweg bewertet, beispielsweise durch die Berechnung der Standardabweichung. Folgende Formel \ref{met:fairness} stellt die beispielhafte Berechnung hiervon dar, wobei dies nicht als universeller Weg angesehen wird. 
+\textbf{Fairness}: Die Metrik der Fairness misst, wie gleichmäßig die \ac{CPU}-Zeit zwischen den verschiedenen Prozessen aufgeteilt wird. Ein fairer Scheduling-Algorithmus stellt sicher, dass kein Prozess übermäßig bevorzugt oder benachteiligt wird \autocite{haldar_fairness_1991}. Es handelt sich hierbei um eine qualitative Metrik, weshalb es in der Literatur keine festgelegte Berechnung hierfür gibt. Stattdessen wird die Fairness oft durch die Analyse der Verteilung von den Wartezeiten über die verschiedenen Prozesse hinweg bewertet, beispielsweise durch die Berechnung der Standardabweichung. Folgende Formel \ref{met:fairness} stellt die beispielhafte Berechnung hiervon dar, wobei dies nicht als universeller Weg angesehen wird.
 \begin{equation}
 	\textit{Fairness} = \sqrt{\frac{\sum_{i=1}^{n} (\textit{Wartezeit Prozess}_{i} - \textit{durchschnittliche Wartezeit})^2}{n}}
 	\label{met:fairness}

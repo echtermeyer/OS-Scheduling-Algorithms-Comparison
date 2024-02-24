@@ -1,35 +1,38 @@
 % !TEX root =  master.tex
 
-
+% https://learning.oreilly.com/library/view/operating-system-concepts/9780471694663/ch05.html#basic_concepts
+% TODO
+% \cite{bkm.161604526420090101}
 \section{First-Come-First-Serve}
 
-Einer der grundlegenden Scheduling Algorithmen für Betriebssysteme ist \ac{FCFS}, welcher auch als \ac{FIFO} bekannt ist. \ac{FCFS} verarbeitet eingehende Prozesse in der Reihenfolge ihres Eintreffens, wobei der zuerst ankommende Prozess als erstes prozessiert wird. Implementiert wird \ac{FCFS} für gewöhnlich als Warteschlange, aus welcher eingehende Prozesse anschließend sequentiell verarbeitet werden können. 
+Einer der grundlegenden Scheduling Algorithmen für Betriebssysteme ist \ac{FCFS}, welcher auch als \ac{FIFO} bekannt ist. \ac{FCFS} verarbeitet eingehende Prozesse in der Reihenfolge ihres Eintreffens, wobei der zuerst ankommende Prozess als erstes prozessiert wird \cite{ANTHONY201621}.
+Implementiert wird \ac{FCFS} für gewöhnlich als Warteschlange, aus welcher eingehende Prozesse anschließend sequentiell verarbeitet werden können. 
 
-%\begin{algorithm}
-%	\caption{\ac{FCFS} Scheduling Algorithm}
-%	\label{alg:fcfs}
-%	\begin{algorithmic}[1]
-%		\Procedure{FCFS}{$processes$}
-%		\State $n \gets \text{length}(processes)$
-%		\State Sort $processes$ by arrival time
-%		\For{$i \gets 1$ to $n$}
-%		\If{$i = 1$}
-%		\State $start\_time[i] \gets processes[i].arrival$
-%		\Else
-%		\State $start\_time[i] \gets \max(processes[i].arrival, finish\_time[i-1])$
-%		\EndIf
-%		\State $finish\_time[i] \gets start\_time[i] + processes[i].burst$
-%		\State $waiting\_time[i] \gets start\_time[i] - processes[i].arrival$
-%		\State $turnaround\_time[i] \gets finish\_time[i] - processes[i].arrival$
-%		\EndFor
-%		\State \textbf{return} $start\_time$, $finish\_time$, $waiting\_time$, $turnaround\_time$
-%		\EndProcedure
-%	\end{algorithmic}
-%\end{algorithm}
+% \begin{algorithm}
+% 	\caption{\ac{FCFS} Scheduling Algorithm}
+% 	\label{alg:fcfs}
+% 	\begin{algorithmic}[1]
+% 		\Procedure{FCFS}{$processes$}
+% 		\State $n \gets \text{length}(processes)$
+% 		\State Sort $processes$ by arrival time
+% 		\For{$i \gets 1$ to $n$}
+% 		\If{$i = 1$}
+% 		\State $start\_time[i] \gets processes[i].arrival$
+% 		\Else
+% 		\State $start\_time[i] \gets \max(processes[i].arrival, finish\_time[i-1])$
+% 		\EndIf
+% 		\State $finish\_time[i] \gets start\_time[i] + processes[i].burst$
+% 		\State $waiting\_time[i] \gets start\_time[i] - processes[i].arrival$
+% 		\State $turnaround\_time[i] \gets finish\_time[i] - processes[i].arrival$
+% 		\EndFor
+% 		\State \textbf{return} $start\_time$, $finish\_time$, $waiting\_time$, $turnaround\_time$
+% 		\EndProcedure
+% 	\end{algorithmic}
+% \end{algorithm}
 
 Der Pseudocode in Abbildung \ref{alg:fcfs} implementiert den \ac{FCFS}-Scheduling-Algorithmus für einen Satz von Prozessen. Dabei wird angenommen, dass jeder Prozess Eigenschaften wie Ankunftszeit (arrival) und Ausführungszeit (burst) hat. Der Algorithmus berechnet die Startzeit, Endzeit, Wartezeit und Umlaufzeit für jeden Prozess. 
 
-Der große Vorteil von \ac{FCFS} liegt in dessen Einfachheit und der hieraus resultierenden leichten Implementierbarkeit. Daher wird dieser auch oft in Lehrbüchern im Kontext grundlegender Betriebssystemkonzepte diskutiert. % Silberschatz, Galvin und Gagne (2018)
+Der große Vorteil von \ac{FCFS} liegt in dessen Einfachheit und der hieraus resultierenden leichten Implementierbarkeit. Daher wird dieser auch oft in Lehrbüchern im Kontext grundlegender Betriebssystemkonzepte diskutiert. \cite{silberschatz2018pb} % Silberschatz, Galvin und Gagne (2018)
 Zudem ist \ac{FCFS} transparent und einfach vorhersehbar, da die Reihenfolge und Bearbeitungsdauer aller Prozesse lediglich von deren Ankunftszeiten abhängig ist. Ein zusätzlicher Vorteil liegt in der fairen Behandlung aller Prozesse, welche ohne Bevorzugung stattfindet, da jeder Prozess in der Reihenfolge seines Eintreffens bearbeitet wird. % (Stallings, 2012)
 
 Nichtsdestotrotz, weist \ac{FCFS} auch signifikante Nachteile auf, weshalb in der Praxis meist von einer alleinigen Nutzung dieses Algorithmus abgesehen wird. Das wesentliche Problem ist nämlich der Convoy-Effekt, bei dem ein langer Prozess, der früh in der Warteschlange erscheint, nachfolgende, kürzere Prozesse verzögert. Diese Situation führt zu einer ineffizienten \ac{CPU}-Auslastung und verlängerten Wartezeiten. % Tanenbaum, Bos (2014) 
