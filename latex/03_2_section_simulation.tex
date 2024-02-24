@@ -21,37 +21,37 @@ Des Weiteren wird die Bearbeitungsdauer \textit{burst\_time} basierend auf einer
 	\centering
 	\begin{tabular}{ll}
 		\toprule
-		Parameter & Beschreibung \\
+		Parameter                              & Beschreibung                                   \\
 		\midrule
-		Anzahl der Prozesse & 100 (für eine umfangreiche Evaluation) \\
-		Durchschnittliche Burst-Zeit & 250 ms (durchschnittliche Ausführungszeit) \\
-		Standardabweichung der Burst-Zeit & 600 ms (für breite Streuung der Anforderungen) \\
-		Prozentsatz der Hochprioritätsprozesse & 20\% (ein Fünftel aller Prozesse) \\
-		Variation der Ankunftszeit & 100 ms (für unterschiedliche Ankunftsmuster) \\
+		Anzahl der Prozesse                    & 100 (für eine umfangreiche Evaluation)         \\
+		Durchschnittliche Burst-Zeit           & 250 ms (durchschnittliche Ausführungszeit)     \\
+		Standardabweichung der Burst-Zeit      & 600 ms (für breite Streuung der Anforderungen) \\
+		Prozentsatz der Hochprioritätsprozesse & 20\% (ein Fünftel aller Prozesse)              \\
+		Variation der Ankunftszeit             & 100 ms (für unterschiedliche Ankunftsmuster)   \\
 		\bottomrule
 	\end{tabular}
-		\caption{Parameter für die Erstellung des Prozess-Datensatzes}
+	\caption{Parameter für die Erstellung des Prozess-Datensatzes}
 	\label{tab:process_dataset_parameters}
 \end{table}
 
-Nach der Erstellung des Datensatzes werden diese Prozesse nun von \ac{FCFS}, Round Robin und \ac{MLQ} scheduled und abgearbeitet. Die zuvor erläuterten Metriken werden berechnet und in Tabelle \ref{tab:scheduling_comparison} dargestellt. 
+Nach der Erstellung des Datensatzes werden diese Prozesse nun von \ac{FCFS}, Round Robin und \ac{MLQ} scheduled und abgearbeitet. Die zuvor erläuterten Metriken werden berechnet und in Tabelle \ref{tab:scheduling_comparison} dargestellt.
 
 \begin{table}[htbp]
 	\centering
 	\begin{tabular}{lccc}
 		\toprule
-		Metrik & FCFS & Round Robin & MLQ \\
+		Metrik                       & FCFS      & Round Robin & MLQ       \\
 		\midrule
-		Durchschnittliche Wartezeit & 43.65 ms & 31.37 ms & 43.02 ms \\
-		Durchschnittliche Umlaufzeit & 339.73 ms & 327.45 ms & 339.10 ms \\
-		Unfairness-Index & 148.68  & 91.22  & 147.14  \\
-		Kontextwechsel & 100.00  & 678.00  & 165.00  \\
+		Durchschnittliche Wartezeit  & 43.65 ms  & 31.37 ms    & 43.02 ms  \\
+		Durchschnittliche Umlaufzeit & 339.73 ms & 327.45 ms   & 339.10 ms \\
+		Unfairness-Index             & 148.68    & 91.22       & 147.14    \\
+		Kontextwechsel               & 100.00    & 678.00      & 165.00    \\
 		\bottomrule
 	\end{tabular}
 	\caption{Vergleich der Scheduling-Algorithmen}
 	\label{tab:scheduling_comparison}
 \end{table}
 
-Bei Betrachtung der Ergebnisse wird deutlich, dass Round Robin eine geringere durchschnittliche Wartezeit im Vergleich zu \ac{FCFS} und \ac{MLQ} aufweisen kann. Dies ist der Fall, da mithilfe der Einteilung in Quanten Prozesse gleichmäßiger verarbeitet und Bottlenecks vermieden werden. Obwohl \ac{MLQ} ebenfalls diese Funktionsweise für die Prozesse mit hoher Priorität beinhaltet, sind diese Effekte nur marginal sichtbar. Ähnlich verhält es sich mit der durchschnittlichen Umlaufzeit, welche neben der Wartezeit auch die Ausführungszeit beinhaltet. Auch beim Unfairness-Index, bei welchem geringe Werte zu priorisieren sind, da diese auf eine faire Abarbeitung der Prozesse hinweisen, wird deutlich, dass Round Robin die Prozesse gleichmäßiger abarbeiten kann. Diese Vorteile in der Wartezeit, Umlaufzeit und der Fairness haben allerdings den Preis einer höheren Anzahl an Kontextwechseln. Round Robin kann diese Vorteile nämlich nur erzielen, indem regelmäßig zwischen den Prozessen rotiert wird. Diese Kontextwechsel führen zu Overhead des gesamten Systems. Da die zeitliche Größe dieser Kontextwechsel sehr systemabhängig ist und von zahlreichen Faktoren abhängt, wurde diese nicht simuliert. Grundlegend können hierbei Werte zwischen wenigen Mikrosekunden bis hin zu etwa einer Mikrosekunde angenommen werden. 
+Bei Betrachtung der Ergebnisse wird deutlich, dass Round Robin eine geringere durchschnittliche Wartezeit im Vergleich zu \ac{FCFS} und \ac{MLQ} aufweisen kann. Dies ist der Fall, da mithilfe der Einteilung in Quanten Prozesse gleichmäßiger verarbeitet und Bottlenecks vermieden werden. Obwohl \ac{MLQ} ebenfalls diese Funktionsweise für die Prozesse mit hoher Priorität beinhaltet, sind diese Effekte nur marginal sichtbar. Ähnlich verhält es sich mit der durchschnittlichen Umlaufzeit, welche neben der Wartezeit auch die Ausführungszeit beinhaltet. Auch beim Unfairness-Index, bei welchem geringe Werte zu priorisieren sind, da diese auf eine faire Abarbeitung der Prozesse hinweisen, wird deutlich, dass Round Robin die Prozesse gleichmäßiger abarbeiten kann. Diese Vorteile in der Wartezeit, Umlaufzeit und der Fairness haben allerdings den Preis einer höheren Anzahl an Kontextwechseln. Round Robin kann diese Vorteile nämlich nur erzielen, indem regelmäßig zwischen den Prozessen rotiert wird. Diese Kontextwechsel führen zu Overhead des gesamten Systems. Da die zeitliche Größe dieser Kontextwechsel sehr systemabhängig ist und von zahlreichen Faktoren abhängt, wurde diese nicht simuliert. Grundlegend können hierbei Werte zwischen wenigen Mikrosekunden bis hin zu etwa einer Mikrosekunde angenommen werden.
 
 Die Simulation zeigt auf, dass \ac{FCFS}, Round Robin und \ac{MLQ} jeweils individuelle Stärken und Schwächen besitzen. Während \ac{FCFS} die Anzahl der Kontextwechsel minimiert und hierdurch ein effizientes System darstellt, bieten Round Robin und \ac{MLQ} deutliche Vorteile für interaktive Systeme, bei welchen eine schnelle Reaktion auf Prozesse hoher Priorität entscheidend ist. Die Auswahl der jeweiligen Scheduling Algorithmen kann daher nicht pauschalisiert werden, sondern hängt stark vom spezifischen Anwendungsfall ab.

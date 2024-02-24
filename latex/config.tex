@@ -35,6 +35,8 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{amsmath}
+\usepackage{enumitem}                   % Adjust spacing between itemizing
+\usepackage{multicol}
 
 \usepackage{listings}
 \usepackage{xcolor}
@@ -64,7 +66,7 @@
 % 0) without decomment: normal font families 
 % ...
 % 1) Latin Modern 
-\usepackage{lmodern}        
+\usepackage{lmodern}
 % 2) Times 
 %\usepackage{mathptmx}         
 % 3) Helvetica
@@ -106,7 +108,7 @@
 
 %	LISTINGS
 % @stud: ggf. Namen/Text anpassen (englisch)
-\renewcommand{\lstlistingname}{Quelltext} 
+\renewcommand{\lstlistingname}{Quelltext}
 \renewcommand{\lstlistlistingname}{Quelltextverzeichnis}
 \lstset{numbers=left,
 	numberstyle=\tiny,
@@ -149,13 +151,14 @@
 \newcommand{\settingBibFootnoteCite}{
 	\setlength{\bibparsep}{\parskip}		  % Add some space between biblatex entries in the bibliography
 	\addbibresource{bibliography.bib}	    % Add file bibliography.bib as biblatex resource
+	\addbibresource{bibliography3.bib}
 	\DefineBibliographyStrings{ngerman}{andothers = {{et\,al\adddot}},}
 }
 
 \newcommand{\setTitlepage}{
 	\input{titlepage}
 	\pagenumbering{roman} % Römische Seitennummerierung
-	\normalfont	
+	\normalfont
 }
 
 \newcommand{\initializeText}{
@@ -166,13 +169,13 @@
 
 \newcommand{\initializeBibliography}{
 	\ihead{}
-	\printbibliography[title=\Literaturverzeichnis] 
+	\printbibliography[title=\Literaturverzeichnis]
 	\cleardoublepage
 }
 
 \newcommand{\initializeAppendix}{
 	\appendix
-  \ihead{}
-  \cftaddtitleline{toc}{chapter}{Anhang}{}
+	\ihead{}
+	\cftaddtitleline{toc}{chapter}{Anhang}{}
 }
 

@@ -8,10 +8,10 @@ Neben den unterschiedlichen Verfahren, die innerhalb der Wartschlangen stattfind
 \begin{algorithm}
 	\caption{Multilevel-Queue-Scheduling} \label{algo:mlq}
 	\begin{algorithmic}[1]
-		
+
 		\State \textbf{Initialize:} $n$ Warteschlangen $Q_1, Q_2, \ldots, Q_n$, jede mit ihrem eigenen Scheduling-Algorithmus $S_1, S_2, \ldots, S_n$
 		\State Zuweisung von jedem Prozess, basierend auf seinem Typ oder seiner Priorität, in eine Warteschlange
-		
+
 		\While{es noch zu abzuarbeitende Prozesse gibt}
 		\For{jede Warteschlange $Q_i$ in Prioritätsreihenfolge}
 		\If{$Q_i$ nicht leer ist}
@@ -25,7 +25,7 @@ Neben den unterschiedlichen Verfahren, die innerhalb der Wartschlangen stattfind
 		\EndIf
 		\EndFor
 		\EndWhile
-		
+
 	\end{algorithmic}
 \end{algorithm}
 
@@ -35,8 +35,8 @@ Das Verfahren ist hierbei nicht wie in diesem Beispiel auf zwei Warteschlangen b
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=\linewidth]{img/mlq.pdf}
-	\caption{Darstellung des \ac{MLQ}-Schedulings mit mehreren Warteschlangen \cite[S.215]{Silberschatz.2019}} 
-	\label{fig:mlq_queues} 
+	\caption{Darstellung des \ac{MLQ}-Schedulings mit mehreren Warteschlangen \cite[S.215]{Silberschatz.2019}}
+	\label{fig:mlq_queues}
 \end{figure}
 
 Das Multilevel Queue Scheduling Verfahren bietet aufgrund seiner erweiterten Komplexität gegenüber herkömmlichen deutlich einfacheren Verfahren einige Vorteile, aber auch Nachteile. So ist positiv zu bemerken, dass die Reaktionszeit des Systems durch die effizientere Ressourcenallokation reduziert werden kann und die Nutzererfahrung durch die schnellere Abarbeitung von interaktiven Prozessen verbessert wird. Des Weiterem kann mit diesem Verfahren unter den richtigen Umständen der Durchsatz gesteigert werden und das System ggf. auch Prozesse unterschiedlicher Schlangen gleichzeitig ausführen, welches zu der Effizienz des Systems beiträgt. Negativ zu betrachten sind hingegen die erhöhte Komplexität beim Design eines effizienten Systems sowie der zusätzliche Arbeitsaufwand zur Verwaltung der mehreren Warteschlangen untereinander, welcher die Performance des Systems wiederum lindern kann. Ein weiteres Problem ist das „Verhungern“ von Prozessen in einer Warteschlange mit niedrigerer Priorität, welches auftreten kann, wenn zu viele, große Prozesse in anderen Schlangen zuerst abgearbeitet werden müssen.

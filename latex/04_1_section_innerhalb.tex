@@ -6,3 +6,35 @@ Ein häufiges Anwendungsgebiet von \ac{FCFS} ist für Aufgaben der Batch-Verarbe
 Round Robin hingegen ist ein weit verbreiteter Scheduling Algorithmus in zeitkritischen Betriebssystemen. Ein Beispiel hierfür ist das Thread-Scheduling in Unix-basierten Systemen, bei dem jedem Thread eine feste Zeitscheibe zugeteilt wird. %\textit{Referenz:} Tanenbaum, Andrew S., and Bos, Herbert. \textit{Modern Operating Systems}. 4th ed., Pearson, 2014.
 
 \ac{MLQ} wird in modernen Betriebssystemen wie Linux angewendet, um Prozesse basierend auf ihrer Priorität zu ordnen, wobei systemkritische Prozesse höher priorisiert werden als Benutzerprozesse. % \textit{Referenz:} Love, Robert. \textit{Linux Kernel Development}. 3rd ed., Addison-Wesley Professional, 2010.
+
+In modernen Betriebssystemen ist der Aufbau der Prozessverwaltung und Anwendung von Scheduling Algorithmen ein komplexes Thema, welches in der Praxis eine Vielzahl von Anforderungen erfüllen muss. Die hier vorgestellten Algorithmen sind nur ein kleiner Ausschnitt der Vielzahl von Scheduling Algorithmen, die in modernen Betriebssystemen zum Einsatz kommen.
+
+\subsubsection{Windows}
+Windows verwendet beispielsweise 7 Prioritätsstufen.
+Prozesse können sich selbst die folgenden Stufen zuweisen:
+\begin{multicols}{3}
+    \begin{itemize}[noitemsep]
+        \item IDLE
+        \item BELOW NORMAL
+        \item NORMAL
+        \item ABOVE NORMAL
+        \item HIGH
+        \item REALTIME
+    \end{itemize}
+\end{multicols}
+
+Innerhalb eines Prozesses können die einzelnen Threads dann jeweils 7 Prioritätsebenen haben, die die Threads untereinander sortieren:
+\begin{multicols}{3}
+    \begin{itemize}[noitemsep]
+        \item IDLE
+        \item LOWEST
+        \item BELOW NORMAL
+        \item NORMAL
+        \item ABOVE NORMAL
+        \item HIGHEST
+        \item CRITICAL
+    \end{itemize}
+\end{multicols}
+
+Windows verwendet beide Prioritätszuweisungen um dem Thread eine Basispriorität zu geben, die zwischen 0 und 31 liegt \autocite[vgl.]{KarlBridgeMicrosoft.2023}.
+
