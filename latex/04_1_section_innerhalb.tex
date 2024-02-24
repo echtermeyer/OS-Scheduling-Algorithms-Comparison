@@ -39,4 +39,18 @@ Innerhalb eines Prozesses können die einzelnen Threads dann jeweils 7 Prioritä
 Windows verwendet beide Prioritätszuweisungen um dem Thread eine Basispriorität zu geben, die zwischen 0 und 31 liegt \autocite{KarlBridgeMicrosoft.2023}.
 
 \subsubsection{MacOS}
-Mit der Einführung der neuen M-Serie Prozessoren unterteilt Apple die Prozessorkerne in Performance- und Effizienzkerne. Die Performancekerne sind für rechenintensive Aufgaben und die Effizienzkerne für weniger rechenintensive Aufgaben zuständig.
+Mit der Einführung der neuen M-Serie Prozessoren unterteilt Apple die Prozessorkerne in Performance- und Effizienzkerne. Die Performancekerne sind für rechenintensive Aufgaben und die Effizienzkerne für weniger rechenintensive Aufgaben zuständig \autocite{hoakley.2022}
+
+Allgemein verwendet MacOS ähnlich wie Windows verschiedene Prioritätsstufen oder Quality of Services, die sich in 4 Kategorien unterteilen lassen:
+\begin{multicols}{2}
+    \begin{itemize}[noitemsep]
+        \item Background
+        \item Utility
+        \item User Initiated
+        \item User Interactive
+    \end{itemize}
+\end{multicols}
+Prozesse der Priorität Background werden nur auf den Effizienzkernen ausgeführt, während Prozesse von höherer Priorität auf beiden Prozessorkernarten ausgeführt werden können.
+Entwickler können das Verhalten eines Prozesses steuern und beispielsweise festlegen, dass ein User Initiated Process trotz des hohen Quality of Service nur den Effizienzkern verwenden soll.
+Laut \Citeauthor{hoakley.2022b} wird innerhalb der einzelnen Prioritätsstufen eine Art \ac{FCFS} verwendet, wobei die Prozesse in der Reihenfolge ihres Eintreffens abgearbeitet werden \autocite{hoakley.2022b}. 
+
