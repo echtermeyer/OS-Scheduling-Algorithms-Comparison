@@ -1,9 +1,57 @@
 % !TEX root =  master.tex
-
-
 \section{Simulationsergebnisse}
-- Erst kurz den Aufbau beschreiben. 
-- Nutze einfach gleich so 10k an Prozesse und erkläre wie diese Prozesse erstellt wurden --> damit es nachvollziehbar sind. 
-- Dann kann ich erst eine Abbildung der Boxplots mitaufnehmen und zusätzlich noch eine Tabelle wo alles drinnen steht. 
-- Dann erklären was die bedeuten und was für Insights man ziehen kann. 
-- Am Ende noch eine Bestätigung, dass das mit der allgemeinen Literatur übereinstimmt
+Für eine Simulation der drei zuvor beschriebenen \ac{OS} Scheduling Algorithmen ist die Erstellung eines abzuarbeitenden Datensatzes mit Prozessen essentiell. Mithilfe einer randomisierten Generierung der Prozesse wird versucht eine möglichst hohe Vielzahl von Szenarien abzudecken, um die Leistungsfähigkeit der Algorithmen unter verschiedenen Bedingungen zu testen. Jeder Prozess besitzt hierbei die eine Ankunftszeit, Bearbeitungsdauer und eine geringe oder hohe Priorisierung, wie zu sehen im Quelltext \ref{lst:sequence-diagram-process}.
+
+\begin{lstlisting}[caption={Prozess mit Attributen in Python implementiert}, label={lst:sequence-diagram-process}]
+class Process:
+  def __init__(
+    self, id: int, arrival_time: int, burst_time: int, priority: str = "low"
+  ) -> None:
+	self.id = id
+	self.arrival_time = arrival_time
+	self.burst_time = burst_time
+	self.priority = priority
+\end{lstlisting}
+
+Für die randomisierte Generierung der Prozesseigenschaften wird zunächst die Ankunftszeit \textit{arrival\_time} der Prozesse bestimmt. Um eine realitätsnahe Simulation zu gewährleisten, wird die Ankunftszeit so variiert, dass sowohl gleichmäßig verteilte als auch in Clustern ankommende Prozesse im Datensatz vorhanden sind. Diese Variation wird durch Anpassung der Ankunftszeit jedes nachfolgenden Prozesses erreicht, wobei eine zufällige Abweichung berücksichtigt wird, um die Clusterbildung zu simulieren.
+
+Des Weiteren wird die Bearbeitungsdauer \textit{burst\_time} basierend auf einer Normalverteilung bestimmt, um realistische Variationen im Datensatz zu beinhalten. Hierbei sind die Parameter des Mittelwertes und der Standardabweichung zu wählen. Ein weiterer relevanter Parameter ist die Verteilung der Priorität \textit{priority} innerhalb des Datensatzes. Da zu hohe oder geringe Werte zu einer Vernachlässigung der Vorteile von Round Robin und \ac{MLQ} Scheduling führen, ist es wichtig hierbei eine Balance zu finden. Tabelle \ref{tab:process_dataset_parameters} zeigt die Wahl der unterschiedlichen Prozessparameter auf. Obwohl diese Parameter mit der Intention einer möglichst neutralen Verteilung der Prozesse sorgfältig festgelegt wurden, ist es wichtig zu betonen, dass die Prozessspezifikationen je nach Anwendungsfall abweichen können.
+
+\begin{table}[htbp]
+	\centering
+	\begin{tabular}{ll}
+		\toprule
+		Parameter & Beschreibung \\
+		\midrule
+		Anzahl der Prozesse & 100 (für eine umfangreiche Evaluation) \\
+		Durchschnittliche Burst-Zeit & 250 ms (durchschnittliche Ausführungszeit) \\
+		Standardabweichung der Burst-Zeit & 600 ms (für breite Streuung der Anforderungen) \\
+		Prozentsatz der Hochprioritätsprozesse & 20\% (ein Fünftel aller Prozesse) \\
+		Variation der Ankunftszeit & 100 ms (für unterschiedliche Ankunftsmuster) \\
+		\bottomrule
+	\end{tabular}
+		\caption{Parameter für die Erstellung des Prozess-Datensatzes}
+	\label{tab:process_dataset_parameters}
+\end{table}
+
+Nach der Erstellung des Datensatzes werden diese Prozesse nun von \ac{FCFS}, Round Robin und \ac{MLQ} scheduled und abgearbeitet. Die zuvor erläuterten Metriken werden berechnet und in Tabelle \ref{tab:scheduling_comparison} dargestellt. 
+
+\begin{table}[htbp]
+	\centering
+	\begin{tabular}{lccc}
+		\toprule
+		Metrik & FCFS & Round Robin & MLQ \\
+		\midrule
+		Durchschnittliche Wartezeit & 43.65 ms & 31.37 ms & 43.02 ms \\
+		Durchschnittliche Umlaufzeit & 339.73 ms & 327.45 ms & 339.10 ms \\
+		Unfairness-Index & 148.68  & 91.22  & 147.14  \\
+		Kontextwechsel & 100.00  & 678.00  & 165.00  \\
+		\bottomrule
+	\end{tabular}
+	\caption{Vergleich der Scheduling-Algorithmen}
+	\label{tab:scheduling_comparison}
+\end{table}
+
+Bei Betrachtung der Ergebnisse wird deutlich, dass Round Robin eine geringere durchschnittliche Wartezeit im Vergleich zu \ac{FCFS} und \ac{MLQ} aufweisen kann. Dies ist der Fall, da mithilfe der Einteilung in Quanten Prozesse gleichmäßiger verarbeitet und Bottlenecks vermieden werden. Obwohl \ac{MLQ} ebenfalls diese Funktionsweise für die Prozesse mit hoher Priorität beinhaltet, sind diese Effekte nur marginal sichtbar. Ähnlich verhält es sich mit der durchschnittlichen Umlaufzeit, welche neben der Wartezeit auch die Ausführungszeit beinhaltet. Auch beim Unfairness-Index, bei welchem geringe Werte zu priorisieren sind, da diese auf eine faire Abarbeitung der Prozesse hinweisen, wird deutlich, dass Round Robin die Prozesse gleichmäßiger abarbeiten kann. Diese Vorteile in der Wartezeit, Umlaufzeit und der Fairness haben allerdings den Preis einer höheren Anzahl an Kontextwechseln. Round Robin kann diese Vorteile nämlich nur erzielen, indem regelmäßig zwischen den Prozessen rotiert wird. Diese Kontextwechsel führen zu Overhead des gesamten Systems. Da die zeitliche Größe dieser Kontextwechsel sehr systemabhängig ist und von zahlreichen Faktoren abhängt, wurde diese nicht simuliert. Grundlegend können hierbei Werte zwischen wenigen Mikrosekunden bis hin zu etwa einer Mikrosekunde angenommen werden. 
+
+Die Simulation zeigt auf, dass \ac{FCFS}, Round Robin und \ac{MLQ} jeweils individuelle Stärken und Schwächen besitzen. Während \ac{FCFS} die Anzahl der Kontextwechsel minimiert und hierdurch ein effizientes System darstellt, bieten Round Robin und \ac{MLQ} deutliche Vorteile für interaktive Systeme, bei welchen eine schnelle Reaktion auf Prozesse hoher Priorität entscheidend ist. Die Auswahl der jeweiligen Scheduling Algorithmen kann daher nicht pauschalisiert werden, sondern hängt stark vom spezifischen Anwendungsfall ab.
