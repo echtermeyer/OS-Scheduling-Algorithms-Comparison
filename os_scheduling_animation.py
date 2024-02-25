@@ -263,27 +263,20 @@ class OS(CustomMovingCameraScene):
         self.wait(4)
 
     def title_slide(self):
+        # main title
         title = Text("OS Scheduling Algorithms", font_size=36, color=BLUE).move_to(
             self.get_current_center() + UP * 0.5
         )
-
-        # Create the subtitle text, making it smaller than the title
+        # subtitle text
         subtitle = Text("By Benedikt, Eric and Jannik", font_size=24).next_to(
             title, DOWN
         )
 
-        # Fade in the title and subtitle
         self.play(FadeIn(title), FadeIn(subtitle), run_time=3)
-
-        # Wait for a moment with the title and subtitle visible
         self.wait(2)
 
-        # Fade out the title and subtitle
-        # TODO
-        # self.play(FadeOut(title), FadeOut(subtitle), run_time=3)
-
     def introduction(self):
-        # 01 - todo list
+        # 01 - todo list appeares
         todo = Text("My to-do list:", font_size=24)
         todo1 = Text("- Buy groceries.", font_size=24)
         todo2 = Text("- Annoy Lasse.", font_size=24)
@@ -296,23 +289,19 @@ class OS(CustomMovingCameraScene):
         todo_group.move_to(self.get_to_edge(LEFT, object_width=todo_group.get_width()))
         self.play(Write(todo_group), run_time=5)
         self.wait(4)
-        # 02 - symbols
+        # 02 - symbols in the middle
         icon1 = SVGMobject("img/intro_outro/double_arrow.svg", fill_color=WHITE).scale(
             0.5
         )
         icon2_1 = SVGMobject("img/intro_outro/arrow_left", fill_color=WHITE).scale(0.4)
-        # icon2_1.shift(LEFT*2)
         icon2_2 = SVGMobject("img/intro_outro/arrow_right", fill_color=WHITE).scale(0.4)
-        # icon2_2.shift(RIGHT*2)
         icon2 = VGroup(icon2_1, icon2_2).arrange(RIGHT, buff=-0.3)
-        # icon2 = VGroup(icon2_1, icon2_2).arrange(DOWN, buff=-0.3)
         icon3 = SVGMobject("img/intro_outro/prio1", fill_color=WHITE).scale(0.6)
-
         icons = VGroup(icon1, icon2, icon3).arrange(DOWN, buff=1)
         icons.move_to(self.get_current_center())
         self.play(ShowIncreasingSubsets(icons, run_time=6))
         self.wait(3)
-        # 03 - question mark
+        # 03 - question mark on the right
         question = SVGMobject("img/intro_outro/question", fill_color=WHITE).scale(1.2)
         question.move_to(
             self.get_to_edge(RIGHT, margin=1.75, object_width=question.get_width())
@@ -321,14 +310,11 @@ class OS(CustomMovingCameraScene):
         self.wait(12)
         self.play(FadeOut(question), run_time=2)
 
-        # 04 - cpu
+        # 04 - replace question mark with cpu
         cpu = CPU(size=1)
         cpu.move_to(self.get_to_edge(RIGHT, margin=1.75, object_width=cpu.get_width()))
         self.play(FadeIn(cpu), run_time=2)
         self.wait(11)
-
-        # 05 - evlt. processes hinzufügen
-        # fadout mit question mark. und fade in von prozessen mit cpu
 
     def fcfs(self):
         # TODO an camera position anpassen
@@ -743,7 +729,7 @@ class OS(CustomMovingCameraScene):
         self.play(animated_review.create_animation())
 
     def mqs(self):
-
+        # Scences of the Mulitlevel-Queue Algorithm
         self.mqs_animation()
         self.mqs_bullet_points()
 
@@ -762,7 +748,7 @@ class OS(CustomMovingCameraScene):
             )
         )
         self.wait(6)
-        # 02 - Processes
+        # 02 - Processes move into the screen
         process_sizes = PROCESS_SIZES_FCFS  # [2, 1, 3, 3, 2, 1, 2]
         processes = [
             ProcessAnimated(
@@ -781,8 +767,7 @@ class OS(CustomMovingCameraScene):
 
         self.wait(1)
 
-        # 03 - Queues
-
+        # 03 - Queues appeare
         line = DashedLine(
             self.get_to_edge(LEFT),
             self.get_to_edge(RIGHT),
@@ -796,19 +781,16 @@ class OS(CustomMovingCameraScene):
             process_group, DOWN, aligned_edge=LEFT
         )
         queue1.shift(DOWN * 0.1)
-        # self.add(queue1)
         self.play(FadeIn(queue1))
 
         queue2 = Text("Queue 2 - Low Priority", font_size=24).next_to(
             line, DOWN, aligned_edge=LEFT
         )
         queue2.shift(DOWN * 0.1)
-        # self.add(queue2)
         self.play(FadeIn(queue2))
-
         self.wait(3)
 
-        # 04 - Queues Examples
+        # 04 - Queues are named with used algorithms
         self.wait(13)
         new_queue1_text = Text("Foreground - Round Robin", font_size=24).next_to(
             process_group, DOWN, aligned_edge=LEFT
@@ -825,7 +807,7 @@ class OS(CustomMovingCameraScene):
         self.play(FadeIn(new_queue2_text))
         self.wait(4)
 
-        # 05 - Move Processes to Queues
+        # 05 - Processes are moved into the queues
         self.wait(7)
         above_indexes = [0, 3, 5]
         below_indexes = [1, 2, 4]
@@ -892,6 +874,7 @@ class OS(CustomMovingCameraScene):
         cpu.next_to(clock, LEFT, buff=0.25)
         self.play(FadeIn(cpu))
         self.play(FadeIn(clock))
+
         # 06 - Simulation (1 Foreground)
         a1 = queue1_processes[2].adjust_size_with_animation()
         self.play(AnimationGroup(a1, clock.rotate(), cpu.rotate_gear()))
@@ -920,8 +903,6 @@ class OS(CustomMovingCameraScene):
                 FadeOut(queue1_processes[0]), queue1_processes[0].animate.scale(0.1)
             )
         )
-
-        ###
         self.wait(4)
 
         # 07 - Simulation (2 Background Part 1)
@@ -933,7 +914,7 @@ class OS(CustomMovingCameraScene):
             )
         )
 
-        # 08 - New process while execution
+        # 08 - New process arrives while execution
         p7 = ProcessAnimated(
             color=LATEPROCESS_COLOR, size=ADDITIONAL_PROCESS_FCFS, title=f"P7"
         )
@@ -959,8 +940,6 @@ class OS(CustomMovingCameraScene):
         self.play(AnimationGroup(ax2, clock.rotate(), cpu.rotate_gear()))
         self.play(AnimationGroup(FadeOut(p7), p7.animate.scale(0.1)))
         self.wait(2)
-        # self.play(FadeOut(p7), run_time=2)
-        # self.wait(1)
 
         # 11 - Simulation (4 Background Part 2)
         for _ in range(4):
@@ -983,12 +962,11 @@ class OS(CustomMovingCameraScene):
             )
         )
         self.wait(2)
-        # 12 -
+        # 12 - Fade out of all elements
         self.remove(queue1, new_queue1_text, line, new_queue2_text, queue2, cpu, clock)
 
     def mqs_bullet_points(self):
-        # TODO: add title
-        # several queues
+        # Show diffeent types of queues on the left
         line = DashedLine(LEFT * 0.5, RIGHT * 0.5, dash_length=0.005).set_length(7)
         lines = [line.copy() for _ in range(4)]
         queues = [
@@ -1012,7 +990,7 @@ class OS(CustomMovingCameraScene):
         self.play(FadeIn(lines), run_time=4)
         self.wait(7)
 
-        # bullet points
+        # Show bullet points on the right
         self.wait(2)
         points = [
             ("Processes are distributed to different queues", 3),
@@ -1026,20 +1004,10 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
         self.wait(2)
 
-        # review = AnimatedReview(["some positive things about this..., and some more"],["this is ok..."], ["these things are very very bad..."]).to_edge(RIGHT)
-        # self.play(review.create_animation())
+
 
     def mqs_flow(self):
-        # Code to demonstrate the flow of processes in MQS
-        # Your code: ...
-
-        # TODO: Das hier sind deine Prozesse, die sind aber falsch definiert. Die IDs müssen unique sein und du musst die Priority angeben. Der Algorithmus scheduled das dann.
-        # Hier ein Beispiel:
-        # processes = [
-        #     SequenceDiagrammProcess(id=1, arrival_time=0, burst_time=10, priority="low"),
-        #     SequenceDiagrammProcess(id=2, arrival_time=3, burst_time=3, priority="high"),
-        #     SequenceDiagrammProcess(id=3, arrival_time=5, burst_time=3, priority="high"),
-        # ]
+        # Sequence diagramm with process overview  
         processes = [
             SequenceDiagrammProcess(
                 id=1, arrival_time=0, burst_time=2, priority="high"
@@ -1075,10 +1043,8 @@ class OS(CustomMovingCameraScene):
         self.wait(12)
 
     def mqs_pros_cons(self):
-        # 6 s opening
-        # 11s pos
-        # 26 neg und rest
-        # 43 total
+        # Positives and negatives about MLQ
+        # 6s opening, 11s pos, 26s neg und rest -> 43s total
 
         title = CustomTitle(
             title_text="Pros and Cons of MLQ",
@@ -1385,35 +1351,26 @@ class OS(CustomMovingCameraScene):
 
     def outro(self):
         # 01 - recap
-        # Define the new text to add at the top
         title_text = Text("OS Scheduling Algorithms", font_size=28, color=BLUE)
-
-        # Define the existing texts
+        # Recap of algorithms
         summary1 = Text("First Come First Serve", font_size=28)
         summary2 = Text("Round Robin", font_size=28)
         summary3 = Text("Multi Level Queue", font_size=28)
-
-        # Group all texts together with the new text at the top
         summary = (
             VGroup(title_text, summary1, summary2, summary3)
             .arrange(DOWN, aligned_edge=LEFT)
             .next_to(self.get_to_edge(LEFT), buff=1)
         )
-
-        # Write the title text and then each summary text individually with pauses in between
         self.play(Write(title_text), run_time=2)
-        self.wait(3)  # Pause after writing the title
-
+        self.wait(3)  
         self.play(Write(summary1), run_time=2)
-        self.wait(3)  # Pause after the first summary
-
+        self.wait(3) 
         self.play(Write(summary2), run_time=2)
-        self.wait(4)  # Pause after the second summary
-
+        self.wait(4)  
         self.play(Write(summary3), run_time=2)
-        self.wait(4)  # Pause after the third summary
+        self.wait(4) 
 
-        # todo list
+        # callback to opening
         # 01 - todo list
         todo = Text("My TODO List:", font_size=24)
         todo1 = Text("- Buy groceries.", font_size=24)
@@ -1433,7 +1390,7 @@ class OS(CustomMovingCameraScene):
         )
         self.play(Write(todo_group), run_time=4)
 
-        # icons
+        # 02 - checkmarks
         check = SVGMobject("img/intro_outro/check.svg", fill_color=WHITE).scale(0.15)
         check_group = (
             VGroup(*[check.copy() for _ in range(4)])
