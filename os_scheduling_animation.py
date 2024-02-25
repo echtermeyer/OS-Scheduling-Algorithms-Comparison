@@ -310,8 +310,6 @@ class OS(CustomMovingCameraScene):
         self.wait(11)
 
     def fcfs(self):
-        # TODO an camera position anpassen
-
         self.fcfs_animation()
         # 54 Seconds
         self.fcfs_bullet_points()
