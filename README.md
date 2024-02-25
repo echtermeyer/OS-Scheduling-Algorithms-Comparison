@@ -1,6 +1,16 @@
 # OS-Scheduling-Algorithms-Comparison
 Manim visualisation to explain and compare different OS scheduling algorithms 
 
+# Report
+The report is handed in as a separate pdf but can also be found in this github repository. 
+[Report](Bericht OS Scheduling Algorithmen.pdf)
+
+# Video
+A low quality version of the video can be found directly here in the github repository.
+It can also be watcched on Youtube: https://youtu.be/9bVAGvbL8Gc
+
+![Endcard Video](./img/Endcard.png)
+
 ### Getting started:
 1. Install [poetry](https://python-poetry.org/docs/basic-usage/) 
 2. Make sure ``poetry`` is added to path 
