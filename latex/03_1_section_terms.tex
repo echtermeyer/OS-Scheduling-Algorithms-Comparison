@@ -4,14 +4,14 @@
 Um unterschiedliche Scheduling Algorithmen wie \ac{FCFS}, Round Robin oder \ac{MLQ} bezüglich ihrer Performance und somit ihrer Eignung für Anwendungsgebiete vergleichen zu können, ist es möglich diverse Metriken zu verwenden. Die Auswahl ist abhängig vom jeweiligen Anwendungsgebiet, beispielsweise wird in interaktiven Systemen eine geringe Antwortzeit priorisiert, während bei Batch-Processing-Systemen eine niedrige Ausführungszeit von höherer Relevanz ist \autocite{thombare_efficient_2016}. Im Folgenden werden häufig genutzte Metriken erklärt, welche im Anschluss für den quantitativen Vergleich verwendet werden.
 
 
-\textbf{\ac{CPU}-Auslastung (\ac{CPU} Utilization)}: Diese Metrik gibt an, wie effektiv die \ac{CPU} genutzt wird. Eine hohe \ac{CPU}-Auslastung bedeutet, dass die \ac{CPU} aktiv an Prozessen arbeitet, was ein Indikator auf eine effiziente Nutzung der Ressourcen ist \autocite{pemasinghe_comparison_2022}. Die folgende Formel \ref{met:cpu} berechnet den prozentualen Wert der \ac{CPU}-Auslastung, zu welcher die \ac{CPU} Prozesse bearbeitet, bezogen auf die gesamte Beobachtungszeit.
+\textbf{\ac{cpu}-Auslastung (\ac{cpu} Utilization)}: Diese Metrik gibt an, wie effektiv die \ac{cpu} genutzt wird. Eine hohe \ac{cpu}-Auslastung bedeutet, dass die \ac{cpu} aktiv an Prozessen arbeitet, was ein Indikator auf eine effiziente Nutzung der Ressourcen ist \autocite{pemasinghe_comparison_2022}. Die folgende Formel \ref{met:cpu} berechnet den prozentualen Wert der \ac{cpu}-Auslastung, zu welcher die \ac{cpu} Prozesse bearbeitet, bezogen auf die gesamte Beobachtungszeit.
 \begin{equation}
 	\textit{CPU-Auslastung} = \frac{\textit{Gesamtaktive Zeit}}{\textit{Gesamtbeobachtungszeit}} \times 100
 	\label{met:cpu}
 \end{equation}
 
 
-\textbf{Durchsatz (Throughput)}: Der Durchsatz misst die Anzahl der Prozesse, welche in einer zuvor definierten Zeiteinheit vollständig abgearbeitet werden. Hierbei bedeutet ein höherer Durchsatz eine effizientere Verarbeitung von Prozessen durch das System  \autocite{pemasinghe_comparison_2022}. Bei vollständiger \ac{CPU}-Auslastung ist der Durchsatz bei unterschiedlichen Algorithmen konstant, sofern von einem möglichen Overhead durch Context Switches abgesehen wird. Die Formel \ref{met:throughput} berechnet den Durchsatz als Anzahl der Prozesse, die pro Zeiteinheit abgeschlossen werden.
+\textbf{Durchsatz (Throughput)}: Der Durchsatz misst die Anzahl der Prozesse, welche in einer zuvor definierten Zeiteinheit vollständig abgearbeitet werden. Hierbei bedeutet ein höherer Durchsatz eine effizientere Verarbeitung von Prozessen durch das System  \autocite{pemasinghe_comparison_2022}. Bei vollständiger \ac{cpu}-Auslastung ist der Durchsatz bei unterschiedlichen Algorithmen konstant, sofern von einem möglichen Overhead durch Context Switches abgesehen wird. Die Formel \ref{met:throughput} berechnet den Durchsatz als Anzahl der Prozesse, die pro Zeiteinheit abgeschlossen werden.
 \begin{equation}
 	\textit{Durchsatz} = \frac{\textit{Anzahl\ der\ Prozesse}}{\textit{Zeiteinheit}}
 	\label{met:throughput}
@@ -25,7 +25,7 @@ Um unterschiedliche Scheduling Algorithmen wie \ac{FCFS}, Round Robin oder \ac{M
 \end{equation}
 
 
-\textbf{Durchschnittliche Wartezeit (Waiting Time)}: Die Wartezeit eines Prozesses ist die Gesamtzeit, welche dieser in der Warteschlange verbringt, bevor er Zugang zur \ac{CPU} erhält  \autocite{pemasinghe_comparison_2022}. Niedrigere Wartezeiten sind meist erstrebenswert, da es sich hierdurch für gewöhnlich um ein reaktionsfähigeres System handelt. In folgender Formel \ref{met:waitingtime} ist \( n \) die Anzahl der Prozesse, und die Wartezeit wird als Durchschnitt der Zeit berechnet, die jeder Prozess vom Ankunftszeitpunkt bis zum Start der Ausführung wartet.
+\textbf{Durchschnittliche Wartezeit (Waiting Time)}: Die Wartezeit eines Prozesses ist die Gesamtzeit, welche dieser in der Warteschlange verbringt, bevor er Zugang zur \ac{cpu} erhält  \autocite{pemasinghe_comparison_2022}. Niedrigere Wartezeiten sind meist erstrebenswert, da es sich hierdurch für gewöhnlich um ein reaktionsfähigeres System handelt. In folgender Formel \ref{met:waitingtime} ist \( n \) die Anzahl der Prozesse, und die Wartezeit wird als Durchschnitt der Zeit berechnet, die jeder Prozess vom Ankunftszeitpunkt bis zum Start der Ausführung wartet.
 \begin{equation}
 	\textit{Durchschnittliche Wartezeit} = \frac{\sum_{i=1}^{n} ((\textit{Abschlusszeit}_{i} - \textit{Ankunftszeit}_{i}) - \textit{Bearbeitungszeit}_{i})}{n}
 	\label{met:waitingtime}
@@ -39,7 +39,7 @@ Um unterschiedliche Scheduling Algorithmen wie \ac{FCFS}, Round Robin oder \ac{M
 \end{equation}
 
 
-\textbf{Fairness}: Die Metrik der Fairness misst, wie gleichmäßig die \ac{CPU}-Zeit zwischen den verschiedenen Prozessen aufgeteilt wird. Ein fairer Scheduling-Algorithmus stellt sicher, dass kein Prozess übermäßig bevorzugt oder benachteiligt wird \autocite{haldar_fairness_1991}. Es handelt sich hierbei um eine qualitative Metrik, weshalb es in der Literatur keine festgelegte Berechnung hierfür gibt. Stattdessen wird die Fairness oft durch die Analyse der Verteilung von den Wartezeiten über die verschiedenen Prozesse hinweg bewertet, beispielsweise durch die Berechnung der Standardabweichung. Folgende Formel \ref{met:fairness} stellt die beispielhafte Berechnung hiervon dar, wobei dies nicht als universeller Weg angesehen wird.
+\textbf{Fairness}: Die Metrik der Fairness misst, wie gleichmäßig die \ac{cpu}-Zeit zwischen den verschiedenen Prozessen aufgeteilt wird. Ein fairer Scheduling-Algorithmus stellt sicher, dass kein Prozess übermäßig bevorzugt oder benachteiligt wird \autocite{haldar_fairness_1991}. Es handelt sich hierbei um eine qualitative Metrik, weshalb es in der Literatur keine festgelegte Berechnung hierfür gibt. Stattdessen wird die Fairness oft durch die Analyse der Verteilung von den Wartezeiten über die verschiedenen Prozesse hinweg bewertet, beispielsweise durch die Berechnung der Standardabweichung. Folgende Formel \ref{met:fairness} stellt die beispielhafte Berechnung hiervon dar, wobei dies nicht als universeller Weg angesehen wird.
 \begin{equation}
 	\textit{Fairness} = \sqrt{\frac{\sum_{i=1}^{n} (\textit{Wartezeit Prozess}_{i} - \textit{durchschnittliche Wartezeit})^2}{n}}
 	\label{met:fairness}
