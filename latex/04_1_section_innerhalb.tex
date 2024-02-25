@@ -1,12 +1,5 @@
 % !TEX root =  master.tex
 
-\section{Innerhalb von Betriebssystemen}
-Ein häufiges Anwendungsgebiet von \ac{FCFS} ist für Aufgaben der Batch-Verarbeitung, da hierbei der Convoy-Effekt nicht entscheidend ist. Ein klassisches Beispiel ist das Druckmanagement in frühen Betriebssystemen, wo Druckaufträge in der Reihenfolge ihres Eintreffens abgearbeitet werden.  %\textit{Referenz:} Silberschatz, Galvin, and Gagne. \textit{Operating System Concepts}. 9th ed., John Wiley \& Sons, 2012.
-
-Round Robin hingegen ist ein weit verbreiteter Scheduling Algorithmus in zeitkritischen Betriebssystemen. Ein Beispiel hierfür ist das Thread-Scheduling in Unix-basierten Systemen, bei dem jedem Thread eine feste Zeitscheibe zugeteilt wird. %\textit{Referenz:} Tanenbaum, Andrew S., and Bos, Herbert. \textit{Modern Operating Systems}. 4th ed., Pearson, 2014.
-
-\ac{MLQ} wird in modernen Betriebssystemen wie Linux angewendet, um Prozesse basierend auf ihrer Priorität zu ordnen, wobei systemkritische Prozesse höher priorisiert werden als Benutzerprozesse. % \textit{Referenz:} Love, Robert. \textit{Linux Kernel Development}. 3rd ed., Addison-Wesley Professional, 2010.
-
 In modernen Betriebssystemen ist der Aufbau der Prozessverwaltung und Anwendung von Scheduling Algorithmen ein komplexes Thema, welches in der Praxis eine Vielzahl von Anforderungen erfüllen muss. Die hier vorgestellten Algorithmen sind nur ein kleiner Ausschnitt der Vielzahl von Scheduling Algorithmen, die in modernen Betriebssystemen zum Einsatz kommen.
 
 \subsubsection{Windows}
@@ -52,5 +45,22 @@ Allgemein verwendet MacOS ähnlich wie Windows verschiedene Prioritätsstufen od
 \end{multicols}
 Prozesse der Priorität Background werden nur auf den Effizienzkernen ausgeführt, während Prozesse von höherer Priorität auf beiden Prozessorkernarten ausgeführt werden können.
 Entwickler können das Verhalten eines Prozesses steuern und beispielsweise festlegen, dass ein User Initiated Process trotz des hohen Quality of Service nur den Effizienzkern verwenden soll.
-Laut \Citeauthor{hoakley.2022b} wird innerhalb der einzelnen Prioritätsstufen eine Art \ac{FCFS} verwendet, wobei die Prozesse in der Reihenfolge ihres Eintreffens abgearbeitet werden \autocite{hoakley.2022b}. 
+Laut \Citeauthor{hoakley.2022b} wird innerhalb der einzelnen Prioritätsstufen eine Art \ac{FCFS} verwendet, wobei die Prozesse in der Reihenfolge ihres Eintreffens abgearbeitet werden \autocite{hoakley.2022b}.
 
+\subsubsection{Linux}
+Da Linux ein Open Source Betriebssystem ist, kann hier genau benannt werden, welche Scheduling Verfahrung verwendet werden. 2007 wurde der sogenannte \ac{cfs} eingeführt, welcher alle Prozesse möglichst fair behandeln soll.
+Linux verwendet hierbei unterschiedliche Konzepte um Fairness zu gewährleisten.
+Ein Merkmal, welches hier jedoch hervorsticht ist der Einsatz eines Rot-Schwarz Baumes, der die Prozesse in ihrer Ausführungsreihenfolge sortiert.
+Sollte ein neuer Prozess hinzukommen, kann dieser an der passenden Stelle im Baum eingefügt werden.
+Der Scheduler wählt dann den Prozess aus, der sich am linken äußersten Blatt des Baumes befindet und führt diesen aus.
+Der Vorteil dieses Baumes ist die Laufzeit beim Einfügen oder Entfernen eines Prozesses von $O(\log n)$, wobei $n$ die Anzahl der Prozesse ist \autocite{Jones.2009}.
+
+Im Jahr 2023 wurde der \ac{cfs} durch den \ac{eevdf} ersetzt. Dieser ergänzt den \ac{cfs} um einige Punkte.
+So wird die Zeit, die ein Prozess auf der \ac{cpu} verbringt mit der Zeit, die er auf der \ac{cpu} verbringen sollte verglichen. Dieser Wert und eine zusätzlich vom Prozess angegebenen Dringlichkeit werden dann bei der erneuten Einsortierung des Prozesses in die \enquote{Warteschlange} berücksichtigt.
+Dadurch können dringliche Prozesse sowie Prozesse die weniger Zeit in der \ac{cpu} verbracht haben bevorzugt werden \autocite{Muller.01112023}. 
+
+
+\subsubsection{Außerhalb von Betriebssystemen}
+\ac{FCFS} wird in zahlreichen Gebieten verwendet. \Citeauthor{Groover.2016} erklärt beispielsweise den Einsatz beim Planen von Produktionsabfolgen. Hier wird unter anderem \ac{FCFS} verwendet um von dessen Fairness zu profitieren \Autocite{Groover.2016}.
+
+Ein bekanntes Anwendungsgebiet von Round Robin ist die Telekommunikation. Hierbei wird Round Robin für die Paketvermittlung und Lastverteilung in Netzwerkroutern eingesetzt \Autocite{Kurose.2010}. 
