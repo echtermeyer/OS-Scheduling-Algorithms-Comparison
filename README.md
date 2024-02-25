@@ -6,7 +6,7 @@ The report is handed in as a separate pdf but can also be found in this github r
 
 ## Video
 A low quality version of the video can be found directly here in the github repository.
-It can also be watcched on Youtube: https://youtu.be/9bVAGvbL8Gc
+It can also be watched on Youtube: https://youtu.be/9bVAGvbL8Gc
 
 ![Endcard Video](./img/Endcard.png)
 
