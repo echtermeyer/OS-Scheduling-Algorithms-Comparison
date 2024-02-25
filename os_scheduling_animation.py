@@ -635,21 +635,6 @@ class OS(CustomMovingCameraScene):
             enumeration += 1
 
         self.play(FadeOut(clock))
-        # for i, size in enumerate(process_sizes):
-        #     process = (
-        #         ProcessAnimated(title=f"P{i+1}", size=size)
-        #         .move_to(self.get_to_corner(DL, y_margin=1))
-        #         .shift(LEFT * 4)
-        #     )
-        #     rr.add_process(process)
-
-        # self.play(
-        #     rr.move_queue(
-        #         pole_position=PROCESS_POLE_POSITION,
-        #         first_process_in_cpu=False,
-        #         duration=5,
-        #     )
-        # )
 
     def rr_bullet_points(self):
         points = [
