@@ -1,3 +1,68 @@
 % !TEX root =  master.tex
 \chapter{Anwendungsgebiete}
 Innerhalb dieses Kapitels werden wird auf konkrete Anwendungsgebiete der zuvor genannten OS-Scheduling Algorithmen eingegangen. Da diese Algorithmen auch außerhalb von Betriebssystemen einen zentrale Rolle spielen, werden auch Beispiele solcher Anwendungsgebiete aufgenommen.
+
+In modernen Betriebssystemen ist der Aufbau der Prozessverwaltung und Anwendung von Scheduling Algorithmen ein komplexes Thema, welches in der Praxis eine Vielzahl von Anforderungen erfüllen muss. Die hier vorgestellten Algorithmen sind nur ein kleiner Ausschnitt der Vielzahl von Scheduling Algorithmen, die in modernen Betriebssystemen zum Einsatz kommen.
+
+\subsubsection{Windows}
+Windows verwendet beispielsweise 7 Prioritätsstufen.
+Prozesse können sich selbst die folgenden Stufen zuweisen:
+\begin{multicols}{3}
+    \begin{itemize}[noitemsep]
+        \item IDLE
+        \item BELOW NORMAL
+        \item NORMAL
+        \item ABOVE NORMAL
+        \item HIGH
+        \item REALTIME
+    \end{itemize}
+\end{multicols}
+
+Innerhalb eines Prozesses können die einzelnen Threads dann jeweils 7 Prioritätsebenen haben, die die Threads untereinander sortieren:
+\begin{multicols}{3}
+    \begin{itemize}[noitemsep]
+        \item IDLE
+        \item LOWEST
+        \item BELOW NORMAL
+        \item NORMAL
+        \item ABOVE NORMAL
+        \item HIGHEST
+        \item CRITICAL
+    \end{itemize}
+\end{multicols}
+
+Windows verwendet beide Prioritätszuweisungen um dem Thread eine Basispriorität zu geben, die zwischen 0 und 31 liegt \autocite{KarlBridgeMicrosoft.2023}.
+
+\subsubsection{MacOS}
+Mit der Einführung der neuen M-Serie Prozessoren unterteilt Apple die Prozessorkerne in Performance- und Effizienzkerne. Die Performancekerne sind für rechenintensive Aufgaben und die Effizienzkerne für weniger rechenintensive Aufgaben zuständig \autocite{hoakley.2022}
+
+Allgemein verwendet MacOS ähnlich wie Windows verschiedene Prioritätsstufen oder Quality of Services, die sich in 4 Kategorien unterteilen lassen:
+\begin{multicols}{2}
+    \begin{itemize}[noitemsep]
+        \item Background
+        \item Utility
+        \item User Initiated
+        \item User Interactive
+    \end{itemize}
+\end{multicols}
+Prozesse der Priorität Background werden nur auf den Effizienzkernen ausgeführt, während Prozesse von höherer Priorität auf beiden Prozessorkernarten ausgeführt werden können.
+Entwickler können das Verhalten eines Prozesses steuern und beispielsweise festlegen, dass ein User Initiated Process trotz des hohen Quality of Service nur den Effizienzkern verwenden soll.
+Laut \Citeauthor{hoakley.2022b} wird innerhalb der einzelnen Prioritätsstufen eine Art \ac{FCFS} verwendet, wobei die Prozesse in der Reihenfolge ihres Eintreffens abgearbeitet werden \autocite{hoakley.2022b}.
+
+\subsubsection{Linux}
+Da Linux ein Open Source Betriebssystem ist, kann hier genau benannt werden, welche Scheduling Verfahrung verwendet werden. 2007 wurde der sogenannte \ac{cfs} eingeführt, welcher alle Prozesse möglichst fair behandeln soll.
+Linux verwendet hierbei unterschiedliche Konzepte um Fairness zu gewährleisten.
+Ein Merkmal, welches hier jedoch hervorsticht ist der Einsatz eines Rot-Schwarz Baumes, der die Prozesse in ihrer Ausführungsreihenfolge sortiert.
+Sollte ein neuer Prozess hinzukommen, kann dieser an der passenden Stelle im Baum eingefügt werden.
+Der Scheduler wählt dann den Prozess aus, der sich am linken äußersten Blatt des Baumes befindet und führt diesen aus.
+Der Vorteil dieses Baumes ist die Laufzeit beim Einfügen oder Entfernen eines Prozesses von $O(\log n)$, wobei $n$ die Anzahl der Prozesse ist \autocite{Jones.2009}.
+
+Im Jahr 2023 wurde der \ac{cfs} durch den \ac{eevdf} ersetzt. Dieser ergänzt den \ac{cfs} um einige Punkte.
+So wird die Zeit, die ein Prozess auf der \ac{cpu} verbringt mit der Zeit, die er auf der \ac{cpu} verbringen sollte verglichen. Dieser Wert und eine zusätzlich vom Prozess angegebenen Dringlichkeit werden dann bei der erneuten Einsortierung des Prozesses in die \enquote{Warteschlange} berücksichtigt.
+Dadurch können dringliche Prozesse sowie Prozesse die weniger Zeit in der \ac{cpu} verbracht haben bevorzugt werden \autocite{Muller.01112023}.
+
+
+\subsubsection{Außerhalb von Betriebssystemen}
+\ac{FCFS} wird in zahlreichen Gebieten verwendet. \Citeauthor{Groover.2016} erklärt beispielsweise den Einsatz beim Planen von Produktionsabfolgen. Hier wird unter anderem \ac{FCFS} verwendet um von dessen Fairness zu profitieren \Autocite{Groover.2016}.
+
+Ein bekanntes Anwendungsgebiet von Round Robin ist die Telekommunikation. Hierbei wird Round Robin für die Paketvermittlung und Lastverteilung in Netzwerkroutern eingesetzt \Autocite{Kurose.2010}.
