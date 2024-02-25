@@ -179,18 +179,16 @@ class OS(CustomMovingCameraScene):
         super().construct()
         run_time_one_slide = 2
         run_time_back = 2
-        # creative introduction
+        # introduction
         # 2 min
 
         # R0 C0
-        # CHECK
         self.wait(1)
         self.title_slide()
         intital_left = self.get_to_edge(LEFT)
         self.play(self.move_one_slide(y=DOWN), runtime=run_time_one_slide)
 
         # R1 C0
-        # CHECK
         self.wait(1)
         self.introduction()
         self.play(
@@ -200,7 +198,6 @@ class OS(CustomMovingCameraScene):
 
         # 2 min
         # R2 C0
-        # CHECK
         self.wait(1)
         self.fcfs()
         self.play(
@@ -208,10 +205,8 @@ class OS(CustomMovingCameraScene):
         )
         self.play(self.move_one_slide(x=RIGHT), runtime=run_time_one_slide)
 
-        # In der Überleitung Preemptive verwenden und erklären was das bedeutet
         # 3 min
         # R3 C0
-        # CHECK
         self.wait(1)
         self.rr()
         self.play(
@@ -221,7 +216,6 @@ class OS(CustomMovingCameraScene):
 
         # 3 min
         # R4 C0
-        # CHECK siehe Anmerkungen
         self.wait(1)
         self.mqs()
         self.play(
@@ -240,7 +234,6 @@ class OS(CustomMovingCameraScene):
 
         #  reallife examples
         # 2 min
-
         self.wait(1)
         self.application()
         self.play(self.move_one_slide(y=DOWN), runtime=run_time_one_slide)
@@ -1004,10 +997,8 @@ class OS(CustomMovingCameraScene):
         self.play(bulletpoints.create_animation())
         self.wait(2)
 
-
-
     def mqs_flow(self):
-        # Sequence diagramm with process overview  
+        # Sequence diagramm with process overview
         processes = [
             SequenceDiagrammProcess(
                 id=1, arrival_time=0, burst_time=2, priority="high"
@@ -1362,13 +1353,13 @@ class OS(CustomMovingCameraScene):
             .next_to(self.get_to_edge(LEFT), buff=1)
         )
         self.play(Write(title_text), run_time=2)
-        self.wait(3)  
+        self.wait(3)
         self.play(Write(summary1), run_time=2)
-        self.wait(3) 
+        self.wait(3)
         self.play(Write(summary2), run_time=2)
-        self.wait(4)  
+        self.wait(4)
         self.play(Write(summary3), run_time=2)
-        self.wait(4) 
+        self.wait(4)
 
         # callback to opening
         # 01 - todo list
